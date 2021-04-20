@@ -4,6 +4,7 @@
     "parameters": {
         "OrgName": {
             "type": "string",
+            "minLength": 2,
             "metadata": {
                 "description": "Name of company or organization for certificate subject"
             }
