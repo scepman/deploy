@@ -26,13 +26,6 @@
                 "description": "Name of company or organization for certificate subject"
             }
         },
-        "license": {
-            "type": "string",
-            "defaultValue": "trial",
-            "metadata": {
-                "description": "License Key for SCEPman"
-            }
-        },
         "appRegistrationGuid": {
             "type": "string",
             "metadata": {
@@ -91,10 +84,6 @@
                             "value": "[parameters('appServiceName')]"
                         },
                         {
-                            "name": "AppConfig:LicenseKey",
-                            "value": "[parameters('license')]"
-                        },
-                        {
                             "name": "AppConfig:AuthConfig:ApplicationId",
                             "value": "[parameters('appRegistrationGuid')]"
                         },
@@ -113,6 +102,10 @@
                         {
                             "name": "AppConfig:KeyVaultConfig:RootCertificateConfig:CertificateName",
                             "value": "SCEPman-Device-Root-CA-V1"
+                        },
+                        {
+                            "name": "AppConfig:ValidityClockSkewMinutes",
+                            "value": "1440"
                         },
                         {
                             "name": "AppConfig:KeyVaultConfig:RootCertificateConfig:Subject",

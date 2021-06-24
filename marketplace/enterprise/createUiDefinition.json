@@ -19,11 +19,11 @@
                 "name": "license",
                 "type": "Microsoft.Common.TextBox",
                 "label": "License Key",
-                "toolTip": "If you have a license key, you can paste it here. Leave it empty to use the free community edition of SCEPman.",
+                "toolTip": "If you have a license key, you can paste it here. If not please deploy the Community Edition",
                 "constraints": {
-                    "required": false,
+                    "required": true,
                     "regex": "^$|(\\{){0,1}[0-9a-fA-F]{8}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{12}(\\}){0,1}",
-                    "validationMessage": "If you have a license key, you can paste it here. Leave it empty to use the free Community Edition of SCEPman."
+                    "validationMessage": "If you have a license key, you can paste it here.  If not please deploy the Community Edition"
                 }
             },
             {
