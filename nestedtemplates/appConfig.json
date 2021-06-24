@@ -109,6 +109,10 @@
                             "value": "SCEPman-Device-Root-CA-V1"
                         },
                         {
+                            "name": "AppConfig:ValidityClockSkewMinutes",
+                            "value": "1440"
+                        },
+                        {
                             "name": "AppConfig:KeyVaultConfig:RootCertificateConfig:Subject",
                             "value": "[concat('CN=SCEPman-Device-Root-CA-V1, ', 'OU=',subscription().tenantId, ', ', 'O=\"', parameters('OrgName'), '\"')]"
                         }
