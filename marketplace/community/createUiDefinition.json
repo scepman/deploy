@@ -21,8 +21,8 @@
                 "visible": true,
                 "options": {
                     "icon": "Info",
-                    "text": "The free Community Edition of SCEPman offers all features except redundancy support through Azure Traffic Manager. You can use SCEPman without a license for testing and non-critical business process or content needs. Further information is available by following this link.",
-                    "uri": "https://scepman.com/pricing/"
+                    "text": "SCEPman Enterprise Edition offers you the full set of SCEPman's features and makes you eligible for customer support.",
+                    "uri": "https://docs.scepman.com/editions"
                 }
             }
         ],
