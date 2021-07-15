@@ -48,10 +48,10 @@
         "AppServicePlanName": "[concat('scepman-sp',uniquestring(resourceGroup().id))]",
         "AppServiceName": "[concat('scepman-app',uniquestring(resourceGroup().id))]",
         "keyVaultName": "[concat('scepmanvlt',uniquestring(resourceGroup().id))]",
-        "deploymentMainName": "SCEPman Enterprise Deployment",
-        "deploymentAppServiceName": "SCEPman App Service",
-        "deploymentVaultName": "SCEPman Vault",
-        "deploymentConfigurationName": "SCEPman Configuration"
+        "deploymentMainName": "SCEPmanEnterpriseDeployment",
+        "deploymentAppServiceName": "SCEPmanAppService",
+        "deploymentVaultName": "SCEPmanVault",
+        "deploymentConfigurationName": "SCEPmanConfiguration"
     },
     "resources": [
         {
