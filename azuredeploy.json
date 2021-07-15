@@ -52,7 +52,7 @@
         {
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
-            "name": "pid-a262352f-52a9-4ed9-a9ba-6a2b2478d19b",
+            "name": "pid-a262352f-52a9-4ed9-a9ba-6a2b2478d19b-partnercenter",
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
