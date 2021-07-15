@@ -48,7 +48,6 @@
         "AppServicePlanName": "[concat('scepman-sp',uniquestring(resourceGroup().id))]",
         "AppServiceName": "[concat('scepman-app',uniquestring(resourceGroup().id))]",
         "keyVaultName": "[concat('scepmanvlt',uniquestring(resourceGroup().id))]",
-        "deploymentMainName": "SCEPmanEnterpriseDeployment",
         "deploymentAppServiceName": "SCEPmanAppService",
         "deploymentVaultName": "SCEPmanVault",
         "deploymentConfigurationName": "SCEPmanConfiguration"
@@ -57,7 +56,7 @@
         {
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2020-06-01",
-            "name": "[variables('deploymentMainName')]",
+            "name": "pid-a262352f-52a9-4ed9-a9ba-6a2b2478d19b-partnercenter",
             "properties": {
                 "mode": "Incremental",
                 "template": {
