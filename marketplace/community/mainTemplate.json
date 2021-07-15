@@ -47,13 +47,17 @@
         "appConfigTemplateUri": "[uri(parameters('_artifactsLocation'), concat('nestedtemplates/appConfig.json', parameters('_artifactsLocationSasToken')))]",
         "AppServicePlanName": "[concat('scepman-sp',uniquestring(resourceGroup().id))]",
         "AppServiceName": "[concat('scepman-app',uniquestring(resourceGroup().id))]",
-        "keyVaultName": "[concat('scepmanvlt',uniquestring(resourceGroup().id))]"
+        "keyVaultName": "[concat('scepmanvlt',uniquestring(resourceGroup().id))]",
+        "deploymentMainName": "SCEPman Enterprise Deployment",
+        "deploymentAppServiceName": "SCEPman App Service",
+        "deploymentVaultName": "SCEPman Vault",
+        "deploymentConfigurationName": "SCEPman Configuration"
     },
     "resources": [
         {
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2020-06-01",
-            "name": "SCEPman Community Deployment",
+            "name": "[variables('deploymentMainName')]",
             "properties": {
                 "mode": "Incremental",
                 "template": {
@@ -63,7 +67,7 @@
                         {
                             "type": "Microsoft.Resources/deployments",
                             "apiVersion": "2020-06-01",
-                            "name": "SCEPman App Service",
+                            "name": "[variables('deploymentAppServiceName')]",
                             "properties": {
                                 "mode": "Incremental",
                                 "templateLink": {
@@ -86,9 +90,9 @@
                         {
                             "type": "Microsoft.Resources/deployments",
                             "apiVersion": "2020-06-01",
-                            "name": "SCEPman Vault",
+                            "name": "[variables('deploymentVaultName')]",
                             "dependsOn": [
-                                "[concat('Microsoft.Resources/deployments/', 'pid-a262352f-52a9-4ed9-a9ba-6a2b2478d19b-appSvc')]"
+                                "[concat('Microsoft.Resources/deployments/', variables('deploymentAppServiceName'))]"
                             ],
                             "properties": {
                                 "mode": "Incremental",
@@ -109,10 +113,10 @@
                         {
                             "type": "Microsoft.Resources/deployments",
                             "apiVersion": "2020-06-01",
-                            "name": "SCEPman Configuration",
+                            "name": "[variables('deploymentConfigurationName')]",
                             "dependsOn": [
-                                "[concat('Microsoft.Resources/deployments/', 'pid-a262352f-52a9-4ed9-a9ba-6a2b2478d19b-appSvc')]",
-                                "[concat('Microsoft.Resources/deployments/', 'pid-a262352f-52a9-4ed9-a9ba-6a2b2478d19b-vault')]"
+                                "[concat('Microsoft.Resources/deployments/', variables('deploymentAppServiceName'))]",
+                                "[concat('Microsoft.Resources/deployments/', variables('deploymentVaultName'))]"
                             ],
                             "properties": {
                                 "mode": "Incremental",
