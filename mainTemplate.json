@@ -47,6 +47,9 @@
     },
     "variables": {
         "_artifactsLocation":"https://raw.githubusercontent.com/scepman/install/master/dist/Artifacts.zip"
+        "deploymentManagedIdentityTemplateUri": "[uri(parameters('_artifactsLocation'), concat('nestedtemplates/appIdentity.json', parameters('_artifactsLocationSasToken')))]",
+        "managedIdentityName": "[concat('scepmanid',uniquestring(resourceGroup().id))]",
+        "deploymentIentityName": "SCEPmanManagedIdentity"
     },
     "resources": [
         {
@@ -55,35 +58,34 @@
             "name": "pid-a262352f-52a9-4ed9-a9ba-6a2b2478d19b-partnercenter",
             "properties": {
                 "mode": "Incremental",
-                "templateLink": {
-                    "uri": "https://raw.githubusercontent.com/scepman/install/feature-certmaster/nestedtemplates/scepman.json",
-                    "contentVersion": "1.0.0.0"
-                },
-                "parameters": {
-                    "OrgName": {
-                        "value": "[parameters('OrgName')]"
-                    },
-                    "license": {
-                        "value": "[parameters('license')]"
-                    },
-                    "appRegistrationGuid": {
-                        "value": "[parameters('appRegistrationGuid')]"
-                    },
-                    "appRegistrationKey": {
-                        "value": "[parameters('appRegistrationKey')]"
-                    },
-                    "keyVaultName": {
-                        "value": "[parameters('keyVaultName')]"
-                    },
-                    "appServicePlanName": {
-                        "value": "[parameters('appServicePlanName')]"
-                    },
-                    "appServiceName": {
-                        "value": "[parameters('appServiceName')]"
-                    },
-                    "_artifactsLocation": {
-                        "value": "[variables('_artifactsLocation')]"
-                    }
+                        },
+
+                        {
+                            "type": "Microsoft.Resources/deployments",
+                            "apiVersion": "2020-06-01",
+                            "name": "[variables('deploymentIentityName')]",
+                            "dependsOn": [
+                                "[concat('Microsoft.Resources/deployments/', variables('deploymentAppServiceName'))]",
+                                "[concat('Microsoft.Resources/deployments/', variables('deploymentVaultName'))]",
+                                "[concat('Microsoft.Resources/deployments/',variables('deploymentConfigurationName'))]"
+                            ],
+                            "properties": {
+                                "mode": "Incremental",
+                                "templateLink": {
+                                    "uri": "[variables('deploymentManagedIdentityTemplateUri')]",
+                                    "contentVersion": "1.0.0.0"
+                                },
+                                "parameters": {
+                                    "managedIdentityName": {
+                                        "value": "[variables('managedIdentityName')]"
+                                    },
+                                    "location": {
+                                        "value": "[parameters('location')]"
+                                    }
+                                }
+                            }
+                        }
+                    ]
                 }
             }
         }

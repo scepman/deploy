@@ -53,6 +53,9 @@
             "defaultValue": "[uri(deployment().properties.templatelink.uri,'Artifacts.zip')]"
         }
     },
+    "variables": {
+        "artifacts": "[uri(parameters('_artifactsLocation'), concat('Artifacts.zip', parameters('_artifactsLocationSasToken')))]"
+    },
     "resources": [
         {
             "apiVersion": "2019-08-01",
