@@ -50,7 +50,7 @@
         }
     },
     "variables": {
-        "_artifactsLocation":"https://raw.githubusercontent.com/scepman/install/master/dist/Artifacts.zip",
+        "_artifactsLocation":"https://raw.githubusercontent.com/scepman/install/feature-certmaster/dist/Artifacts.zip",
         "appSvcTemplateUri": "[uri(variables('_artifactsLocation'), 'nestedtemplates/appSvc.json')]",
         "vaultTemplateUri": "[uri(variables('_artifactsLocation'), 'nestedtemplates/vault.json')]",
         "appConfigTemplateUri": "[uri(variables('_artifactsLocation'), 'nestedtemplates/appConfig.json')]",
