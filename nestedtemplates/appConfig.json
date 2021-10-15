@@ -54,7 +54,7 @@
         }
     },
     "variables": {
-        "artifacts": "[uri(parameters('_artifactsLocation'), concat('Artifacts.zip', parameters('_artifactsLocationSasToken')))]"
+        "artifacts": "[uri(parameters('_artifactsLocation'), 'Artifacts.zip')]"
     },
     "resources": [
         {
@@ -73,7 +73,7 @@
                     "appSettings": [
                         {
                             "name": "WEBSITE_RUN_FROM_PACKAGE",
-                            "value": "[parameters('_artifactsLocation')]"
+                            "value": "[variables('artifacts')]"
                         },
                         {
                             "name": "AppConfig:BaseUrl",

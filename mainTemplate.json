@@ -51,10 +51,10 @@
     },
     "variables": {
         "_artifactsLocation":"https://raw.githubusercontent.com/scepman/install/master/dist/Artifacts.zip",
-        "appSvcTemplateUri": "[uri(parameters('_artifactsLocation'), concat('nestedtemplates/appSvc.json', parameters('_artifactsLocationSasToken')))]",
-        "vaultTemplateUri": "[uri(parameters('_artifactsLocation'), concat('nestedtemplates/vault.json', parameters('_artifactsLocationSasToken')))]",
-        "appConfigTemplateUri": "[uri(parameters('_artifactsLocation'), concat('nestedtemplates/appConfig.json', parameters('_artifactsLocationSasToken')))]",
-        "deploymentManagedIdentityTemplateUri": "[uri(parameters('_artifactsLocation'), concat('nestedtemplates/appIdentity.json', parameters('_artifactsLocationSasToken')))]",
+        "appSvcTemplateUri": "[uri(variables('_artifactsLocation'), 'nestedtemplates/appSvc.json')]",
+        "vaultTemplateUri": "[uri(variables('_artifactsLocation'), 'nestedtemplates/vault.json')]",
+        "appConfigTemplateUri": "[uri(variables('_artifactsLocation'), 'nestedtemplates/appConfig.json')]",
+        "deploymentManagedIdentityTemplateUri": "[uri(variables('_artifactsLocation'), 'nestedtemplates/appIdentity.json')]",
         "AppServicePlanName": "[parameters('appServicePlanName')]",
         "AppServiceName": "[parameters('appServiceName')]",
         "managedIdentityName": "[parameters('managedIdentityName')]",
@@ -62,7 +62,8 @@
         "deploymentAppServiceName": "SCEPmanAppService",
         "deploymentVaultName": "SCEPmanVault",
         "deploymentConfigurationName": "SCEPmanConfiguration",
-        "deploymentIentityName": "SCEPmanManagedIdentity"        
+        "deploymentIentityName": "SCEPmanManagedIdentity",
+        "resourceGroup": "[resourceGroup().location]"        
     },
     "resources": [
         {
@@ -93,7 +94,7 @@
                                         "value": "[variables('AppServiceName')]"
                                     },
                                     "location": {
-                                        "value": "[parameters('location')]"
+                                        "value": "[variables('resourceGroup')]"
                                     }
                                 }
                             }
@@ -116,7 +117,7 @@
                                         "value": "[variables('appServiceName')]"
                                     },
                                     "location": {
-                                        "value": "[parameters('location')]"
+                                        "value": "[variables('resourceGroup')]"
                                     }
                                 }
                             }
@@ -154,17 +155,14 @@
                                     "appRegistrationKey": {
                                         "value": "[parameters('appRegistrationKey')]"
                                     },
-                                    "_artifactsLocationSasToken": {
-                                        "value": "[parameters('_artifactsLocationSasToken')]"
-                                    },
                                     "_artifactsLocation": {
-                                        "value": "[parameters('_artifactsLocation')]"
+                                        "value": "[variables('_artifactsLocation')]"
                                     },
                                     "license": {
                                         "value": "[parameters('license')]"
                                     },
                                     "location": {
-                                        "value": "[parameters('location')]"
+                                        "value": "[variables('resourceGroup')]"
                                     }
                                 }
                             }
@@ -189,7 +187,7 @@
                                         "value": "[variables('managedIdentityName')]"
                                     },
                                     "location": {
-                                        "value": "[parameters('location')]"
+                                        "value": "[variables('resourceGroup')]"
                                     }
                                 }
                             }
