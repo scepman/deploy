@@ -50,11 +50,12 @@
         }
     },
     "variables": {
-        "_artifactsLocation":"https://raw.githubusercontent.com/scepman/install/feature-certmaster/dist/Artifacts.zip",
-        "appSvcTemplateUri": "[uri(variables('_artifactsLocation'), 'nestedtemplates/appSvc.json')]",
-        "vaultTemplateUri": "[uri(variables('_artifactsLocation'), 'nestedtemplates/vault.json')]",
-        "appConfigTemplateUri": "[uri(variables('_artifactsLocation'), 'nestedtemplates/appConfig.json')]",
-        "deploymentManagedIdentityTemplateUri": "[uri(variables('_artifactsLocation'), 'nestedtemplates/appIdentity.json')]",
+        "repositoryUrl":"https://raw.githubusercontent.com/scepman/install/feature-certmaster/",
+        "_artifactsLocation":"[concat(variables('repositoryUrl'),'dist/Artifacts.zip')]",
+        "appSvcTemplateUri": "[concat(variables('repositoryUrl'), 'nestedtemplates/appSvc.json')]",
+        "vaultTemplateUri": "[concat(variables('repositoryUrl'), 'nestedtemplates/vault.json')]",
+        "appConfigTemplateUri": "[concat(variables('repositoryUrl'), 'nestedtemplates/appConfig.json')]",
+        "deploymentManagedIdentityTemplateUri": "[concat(variables('repositoryUrl'), 'nestedtemplates/appIdentity.json')]",
         "AppServicePlanName": "[parameters('appServicePlanName')]",
         "AppServiceName": "[parameters('appServiceName')]",
         "managedIdentityName": "[parameters('managedIdentityName')]",
