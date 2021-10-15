@@ -56,7 +56,7 @@
         "appConfigTemplateUri": "[uri(parameters('_artifactsLocation'), concat('nestedtemplates/appConfig.json', parameters('_artifactsLocationSasToken')))]",
         "deploymentManagedIdentityTemplateUri": "[uri(parameters('_artifactsLocation'), concat('nestedtemplates/appIdentity.json', parameters('_artifactsLocationSasToken')))]",
         "AppServicePlanName": "[parameters('appServicePlanName')]",
-        "AppServiceName": "[parameters('appServiceName']",
+        "AppServiceName": "[parameters('appServiceName')]",
         "managedIdentityName": "[parameters('managedIdentityName')]",
         "keyVaultName": "[parameters('keyVaultName')]",
         "deploymentAppServiceName": "SCEPmanAppService",
