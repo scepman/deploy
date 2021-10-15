@@ -46,7 +46,7 @@
         }
     },
     "variables": {
-        "_artifactsLocation":"https://raw.githubusercontent.com/scepman/install/master/dist/Artifacts.zip"
+        "_artifactsLocation":"https://raw.githubusercontent.com/scepman/install/master/dist/Artifacts.zip",
         "deploymentManagedIdentityTemplateUri": "[uri(parameters('_artifactsLocation'), concat('nestedtemplates/appIdentity.json', parameters('_artifactsLocationSasToken')))]",
         "managedIdentityName": "[concat('scepmanid',uniquestring(resourceGroup().id))]",
         "deploymentIentityName": "SCEPmanManagedIdentity"
@@ -54,12 +54,108 @@
     "resources": [
         {
             "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2019-10-01",
+            "apiVersion": "2020-06-01",
             "name": "pid-a262352f-52a9-4ed9-a9ba-6a2b2478d19b-partnercenter",
             "properties": {
                 "mode": "Incremental",
+                "template": {
+                    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "resources": [
+                        {
+                            "type": "Microsoft.Resources/deployments",
+                            "apiVersion": "2020-06-01",
+                            "name": "[variables('deploymentAppServiceName')]",
+                            "properties": {
+                                "mode": "Incremental",
+                                "templateLink": {
+                                    "uri": "[variables('appSvcTemplateUri')]",
+                                    "contentVersion": "1.0.0.0"
+                                },
+                                "parameters": {
+                                    "AppServicePlanName": {
+                                        "value": "[variables('AppServicePlanName')]"
+                                    },
+                                    "appServiceName": {
+                                        "value": "[variables('AppServiceName')]"
+                                    },
+                                    "location": {
+                                        "value": "[parameters('location')]"
+                                    }
+                                }
+                            }
                         },
-
+                        {
+                            "type": "Microsoft.Resources/deployments",
+                            "apiVersion": "2020-06-01",
+                            "name": "[variables('deploymentVaultName')]",
+                            "dependsOn": [
+                                "[concat('Microsoft.Resources/deployments/', variables('deploymentAppServiceName'))]"
+                            ],
+                            "properties": {
+                                "mode": "Incremental",
+                                "templateLink": {
+                                    "uri": "[variables('vaultTemplateUri')]",
+                                    "contentVersion": "1.0.0.0"
+                                },
+                                "parameters": {
+                                    "appServiceName": {
+                                        "value": "[variables('appServiceName')]"
+                                    },
+                                    "location": {
+                                        "value": "[parameters('location')]"
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            "type": "Microsoft.Resources/deployments",
+                            "apiVersion": "2020-06-01",
+                            "name": "[variables('deploymentConfigurationName')]",
+                            "dependsOn": [
+                                "[concat('Microsoft.Resources/deployments/', variables('deploymentAppServiceName'))]",
+                                "[concat('Microsoft.Resources/deployments/', variables('deploymentVaultName'))]"
+                            ],
+                            "properties": {
+                                "mode": "Incremental",
+                                "templateLink": {
+                                    "uri": "[variables('appConfigTemplateUri')]",
+                                    "contentVersion": "1.0.0.0"
+                                },
+                                "parameters": {
+                                    "AppServicePlanName": {
+                                        "value": "[variables('AppServicePlanName')]"
+                                    },
+                                    "appServiceName": {
+                                        "value": "[variables('AppServiceName')]"
+                                    },
+                                    "keyVaultName": {
+                                        "value": "[variables('keyVaultName')]"
+                                    },
+                                    "OrgName": {
+                                        "value": "[parameters('OrgName')]"
+                                    },
+                                    "appRegistrationGuid": {
+                                        "value": "[parameters('appRegistrationGuid')]"
+                                    },
+                                    "appRegistrationKey": {
+                                        "value": "[parameters('appRegistrationKey')]"
+                                    },
+                                    "_artifactsLocationSasToken": {
+                                        "value": "[parameters('_artifactsLocationSasToken')]"
+                                    },
+                                    "_artifactsLocation": {
+                                        "value": "[parameters('_artifactsLocation')]"
+                                    },
+                                    "license": {
+                                        "value": "[parameters('license')]"
+                                    },
+                                    "location": {
+                                        "value": "[parameters('location')]"
+                                    }
+                                }
+                            }
+                        },
                         {
                             "type": "Microsoft.Resources/deployments",
                             "apiVersion": "2020-06-01",
