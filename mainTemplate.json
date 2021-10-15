@@ -114,6 +114,9 @@
                                     "contentVersion": "1.0.0.0"
                                 },
                                 "parameters": {
+                                    "keyVaultName": {
+                                        "value": "[variables('keyVaultName')]"
+                                    },
                                     "appServiceName": {
                                         "value": "[variables('appServiceName')]"
                                     },
