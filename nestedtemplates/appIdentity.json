@@ -17,7 +17,8 @@
     },
     "variables": {
         "roleAssignmentId": "[guid(concat(resourceGroup().id, 'contributor'))]",
-        "contributorRoleDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]"
+        "contributorRoleDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
+        "ownerRoleDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', '8e3af657-a8ff-443c-a75c-2fe8c4bcb635')]"
     },
     "resources": [
         {
@@ -34,7 +35,7 @@
                 "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('managedIdentityName'))]"
             ],
             "properties": {
-                "roleDefinitionId": "[variables('contributorRoleDefinitionId')]",
+                "roleDefinitionId": "[variables('ownerRoleDefinitionId')]",
                 "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('managedIdentityName')), '2018-11-30').principalId]",
                 "scope": "[resourceGroup().id]",
                 "principalType": "ServicePrincipal"
@@ -58,9 +59,11 @@
             "properties": {
                 "azPowerShellVersion": "5.0",
                 "timeout": "PT30M",
-                "scriptContent": "Write-Host 'Hello World'",
+                //"scriptContent": "Write-Host 'Hello World'",
+                "primaryScrptUri": "https://raw.githubusercontent.com/scepman/install/feature-certmaster/addpermissions.ps1",
                 "cleanupPreference": "OnSuccess",
-                "retentionInterval": "P1D"
+                "retentionInterval": "P1D",
+                "arguments": "[concat('-TenantId \"', subscription().tenantId, '\" -ResourceGroup \"', parameters('location'), '\" -WebAppName \"scepman-webapp\"')]"
             }
         }
     ]
