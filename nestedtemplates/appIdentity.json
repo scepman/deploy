@@ -50,12 +50,6 @@
                 "[resourceId('Microsoft.Authorization/roleAssignments', variables('roleAssignmentId'))]"
             ],
             "kind": "AzurePowerShell",
-            "identity": {
-                "type": "UserAssigned",
-                "userAssignedIdentities": {
-                    "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('managedIdentityName'))]": {}
-                }
-            },
             "properties": {
                 "azPowerShellVersion": "5.0",
                 "timeout": "PT30M",
