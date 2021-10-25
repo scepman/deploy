@@ -18,7 +18,7 @@
     "resources": [
         {
             "type": "Microsoft.Storage/storageAccounts",
-            "apiVersion": "2019-04-01",
+            "apiVersion": "2021-04-01",
             "name": "[parameters('StorageAccountName')]",
             "location": "[parameters('location')]",
             "sku": {
@@ -26,24 +26,19 @@
             },
             "kind": "StorageV2",
             "properties": {
-                "accountType": "Standard_LRS",
-                "networkAcls": {
-                    "bypass": "AzureServices",
-                    "defaultAction": "Allow"
+                "accessTier": "Hot",
+                "allowBlobPublicAccess": "true",
+                "allowCrossTenantReplication": "false",
+                "allowSharedKeyAccess": "false",
+                "isHnsEnabled": "false",
+                "isNfsV3Enabled": "false",
+                "minimumTlsVersion": "TLS1_2",
+                "routingPreference": {
+                    "publishInternetEndpoints": "false",
+                    "publishMicrosoftEndpoints": "false",
+                    "routingChoice": "MicrosoftRouting"
                 },
-                "supportsHttpsTrafficOnly": true,
-                "encryption": {
-                    "services": {
-                        "file": {
-                            "enabled": true
-                        },
-                        "blob": {
-                            "enabled": true
-                        }
-                    },
-                    "keySource": "Microsoft.Storage"
-                },
-                "accessTier": "Hot"
+                "supportsHttpsTrafficOnly": "true"
             }
         }
     ]
