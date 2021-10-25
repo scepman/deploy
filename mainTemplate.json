@@ -39,9 +39,9 @@
         "storageAccountName": {
             "type": "string",
             "minLength": 3,
-            "maxLength": 8,
+            "maxLength": 24,
             "metadata": {
-                "description": "Specifies the name of the storage account for Certmaster."
+                "description": "Choose a unique name for your storage account. Storage account names must be between 3 and 24 characters in length and may contain numbers and lowercase letters only."
             }
         },
         "appServicePlanName": {
