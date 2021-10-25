@@ -36,6 +36,14 @@
                 "description": "Specifies the name of the key vault."
             }
         },
+        "storageAccountName": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 8,
+            "metadata": {
+                "description": "Specifies the name of the storage account for Certmaster."
+            }
+        },
         "appServicePlanName": {
             "type": "string",
             "maxLength": 40
@@ -54,24 +62,27 @@
         }
     },
     "variables": {
-        "repositoryUrl":"https://raw.githubusercontent.com/scepman/install/feature-certmaster/",
-        "_artifactsLocation":"[concat(variables('repositoryUrl'),'dist/Artifacts.zip')]",
+        "repositoryUrl": "https://raw.githubusercontent.com/scepman/install/feature-certmaster/",
+        "_artifactsLocation": "[concat(variables('repositoryUrl'),'dist/Artifacts.zip')]",
         "appSvcTemplateUri": "[concat(variables('repositoryUrl'), 'nestedtemplates/appSvc.json')]",
         "appSvcCertmasterTemplateUri": "[concat(variables('repositoryUrl'), 'nestedtemplates/appSvc-certmaster.json')]",
         "vaultTemplateUri": "[concat(variables('repositoryUrl'), 'nestedtemplates/vault.json')]",
         "appConfigTemplateUri": "[concat(variables('repositoryUrl'), 'nestedtemplates/appConfig.json')]",
+        "stgAccountTemplateUri": "[concat(variables('repositoryUrl'), 'nestedtemplates/stgAccount.json')]",
         "deploymentManagedIdentityTemplateUri": "[concat(variables('repositoryUrl'), 'nestedtemplates/appIdentity.json')]",
         "AppServicePlanName": "[parameters('appServicePlanName')]",
         "AppServiceName": "[parameters('appServiceName')]",
         "AppServiceCertMasterName": "[parameters('appServiceCertMasterName')]",
         "managedIdentityName": "[parameters('managedIdentityName')]",
         "keyVaultName": "[parameters('keyVaultName')]",
+        "storageAccountName": "[parameters('storageAccountName')]",
         "deploymentAppServiceName": "SCEPmanAppService",
         "deploymentAppServiceCertMasterName": "CertMasterAppService",
         "deploymentVaultName": "SCEPmanVault",
         "deploymentConfigurationName": "SCEPmanConfiguration",
         "deploymentIentityName": "SCEPmanManagedIdentity",
-        "resourceGroup": "[resourceGroup().location]"        
+        "deploymentStorageAccount": "CertMasterStorageAccount",
+        "resourceGroup": "[resourceGroup().location]"
     },
     "resources": [
         {
@@ -196,6 +207,26 @@
                                 "parameters": {
                                     "managedIdentityName": {
                                         "value": "[variables('managedIdentityName')]"
+                                    },
+                                    "location": {
+                                        "value": "[variables('resourceGroup')]"
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            "type": "Microsoft.Resources/deployments",
+                            "apiVersion": "2020-06-01",
+                            "name": "[variables('deploymentStorageAccount')]",
+                            "properties": {
+                                "mode": "Incremental",
+                                "templateLink": {
+                                    "uri": "[variables('stgAccountTemplateUri')]",
+                                    "contentVersion": "1.0.0.0"
+                                },
+                                "parameters": {
+                                    "StorageAccountName": {
+                                        "value": "[variables('storageAccountName')]"
                                     },
                                     "location": {
                                         "value": "[variables('resourceGroup')]"
