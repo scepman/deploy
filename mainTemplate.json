@@ -55,10 +55,6 @@
         "appServiceCertMasterName": {
             "type": "string",
             "maxLength": 60
-        },
-        "managedIdentityName": {
-            "type": "string",
-            "maxLength": 60
         }
     },
     "variables": {
@@ -68,17 +64,14 @@
         "vaultTemplateUri": "[concat(variables('repositoryUrl'), 'nestedtemplates/vault.json')]",
         "appConfigTemplateUri": "[concat(variables('repositoryUrl'), 'nestedtemplates/appConfig.json')]",
         "stgAccountTemplateUri": "[concat(variables('repositoryUrl'), 'nestedtemplates/stgAccount.json')]",
-        "deploymentManagedIdentityTemplateUri": "[concat(variables('repositoryUrl'), 'nestedtemplates/appIdentity.json')]",
         "AppServicePlanName": "[parameters('appServicePlanName')]",
         "AppServiceName": "[parameters('appServiceName')]",
         "AppServiceCertMasterName": "[parameters('appServiceCertMasterName')]",
-        "managedIdentityName": "[parameters('managedIdentityName')]",
         "keyVaultName": "[parameters('keyVaultName')]",
         "storageAccountName": "[parameters('storageAccountName')]",
         "deploymentAppServiceName": "SCEPmanAppService",
         "deploymentVaultName": "SCEPmanVault",
         "deploymentConfigurationName": "SCEPmanConfiguration",
-        "deploymentIentityName": "SCEPmanManagedIdentity",
         "deploymentStorageAccount": "CertMasterStorageAccount",
         "resourceGroup": "[resourceGroup().location]"
     },
@@ -183,31 +176,6 @@
                                     },
                                     "license": {
                                         "value": "[parameters('license')]"
-                                    },
-                                    "location": {
-                                        "value": "[variables('resourceGroup')]"
-                                    }
-                                }
-                            }
-                        },
-                        {
-                            "type": "Microsoft.Resources/deployments",
-                            "apiVersion": "2020-06-01",
-                            "name": "[variables('deploymentIentityName')]",
-                            "dependsOn": [
-                                "[concat('Microsoft.Resources/deployments/', variables('deploymentAppServiceName'))]",
-                                "[concat('Microsoft.Resources/deployments/', variables('deploymentVaultName'))]",
-                                "[concat('Microsoft.Resources/deployments/',variables('deploymentConfigurationName'))]"
-                            ],
-                            "properties": {
-                                "mode": "Incremental",
-                                "templateLink": {
-                                    "uri": "[variables('deploymentManagedIdentityTemplateUri')]",
-                                    "contentVersion": "1.0.0.0"
-                                },
-                                "parameters": {
-                                    "managedIdentityName": {
-                                        "value": "[variables('managedIdentityName')]"
                                     },
                                     "location": {
                                         "value": "[variables('resourceGroup')]"
