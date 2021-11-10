@@ -1,70 +1,91 @@
 {
-    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
-    "parameters": {
-      "StorageAccountName": {
-        "type": "string",
-        "metadata": {
-          "description": "Name of the storage account"
-        }
-      },
-      "artifactsLocation": {
-        "type": "string"
-      },
-      "AppServicePlanName": {
-        "type": "string"
-      },
-      "AppServiceName": {
-        "type": "string"
-      },
-      "location": {
-        "type": "string",
-        "metadata": {
-          "description": "Location where the resources will be deployed"
-        }
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "StorageAccountName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the storage account"
       }
     },
-    "resources": [
-      {
-        "type": "Microsoft.Web/sites",
-        "apiVersion": "2018-02-01",
-        "name": "[parameters('AppServiceName')]",
-        "location": "[parameters('location')]",
-        "dependsOn": [
-          "[concat('Microsoft.Web/serverfarms/', parameters('AppServicePlanName'))]"
-        ],
-        "tags": {
-          "[concat('hidden-related:', resourceGroup().id, '/providers/Microsoft.Web/serverfarms/', parameters('AppServicePlanName'))]": "Resource",
-          "displayName": "M365 Workplace Cloud Storage"
-        },
-        "properties": {
-          "name": "[parameters('AppServiceName')]",
-          "serverFarmId": "[resourceId('Microsoft.Web/serverfarms/', parameters('AppServicePlanName'))]",
-          "siteConfig": {
-            "appSettings": [
-              {
-                "name": "WEBSITE_RUN_FROM_PACKAGE",
-                "value": "[parameters('artifactsLocation')]"
-              },
-              {
-                "name": "AppConfig:AzureConfig:StorageConfig:Connection",
-                "value": "[Concat('DefaultEndpointsProtocol=https;AccountName=',parameters('StorageAccountName'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName')), '2019-04-01').keys[0].value)]"
-              },
-              {
-                  "name": "AppConfig:EnterpriseModeSiteListEnabled",
-                  "value": "true"                        
-              },
-                                      {
-                  "name": "AppConfig:NonSensitiveFilesEnabled",
-                  "value": "true"                        
-              },
-              {
-                  "name": "AppConfig:FavoriteListsEnabled",
-                  "value": "true"                        
-              }
-            ]
-          }
+    "_artifactsLocation": {
+      "type": "string"
+    },
+    "AppServicePlanName": {
+      "type": "string"
+    },
+    "appServiceName": {
+      "type": "string"
+    },
+    "scepmanUrl":{
+      "type": "string"
+    },
+    "appRegistrationGuid": {
+      "type": "string",
+      "metadata": {
+          "description": "GUID of AAD app registration"
+      }
+    },
+    "appRegistrationKey": {
+        "type": "string",
+        "metadata": {
+            "description": "Secret of AAD app registration"
+        }
+    },
+    "location": {
+      "type": "string",
+      "metadata": {
+        "description": "Location where the resources will be deployed"
+      }
+    }
+  },
+  "variables": {
+    "artifacts": "[uri(parameters('_artifactsLocation'), 'CertMaster-Artifacts.zip')]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2018-02-01",
+      "name": "[parameters('appServiceName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms/', parameters('AppServicePlanName'))]",
+        "siteConfig": {
+          "alwaysOn": true,
+          "use32BitWorkerProcess": false,
+          "ftpsState": "Disabled",
+          "appSettings": [
+            {
+              "name": "WEBSITE_RUN_FROM_PACKAGE",
+              "value": "[variables('artifacts')]"
+            },
+            {
+              "name": "AppConfig:AzureStorage:ConnectionString",
+              "value": "[Concat('DefaultEndpointsProtocol=https;AccountName=',parameters('StorageAccountName'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName')), '2019-04-01').keys[0].value)]"
+            },
+            {
+                "name": "AppConfig:SCEPman:URL",
+                "value": "[parameters('scepmanUrl')]"                        
+            },
+            {
+              "name": "AppConfig:AuthConfig:ApplicationId",
+              "value": "[parameters('appRegistrationGuid')]"
+            },
+            {
+              "name": "AppConfig:AuthConfig:ApplicationKey",
+              "value": "[parameters('appRegistrationKey')]"
+            },
+            {
+              "name": "AppConfig:AuthConfig:TenantName",
+              "value": "[subscription().tenantId]"
+            },
+            {
+              "name": "AppConfig:AuthConfig:SCEPmanAPIScope",
+              "value": "xyz"
+            }
+          ]
         }
       }
-    ]
-  }
+    }
+  ]
+}

@@ -5,13 +5,13 @@
         "AppServicePlanName": {
             "type": "string",
             "metadata": {
-                "description": "Name of company or organization for certificate subject"
+                "description": "Name of the App Service Plan"
             }
         },
         "appServiceName": {
             "type": "string",
             "metadata": {
-                "description": "Name of company or organization for certificate subject"
+                "description": "Name of SCEPman's app service"
             }
         },
         "keyVaultName": {
