@@ -65,7 +65,6 @@
         "repositoryUrl": "https://raw.githubusercontent.com/scepman/install/feature-certmaster/",
         "_artifactsLocation": "[concat(variables('repositoryUrl'),'dist/Artifacts.zip')]",
         "appSvcTemplateUri": "[concat(variables('repositoryUrl'), 'nestedtemplates/appSvc.json')]",
-        "appSvcCertmasterTemplateUri": "[concat(variables('repositoryUrl'), 'nestedtemplates/appSvc-certmaster.json')]",
         "vaultTemplateUri": "[concat(variables('repositoryUrl'), 'nestedtemplates/vault.json')]",
         "appConfigTemplateUri": "[concat(variables('repositoryUrl'), 'nestedtemplates/appConfig.json')]",
         "stgAccountTemplateUri": "[concat(variables('repositoryUrl'), 'nestedtemplates/stgAccount.json')]",
@@ -77,7 +76,6 @@
         "keyVaultName": "[parameters('keyVaultName')]",
         "storageAccountName": "[parameters('storageAccountName')]",
         "deploymentAppServiceName": "SCEPmanAppService",
-        "deploymentAppServiceCertMasterName": "CertMasterAppService",
         "deploymentVaultName": "SCEPmanVault",
         "deploymentConfigurationName": "SCEPmanConfiguration",
         "deploymentIentityName": "SCEPmanManagedIdentity",
@@ -111,6 +109,9 @@
                                     },
                                     "appServiceName": {
                                         "value": "[variables('AppServiceName')]"
+                                    },
+                                    "appServiceName2": {
+                                        "value": "[variables('AppServiceCertMasterName')]"
                                     },
                                     "location": {
                                         "value": "[variables('resourceGroup')]"
@@ -207,32 +208,6 @@
                                 "parameters": {
                                     "managedIdentityName": {
                                         "value": "[variables('managedIdentityName')]"
-                                    },
-                                    "location": {
-                                        "value": "[variables('resourceGroup')]"
-                                    }
-                                }
-                            }
-                        },
-                        {
-                            "type": "Microsoft.Resources/deployments",
-                            "apiVersion": "2020-06-01",
-                            "name": "[variables('deploymentAppServiceCertMasterName')]",
-                            "dependsOn": [
-                                "[concat('Microsoft.Resources/deployments/', variables('deploymentAppServiceName'))]"
-                            ],
-                            "properties": {
-                                "mode": "Incremental",
-                                "templateLink": {
-                                    "uri": "[variables('appSvcCertMasterTemplateUri')]",
-                                    "contentVersion": "1.0.0.0"
-                                },
-                                "parameters": {
-                                    "AppServicePlanName": {
-                                        "value": "[variables('AppServicePlanName')]"
-                                    },
-                                    "appServiceName": {
-                                        "value": "[variables('AppServiceCertMasterName')]"
                                     },
                                     "location": {
                                         "value": "[variables('resourceGroup')]"
