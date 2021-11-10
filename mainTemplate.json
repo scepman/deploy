@@ -189,8 +189,7 @@
                             "name": "[variables('deploymentStorageAccount')]",
                             
                             "dependsOn": [
-                                "[concat('Microsoft.Resources/deployments/', variables('deploymentAppServiceName'))]",
-                                "[concat('Microsoft.Resources/deployments/', variables('deploymentAppServiceCertMasterName'))]"
+                                "[concat('Microsoft.Resources/deployments/', variables('deploymentAppServiceName'))]"
                             ],
                             "properties": {
                                 "mode": "Incremental",
