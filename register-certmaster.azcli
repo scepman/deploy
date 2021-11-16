@@ -1,0 +1,9 @@
+az login
+
+az ad app create --display-name xyz --reply-urls "https://as-certmaster-askjvljweklraesr.azurewebsites.net/signin-oidc"
+
+az ad app permission add --id 1dddd809-c7bc-45b7-8d85-767e1c5c3de5 --api 00000003-0000-0000-c000-000000000000 --api-permissions 06da0dbc-49e2-44d2-8312-53f166ab848a=Scope
+
+az ad sp create --id 1dddd809-c7bc-45b7-8d85-767e1c5c3de5
+
+az ad app permission grant --id 1dddd809-c7bc-45b7-8d85-767e1c5c3de5 --api 00000003-0000-0000-c000-000000000000
