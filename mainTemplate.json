@@ -60,6 +60,7 @@
     "variables": {
         "repositoryUrl": "https://raw.githubusercontent.com/scepman/install/feature-certmaster/",
         "_artifactsLocation": "[concat(variables('repositoryUrl'),'dist/Artifacts.zip')]",
+        "_artifactsLocationCertMaster": "[concat(variables('repositoryUrl'),'dist-certmaster/CertMaster-Artifacts.zip')]",
         "appSvcTemplateUri": "[concat(variables('repositoryUrl'), 'nestedtemplates/appSvc.json')]",
         "vaultTemplateUri": "[concat(variables('repositoryUrl'), 'nestedtemplates/vault.json')]",
         "appConfigTemplateUri": "[concat(variables('repositoryUrl'), 'nestedtemplates/appConfig.json')]",
@@ -219,10 +220,7 @@
                                         "value": "[parameters('appRegistrationKey')]"
                                     },
                                     "_artifactsLocation": {
-                                        "value": "[variables('_artifactsLocation')]"
-                                    },
-                                    "license": {
-                                        "value": "[parameters('license')]"
+                                        "value": "[variables('_artifactsLocationCertMaster')]"
                                     },
                                     "location": {
                                         "value": "[variables('resourceGroup')]"
