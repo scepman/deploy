@@ -73,6 +73,7 @@
         "deploymentAppServiceName": "SCEPmanAppService",
         "deploymentVaultName": "SCEPmanVault",
         "deploymentConfigurationName": "SCEPmanConfiguration",
+        "deploymentConfigurationCertMasterName": "CertMasterConfiguration",
         "deploymentStorageAccount": "CertMasterStorageAccount",
         "resourceGroup": "[resourceGroup().location]"
     },
@@ -187,7 +188,7 @@
                         {
                             "type": "Microsoft.Resources/deployments",
                             "apiVersion": "2020-06-01",
-                            "name": "[variables('deploymentConfigurationName')]",
+                            "name": "[variables('deploymentConfigurationCertMasterName')]",
                             "dependsOn": [
                                 "[concat('Microsoft.Resources/deployments/', variables('deploymentAppServiceName'))]",
                                 "[concat('Microsoft.Resources/deployments/', variables('deploymentStorageAccount'))]"
