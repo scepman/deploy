@@ -7,27 +7,40 @@ $CertMasterBaseURL = $env:CERTMASTER_BASE_URL
 az login
 
 $MSGraphAppId = "00000003-0000-0000-c000-000000000000"
-$MSGraphDirectoryReadAllPermission = "06da0dbc-49e2-44d2-8312-53f166ab848a"
-$MSGraphUserReadPermission = ""
+$MSGraphDirectoryReadAllPermission = "7ab1d382-f21e-4acd-a863-ba3e13f7da61"
+$MSGraphDeviceManagementReadPermission = "2f51be20-0bb4-4fed-bf7b-db946066c75e"
+$MSGraphUserReadPermission = "e1fe6dd8-ba31-4d61-89e7-88639da4683d"
 
-$IntuneAppId = "0000000a-0000-0000-c000-000000000000"
-$IntuneSCEPChallengePermission = ""
+#$IntuneAppId = "0000000a-0000-0000-c000-000000000000"
+$IntuneAppId = "c161e42e-d4df-4a3d-9b42-e7a3c31f59d4"
+$IntuneSCEPChallengePermission = "39d724e8-6a34-4930-9a36-364082c35716"
 
-$appreglines = az ad app create --display-name xyz3 --reply-urls "$CertMasterBaseURL/signin-oidc"
+$ScepmanManifest = '[{ 
+    \"allowedMemberTypes\": [
+      \"Application\"
+    ],
+    \"description\": \"Request certificates via the raw CSR API\",
+    \"displayName\": \"CSR Requesters\",
+    \"isEnabled\": \"true\",
+    \"value\": \"CSR.Request\"
+}]'.Replace("`r", [String]::Empty).Replace("`n", [String]::Empty)
+
+# Create App
+$appreglines = az ad app create --display-name xyz7 --reply-urls "$CertMasterBaseURL/signin-oidc" --app-roles $ScepmanManifest
 $appregjson = [System.String]::Concat($appreglines)
 $appreg = ConvertFrom-Json $appregjson
+az ad sp create --id $appreg.appId
 
 # Add Microsoft Graph's User.Read as delegated permission for CertMaster
-az ad app permission add --id $appreg.appId --api $MSGraphAppId --api-permissions "$MSGraphDirectoryReadAllPermission=Scope"
-az ad sp create --id $appreg.appId
+az ad app permission add --id $appreg.appId --api $MSGraphAppId --api-permissions "$MSGraphUserReadPermission=Scope"
 az ad app permission grant --id $appreg.appId --api $MSGraphAppId --scope "User.Read"
 
-# Add Microsoft Graph's Directory.Read.All as delegated permission
+# Add Microsoft Graph's Directory.Read.All and DeviceManagementManagedDevices.Read as app permission
 az ad app permission add --id $appreg.appId --api $MSGraphAppId --api-permissions "$MSGraphDirectoryReadAllPermission=Role"
-az ad sp create --id $appreg.appId
+az ad app permission add --id $appreg.appId --api $MSGraphAppId --api-permissions "$MSGraphDeviceManagementReadPermission=Role"
 az ad app permission grant --id $appreg.appId --api $MSGraphAppId
 
 # Add Intune SCEP Challenge for SCEPman
-az ad app permission add --id $appreg.appId --api $IntuneAppId --api-permissions "$MSGraphDirectoryReadAllPermission=Role"
-az ad sp create --id $appreg.appId
-az ad app permission grant --id $appreg.appId --api $IntuneAppId
+az ad app permission add --id $appreg.appId --api $IntuneAppId --api-permissions "$IntuneSCEPChallengePermission=Role"
+
+az ad app permission admin-consent --id $appreg.appId 
