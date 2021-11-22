@@ -6,6 +6,7 @@ $CertMasterBaseURL = $env:CERTMASTER_BASE_URL
 
 az login
 
+# Some hard-coded definitions
 $MSGraphAppId = "00000003-0000-0000-c000-000000000000"
 $MSGraphDirectoryReadAllPermission = "7ab1d382-f21e-4acd-a863-ba3e13f7da61"
 $MSGraphDeviceManagementReadPermission = "2f51be20-0bb4-4fed-bf7b-db946066c75e"
@@ -15,6 +16,7 @@ $MSGraphUserReadPermission = "e1fe6dd8-ba31-4d61-89e7-88639da4683d"
 $IntuneAppId = "c161e42e-d4df-4a3d-9b42-e7a3c31f59d4"
 $IntuneSCEPChallengePermission = "39d724e8-6a34-4930-9a36-364082c35716"
 
+# JSON defining App Role that CertMaster uses to authenticate against SCEPman
 $ScepmanManifest = '[{ 
     \"allowedMemberTypes\": [
       \"Application\"
@@ -25,8 +27,22 @@ $ScepmanManifest = '[{
     \"value\": \"CSR.Request\"
 }]'.Replace("`r", [String]::Empty).Replace("`n", [String]::Empty)
 
+# JSON defining Scopes that users use to authenticate against CertMaster
+$CertMasterScopeDefinition = '[
+  {
+    \"adminConsentDescription\": \"Complete control over certificates\",
+    \"adminConsentDisplayName\": \"Full Access\",
+    \"id\": \"some-guid\",
+    \"isEnabled\": true,
+    \"type\": \"Admin\",
+    \"userConsentDescription\": null,
+    \"userConsentDisplayName\": null,
+    \"value\": \"Access\"
+  }
+]'.Replace("`r", [String]::Empty).Replace("`n", [String]::Empty)
+
 # Create App
-$appreglines = az ad app create --display-name xyz7 --reply-urls "$CertMasterBaseURL/signin-oidc" --app-roles $ScepmanManifest
+$appreglines = az ad app create --display-name xyz7 --reply-urls "$CertMasterBaseURL/signin-oidc" --app-roles $ScepmanManifest 
 $appregjson = [System.String]::Concat($appreglines)
 $appreg = ConvertFrom-Json $appregjson
 az ad sp create --id $appreg.appId
@@ -43,4 +59,5 @@ az ad app permission grant --id $appreg.appId --api $MSGraphAppId
 # Add Intune SCEP Challenge for SCEPman
 az ad app permission add --id $appreg.appId --api $IntuneAppId --api-permissions "$IntuneSCEPChallengePermission=Role"
 
+# Grant Admin consent. Seems to be required and require granting individual consents, too.
 az ad app permission admin-consent --id $appreg.appId 
