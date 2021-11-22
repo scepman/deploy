@@ -1,9 +1,33 @@
+# for testing
+$env:CERTMASTER_BASE_URL = "https://as-certmaster-askjvljweklraesr.azurewebsites.net"
+
+
+$CertMasterBaseURL = $env:CERTMASTER_BASE_URL
+
 az login
 
-az ad app create --display-name xyz --reply-urls "https://as-certmaster-askjvljweklraesr.azurewebsites.net/signin-oidc"
+$MSGraphAppId = "00000003-0000-0000-c000-000000000000"
+$MSGraphDirectoryReadAllPermission = "06da0dbc-49e2-44d2-8312-53f166ab848a"
+$MSGraphUserReadPermission = ""
 
-az ad app permission add --id 1dddd809-c7bc-45b7-8d85-767e1c5c3de5 --api 00000003-0000-0000-c000-000000000000 --api-permissions 06da0dbc-49e2-44d2-8312-53f166ab848a=Scope
+$IntuneAppId = "0000000a-0000-0000-c000-000000000000"
+$IntuneSCEPChallengePermission = ""
 
-az ad sp create --id 1dddd809-c7bc-45b7-8d85-767e1c5c3de5
+$appreglines = az ad app create --display-name xyz3 --reply-urls "$CertMasterBaseURL/signin-oidc"
+$appregjson = [System.String]::Concat($appreglines)
+$appreg = ConvertFrom-Json $appregjson
 
-az ad app permission grant --id 1dddd809-c7bc-45b7-8d85-767e1c5c3de5 --api 00000003-0000-0000-c000-000000000000
+# Add Microsoft Graph's User.Read as delegated permission for CertMaster
+az ad app permission add --id $appreg.appId --api $MSGraphAppId --api-permissions "$MSGraphDirectoryReadAllPermission=Scope"
+az ad sp create --id $appreg.appId
+az ad app permission grant --id $appreg.appId --api $MSGraphAppId --scope "User.Read"
+
+# Add Microsoft Graph's Directory.Read.All as delegated permission
+az ad app permission add --id $appreg.appId --api $MSGraphAppId --api-permissions "$MSGraphDirectoryReadAllPermission=Role"
+az ad sp create --id $appreg.appId
+az ad app permission grant --id $appreg.appId --api $MSGraphAppId
+
+# Add Intune SCEP Challenge for SCEPman
+az ad app permission add --id $appreg.appId --api $IntuneAppId --api-permissions "$MSGraphDirectoryReadAllPermission=Role"
+az ad sp create --id $appreg.appId
+az ad app permission grant --id $appreg.appId --api $IntuneAppId
