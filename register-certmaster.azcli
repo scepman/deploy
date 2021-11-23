@@ -1,8 +1,11 @@
 # for testing
-$env:CERTMASTER_BASE_URL = "https://as-certmaster-askjvljweklraesr.azurewebsites.net"
+$env:CERTMASTER_APP_SERVICE_NAME = "as-certmaster-askjvljweklraesr"
+$env:SCEPMAN_RESOURCE_GROUP = "rg-SCEPman"
 
 
-$CertMasterBaseURL = $env:CERTMASTER_BASE_URL
+$CertMasterAppServiceName = $env:CERTMASTER_APP_SERVICE_NAME
+$CertMasterBaseURL = "https://$CertMasterAppServiceName.azurewebsites.net"
+$SCEPmanResourceGroup = $env:SCEPMAN_RESOURCE_GROUP
 
 az login
 
@@ -17,6 +20,11 @@ $IntuneAppId = "c161e42e-d4df-4a3d-9b42-e7a3c31f59d4" # Well-known App ID of the
 $IntuneSCEPChallengePermission = "39d724e8-6a34-4930-9a36-364082c35716"
 
 $MAX_RETRY_COUNT = 4  # for some operations, retry a couple of times
+
+# Getting tenant details
+$tenantlines = az account show
+$tenantjson = [System.String]::Concat($tenantlines)
+$tenant = ConvertFrom-Json $tenantjson
 
 
 ### SCEPman App Registration
@@ -84,3 +92,14 @@ az ad sp create --id $appregcm.appId
 # Add Microsoft Graph's User.Read as delegated permission for CertMaster
 az ad app permission add --id $appregcm.appId --api $MSGraphAppId --api-permissions "$MSGraphUserReadPermission=Scope"
 az ad app permission grant --id $appregcm.appId --api $MSGraphAppId --scope "User.Read"
+
+
+### Add CertMaster app service authentication
+# Use v2 auth commands
+az extension add --name authV2
+
+# Enable the authentication
+az webapp auth microsoft update --name $CertMasterAppServiceName --resource-group $SCEPmanResourceGroup --client-id $appregcm.appId --client-secret very_secret_password --issuer "https://sts.windows.net/$($tenant.tenantId)/v2.0" --yes
+
+# Add the Redirect To
+az webapp auth update --name $CertMasterAppServiceName --resource-group $SCEPmanResourceGroup --redirect-provider AzureActiveDirectory
