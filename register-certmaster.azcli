@@ -89,6 +89,13 @@ $appregjsoncm = [System.String]::Concat($appreglinescm)
 $appregcm = ConvertFrom-Json $appregjsoncm
 az ad sp create --id $appregcm.appId
 
+# Set Certmaster Client Secret
+$expirationDate = (Get-Date).AddYears(10).ToString('yyyy-MM-dd')
+$appsecretlinescm = az ad app credential reset --id $appregcm.appId --end-date $expirationDate --credential-description "SCEPman app" --append
+$appsecretjsoncm = [System.String]::Concat($appsecretlinescm)
+$appsecretcm = ConvertFrom-Json $appsecretjsoncm
+
+
 # Add Microsoft Graph's User.Read as delegated permission for CertMaster
 az ad app permission add --id $appregcm.appId --api $MSGraphAppId --api-permissions "$MSGraphUserReadPermission=Scope"
 az ad app permission grant --id $appregcm.appId --api $MSGraphAppId --scope "User.Read"
@@ -99,7 +106,7 @@ az ad app permission grant --id $appregcm.appId --api $MSGraphAppId --scope "Use
 az extension add --name authV2
 
 # Enable the authentication
-az webapp auth microsoft update --name $CertMasterAppServiceName --resource-group $SCEPmanResourceGroup --client-id $appregcm.appId --client-secret very_secret_password --issuer "https://sts.windows.net/$($tenant.tenantId)/v2.0" --yes
+az webapp auth microsoft update --name $CertMasterAppServiceName --resource-group $SCEPmanResourceGroup --client-id $appregcm.appId --client-secret $appsecretcm.password --issuer "https://sts.windows.net/$($tenant.tenantId)/v2.0" --yes
 
 # Add the Redirect To
 az webapp auth update --name $CertMasterAppServiceName --resource-group $SCEPmanResourceGroup --redirect-provider AzureActiveDirectory
