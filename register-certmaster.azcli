@@ -45,6 +45,9 @@ $appregjsonsc = [System.String]::Concat($appreglinessc)
 $appregsc = ConvertFrom-Json $appregjsonsc
 az ad sp create --id $appregsc.appId
 
+# Expose SCEPman API
+az ad app update --id $appregsc.appId --identifier-uris "api://$($appregsc.appId)"
+
 # Add Microsoft Graph's Directory.Read.All and DeviceManagementManagedDevices.Read as app permission for SCEPman
 az ad app permission add --id $appregsc.appId --api $MSGraphAppId --api-permissions "$MSGraphDirectoryReadAllPermission=Role"
 az ad app permission add --id $appregsc.appId --api $MSGraphAppId --api-permissions "$MSGraphDeviceManagementReadPermission=Role"
