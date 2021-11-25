@@ -40,10 +40,12 @@ $ScepmanManifest = '[{
 }]'.Replace("`r", [String]::Empty).Replace("`n", [String]::Empty)
 
 # Register SCEPman App
-$appreglinessc = az ad app create --display-name SCEPman-xyz8 --app-roles $ScepmanManifest 
+$appreglinessc = az ad app create --display-name SCEPman-xyz9 --app-roles $ScepmanManifest 
 $appregjsonsc = [System.String]::Concat($appreglinessc)
 $appregsc = ConvertFrom-Json $appregjsonsc
 az ad sp create --id $appregsc.appId
+
+$ScepManSubmitCSRPermission = $appregsc.appRoles[0].id
 
 # Expose SCEPman API
 az ad app update --id $appregsc.appId --identifier-uris "api://$($appregsc.appId)"
@@ -102,6 +104,10 @@ $appsecretcm = ConvertFrom-Json $appsecretjsoncm
 # Add Microsoft Graph's User.Read as delegated permission for CertMaster
 az ad app permission add --id $appregcm.appId --api $MSGraphAppId --api-permissions "$MSGraphUserReadPermission=Scope"
 az ad app permission grant --id $appregcm.appId --api $MSGraphAppId --scope "User.Read"
+
+# Allow CertMaster to submit CSR requests to SCEPman
+az ad app permission add --id $appregcm.appId --api $appregsc.appId --api-permissions "$ScepManSubmitCSRPermission=Role"
+az ad app permission grant --id $appregcm.appId --api $appregsc.appId
 
 
 ### Add CertMaster app service authentication
