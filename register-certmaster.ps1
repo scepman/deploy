@@ -52,7 +52,7 @@ function ExecuteAzCommandRobustly($azCommand, $principalId = $null, $appRoleId =
   }
   if ($azErrorCode -ne 0 ) {
     Write-Error "Error $azErrorCode when executing $azCommand : $lastAzOutput"
-    exit $lastAzError
+    #exit $lastAzError
   }
   else {
     return $lastAzOutput
@@ -72,10 +72,13 @@ $ScepmanManifest = '[{
 }]'.Replace("`r", [String]::Empty).Replace("`n", [String]::Empty)
 
 # Register SCEPman App
-$appreglinessc = ExecuteAzCommandRobustly -azCommand "az ad app create --display-name SCEPman-xyzb --app-roles '$ScepmanManifest'"
+$appreglinessc = ExecuteAzCommandRobustly -azCommand "az ad app create --display-name SCEPman-xyz2 --app-roles '$ScepmanManifest'"
 $appregjsonsc = [System.String]::Concat($appreglinessc)
 $appregsc = ConvertFrom-Json $appregjsonsc
-ExecuteAzCommandRobustly "az ad sp create --id $appregsc.appId"
+
+$splinessc = ExecuteAzCommandRobustly -azCommand "az ad sp create --id $($appregsc.appId)"
+$spjsonsc = [System.String]::Concat($splinessc)
+$spsc = ConvertFrom-Json $spjsonsc
 
 $ScepManSubmitCSRPermission = $appregsc.appRoles[0].id
 
@@ -85,29 +88,14 @@ az ad app update --id $appregsc.appId --identifier-uris "api://$($appregsc.appId
 # Add Microsoft Graph's Directory.Read.All and DeviceManagementManagedDevices.Read as app permission for SCEPman
 az ad app permission add --id $appregsc.appId --api $MSGraphAppId --api-permissions "$MSGraphDirectoryReadAllPermission=Role"
 az ad app permission add --id $appregsc.appId --api $MSGraphAppId --api-permissions "$MSGraphDeviceManagementReadPermission=Role"
-az ad app permission grant --id $appregsc.appId --api $MSGraphAppId
+ExecuteAzCommandRobustly -azCommand "az ad app permission grant --id $($appregsc.appId) --api $MSGraphAppId"
 
 # Add Intune SCEP Challenge for SCEPman
 az ad app permission add --id $appregsc.appId --api $IntuneAppId --api-permissions "$IntuneSCEPChallengePermission=Role"
-az ad app permission grant --id $appregsc.appId --api $IntuneAppId
+ExecuteAzCommandRobustly -azCommand "az ad app permission grant --id $($appregsc.appId) --api $IntuneAppId"
 
 # Grant Admin consent. Seems to be required and require granting individual consents, too. But wait until the app is available.
-ExecuteAzCommandRobustly -azCommand "az ad app permission admin-consent --id $appregsc.appId"
-
-$lastAzError = "First try"
-$retryCount = 0
-while ($lastAzError -and $retryCount -le $MAX_RETRY_COUNT) {
-  $lastAzError = az ad app permission admin-consent --id $appregsc.appId # the output is often empty, even in case of error :-(. az just writes to the console then
-  if (!$?) { # $? is TRUE if the last operation succeeded, probably based on the exit code
-    ++$retryCount
-    Write-Host "Retry $retryCount for az ad app permission admin-consent"
-    Start-Sleep $retryCount # Sleep for some seconds, as the grant sometimes only works after some time
-  }
-}
-if ($lastAzError) {
-  Write-Error "Error granting app permission to SCEPman: $lastAzError"
-  return
-}
+ExecuteAzCommandRobustly -azCommand "az ad app permission admin-consent --id $($appregsc.appId)" -principalId $spsc.objectId -appRoleId $IntuneSCEPChallengePermission
 
 
 ### CertMaster App Registration
