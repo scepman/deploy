@@ -26,12 +26,24 @@ $tenantlines = az account show
 $tenantjson = [System.String]::Concat($tenantlines)
 $tenant = ConvertFrom-Json $tenantjson
 
-function ExecuteAzCommandRobustly($azCommand) {
-  $azErrorCode = 1
+# It is intended to use for az cli add permissions and az cli add permissions admin
+# $azCommand - The command to execute. 
+# 
+function ExecuteAzCommandRobustly($azCommand, $principalId = $null, $appRoleId = $null) {
+  $azErrorCode = 1 # A number not null
   $retryCount = 0
   while ($azErrorCode -ne 0 -and $retryCount -le $MAX_RETRY_COUNT) {
     $lastAzOutput = Invoke-Expression $azCommand # the output is often empty in case of error :-(. az just writes to the console then
     $azErrorCode = $LastExitCode
+    if($null -ne $appRoleId -and $azErrorCode -eq 0) {
+      $appRoleAssignmentsResponse = az rest --method get --url "https://graph.microsoft.com/v1.0/servicePrincipals/$principalId/appRoleAssignments"
+      $appRoleAssignmentsResponseJson = [System.String]::Concat($appRoleAssignmentsResponse)
+      $appRoleAssignments = ConvertFrom-Json($appRoleAssignmentsResponseJson)
+      $grantedPermission = $appRoleAssignments.value | ? { $_.appRoleId -eq $appRoleId }
+      if ($null -eq $grantedPermission) {
+        $azErrorCode = 999 # A number not 0
+      }
+    }
     if ($azErrorCode -ne 0) {
       ++$retryCount
       Write-Debug "Retry $retryCount for $azCommand"
