@@ -75,6 +75,8 @@ function ExecuteAzCommandRobustly($azCommand, $principalId = $null, $appRoleId =
 
 ## TODO: Make some az calls robust
 
+## TODO: Remove client secret creation for certmaster
+
 
 ### SCEPman App Registration
 # JSON defining App Role that CertMaster uses to authenticate against SCEPman
