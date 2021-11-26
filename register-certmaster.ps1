@@ -7,6 +7,9 @@ $CertMasterAppServiceName = $env:CERTMASTER_APP_SERVICE_NAME
 $CertMasterBaseURL = "https://$CertMasterAppServiceName.azurewebsites.net"
 $SCEPmanResourceGroup = $env:SCEPMAN_RESOURCE_GROUP
 
+### TODO: Add Scepman App Service identification
+
+
 az login
 
 # Some hard-coded definitions
@@ -59,6 +62,20 @@ function ExecuteAzCommandRobustly($azCommand, $principalId = $null, $appRoleId =
   }
 }
 
+## TODO: Find Service Principal for System-assigned identity of SCEPman
+## TODO: Find Service Principal for System-assigned identity of CertMaster
+## TODO: Find two App IDs from the two SP
+
+
+## TODO: SCEPman App registration with Expose API and Manifest
+## TODO: SCEPman Identity shall have the permissions
+
+## TODO: CertMaster App registration with Manifest; client secret and service authentication and delegated permission
+## TODO: CertMaster Identity shall have the SCEPman permission
+
+## TODO: Make some az calls robust
+
+
 ### SCEPman App Registration
 # JSON defining App Role that CertMaster uses to authenticate against SCEPman
 $ScepmanManifest = '[{ 
@@ -72,7 +89,7 @@ $ScepmanManifest = '[{
 }]'.Replace("`r", [String]::Empty).Replace("`n", [String]::Empty)
 
 # Register SCEPman App
-$appreglinessc = ExecuteAzCommandRobustly -azCommand "az ad app create --display-name SCEPman-xyz2 --app-roles '$ScepmanManifest'"
+$appreglinessc = ExecuteAzCommandRobustly -azCommand "az ad app create --display-name SCEPman-xyz3 --app-roles '$ScepmanManifest'"
 $appregjsonsc = [System.String]::Concat($appreglinessc)
 $appregsc = ConvertFrom-Json $appregjsonsc
 
@@ -130,6 +147,7 @@ az ad app permission grant --id $appregcm.appId --api $MSGraphAppId --scope "Use
 # Allow CertMaster to submit CSR requests to SCEPman
 az ad app permission add --id $appregcm.appId --api $appregsc.appId --api-permissions "$ScepManSubmitCSRPermission=Role"
 az ad app permission grant --id $appregcm.appId --api $appregsc.appId
+
 
 
 ### Add CertMaster app service authentication
