@@ -1,8 +1,9 @@
 # for testing
-$env:CERTMASTER_APP_SERVICE_NAME = "as-certmaster-askjvljweklraesr"
+$env:SCEPMAN_APP_SERVICE_NAME = "as-scepman-askjvljweklraesr"
+$env:CERTMASTER_APP_SERVICE_NAME = "aleen-as-certmaster-askjvljweklraesr"
 $env:SCEPMAN_RESOURCE_GROUP = "rg-SCEPman"
 
-
+$SCEPmanAppServiceName = $env:SCEPMAN_APP_SERVICE_NAME
 $CertMasterAppServiceName = $env:CERTMASTER_APP_SERVICE_NAME
 $CertMasterBaseURL = "https://$CertMasterAppServiceName.azurewebsites.net"
 $SCEPmanResourceGroup = $env:SCEPMAN_RESOURCE_GROUP
@@ -62,20 +63,47 @@ function ExecuteAzCommandRobustly($azCommand, $principalId = $null, $appRoleId =
   }
 }
 
-## TODO: Find Service Principal for System-assigned identity of SCEPman
-## TODO: Find Service Principal for System-assigned identity of CertMaster
-## TODO: Find two App IDs from the two SP
+## Service Principal for System-assigned identity of SCEPman
+$serviceprincipallinessc = az webapp identity show --name $SCEPmanAppServiceName --resource-group $SCEPmanResourceGroup
+$serviceprincipaljsonsc = [System.String]::Concat($serviceprincipallinessc)
+$serviceprincipalsc = ConvertFrom-Json $serviceprincipaljsonsc
+
+$GraphEndpointForAppRoleAssignmentssc = "https://graph.microsoft.com/v1.0/servicePrincipals/$($serviceprincipalsc.principalId)/appRoleAssignments"
+
+## Setup MS graph permissions for SCEPman
+$graphResourceId = $(az ad sp list --filter "appId eq '$MSGraphAppId'" --query [0].objectId --out tsv)
+
+# Add Microsoft Graph's Directory.Read.All as app permission for SCEPman
+$bodyToAddMSGraphDirectoryReadAllPermission = "{'principalId': '$($serviceprincipalsc.principalId)','resourceId': '$graphResourceId','appRoleId':'$MSGraphDirectoryReadAllPermission'}"
+az rest --method post --uri $GraphEndpointForAppRoleAssignmentssc --body $bodyToAddMSGraphDirectoryReadAllPermission --headers "Content-Type=application/json"
+
+# Add DeviceManagementManagedDevices.Read as app permission for SCEPman
+$bodyToAddMSGraphDeviceManagementReadPermission = "{'principalId': '$($serviceprincipalsc.principalId)','resourceId': '$graphResourceId','appRoleId':'$MSGraphDeviceManagementReadPermission'}"
+az rest --method post --uri $GraphEndpointForAppRoleAssignmentssc --body $bodyToAddMSGraphDeviceManagementReadPermission --headers "Content-Type=application/json"
+
+## Setup Intune permission for SCEPman
+$intuneResourceId = $(az ad sp list --filter "appId eq '$IntuneAppId'" --query [0].objectId --out tsv)
+$bodyToAddIntuneSCEPChallengePermission = "{'principalId': '$($serviceprincipalsc.principalId)','resourceId': '$intuneResourceId','appRoleId':'$IntuneSCEPChallengePermission'}"
+az rest --method post --uri $GraphEndpointForAppRoleAssignmentssc --body $bodyToAddIntuneSCEPChallengePermission --headers "Content-Type=application/json"
+
+## Service Principal for System-assigned identity of CertMaster
+$serviceprincipallinescm = az webapp identity show --name $CertMasterAppServiceName --resource-group $SCEPmanResourceGroup
+$serviceprincipaljsoncm = [System.String]::Concat($serviceprincipallinescm)
+$serviceprincipalcm = ConvertFrom-Json $serviceprincipaljsoncm
 
 
-## TODO: SCEPman App registration with Expose API and Manifest
-## TODO: SCEPman Identity shall have the permissions
+## TODO: Find Service Principal for System-assigned identity of SCEPman - Done
+## TODO: SCEPman Identity shall have the permissions - Done
+## TODO: Find Service Principal for System-assigned identity of CertMaster - Done
+## TODO: SCEPman App registration with Expose API and Manifest - Done
 
-## TODO: CertMaster App registration with Manifest; client secret and service authentication and delegated permission
-## TODO: CertMaster Identity shall have the SCEPman permission
+## TODO: CertMaster Identity shall have the SCEPman permission - Done
+
+
+## TODO: CertMaster App registration with Manifest; service authentication and delegated permission - Done
+
 
 ## TODO: Make some az calls robust
-
-## TODO: Remove client secret creation for certmaster
 
 
 ### SCEPman App Registration
@@ -104,17 +132,11 @@ $ScepManSubmitCSRPermission = $appregsc.appRoles[0].id
 # Expose SCEPman API
 az ad app update --id $appregsc.appId --identifier-uris "api://$($appregsc.appId)"
 
-# Add Microsoft Graph's Directory.Read.All and DeviceManagementManagedDevices.Read as app permission for SCEPman
-az ad app permission add --id $appregsc.appId --api $MSGraphAppId --api-permissions "$MSGraphDirectoryReadAllPermission=Role"
-az ad app permission add --id $appregsc.appId --api $MSGraphAppId --api-permissions "$MSGraphDeviceManagementReadPermission=Role"
-ExecuteAzCommandRobustly -azCommand "az ad app permission grant --id $($appregsc.appId) --api $MSGraphAppId"
+# Allow CertMaster to submit CSR requests to SCEPman API
+$GraphEndpointForAppRoleAssignmentscm = "https://graph.microsoft.com/v1.0/servicePrincipals/$($serviceprincipalcm.principalId)/appRoleAssignments"
 
-# Add Intune SCEP Challenge for SCEPman
-az ad app permission add --id $appregsc.appId --api $IntuneAppId --api-permissions "$IntuneSCEPChallengePermission=Role"
-ExecuteAzCommandRobustly -azCommand "az ad app permission grant --id $($appregsc.appId) --api $IntuneAppId"
-
-# Grant Admin consent. Seems to be required and require granting individual consents, too. But wait until the app is available.
-ExecuteAzCommandRobustly -azCommand "az ad app permission admin-consent --id $($appregsc.appId)" -principalId $spsc.objectId -appRoleId $IntuneSCEPChallengePermission
+$bodyToAddSCEPmanAPIPermission = "{'principalId': '$($serviceprincipalcm.principalId)','resourceId': '$($spsc.objectId)','appRoleId':'$ScepManSubmitCSRPermission'}"
+az rest --method post --uri $GraphEndpointForAppRoleAssignmentscm --body $bodyToAddSCEPmanAPIPermission --headers "Content-Type=application/json"
 
 
 ### CertMaster App Registration
@@ -130,25 +152,16 @@ $CertmasterManifest = '[{
 }]'.Replace("`r", [String]::Empty).Replace("`n", [String]::Empty)
 
 # Register CertMaster App
-$appreglinescm = az ad app create --display-name SCEPman-CertMaster-xyz3 --reply-urls "$CertMasterBaseURL/signin-oidc" --app-roles $CertmasterManifest 
+$appreglinescm = ExecuteAzCommandRobustly -azCommand "az ad app create --display-name SCEPman-CertMaster-xyz4 --reply-urls `"$CertMasterBaseURL/signin-oidc`" --app-roles '$CertmasterManifest'"
 $appregjsoncm = [System.String]::Concat($appreglinescm)
 $appregcm = ConvertFrom-Json $appregjsoncm
 az ad sp create --id $appregcm.appId
 
-# Set Certmaster Client Secret
-$expirationDate = (Get-Date).AddYears(10).ToString('yyyy-MM-dd')
-$appsecretlinescm = az ad app credential reset --id $appregcm.appId --end-date $expirationDate --credential-description "SCEPman app" --append
-$appsecretjsoncm = [System.String]::Concat($appsecretlinescm)
-$appsecretcm = ConvertFrom-Json $appsecretjsoncm
 
 
 # Add Microsoft Graph's User.Read as delegated permission for CertMaster
-az ad app permission add --id $appregcm.appId --api $MSGraphAppId --api-permissions "$MSGraphUserReadPermission=Scope"
-az ad app permission grant --id $appregcm.appId --api $MSGraphAppId --scope "User.Read"
-
-# Allow CertMaster to submit CSR requests to SCEPman
-az ad app permission add --id $appregcm.appId --api $appregsc.appId --api-permissions "$ScepManSubmitCSRPermission=Role"
-az ad app permission grant --id $appregcm.appId --api $appregsc.appId
+ExecuteAzCommandRobustly -azCommand "az ad app permission add --id $($appregcm.appId) --api $MSGraphAppId --api-permissions `"$MSGraphUserReadPermission=Scope`""
+ExecuteAzCommandRobustly -azCommand "az ad app permission grant --id $($appregcm.appId) --api $MSGraphAppId --scope `"User.Read`""
 
 
 
@@ -157,7 +170,7 @@ az ad app permission grant --id $appregcm.appId --api $appregsc.appId
 az extension add --name authV2
 
 # Enable the authentication
-az webapp auth microsoft update --name $CertMasterAppServiceName --resource-group $SCEPmanResourceGroup --client-id $appregcm.appId --client-secret $appsecretcm.password --issuer "https://sts.windows.net/$($tenant.tenantId)/v2.0" --yes
+az webapp auth microsoft update --name $CertMasterAppServiceName --resource-group $SCEPmanResourceGroup --client-id $appregcm.appId --issuer "https://sts.windows.net/$($tenant.tenantId)/v2.0" --yes
 
 # Add the Redirect To
 az webapp auth update --name $CertMasterAppServiceName --resource-group $SCEPmanResourceGroup --redirect-provider AzureActiveDirectory
