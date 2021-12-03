@@ -5,13 +5,13 @@
         "AppServicePlanName": {
             "type": "string",
             "metadata": {
-                "description": "Name of company or organization for certificate subject"
+                "description": "Name of the App Service Plan"
             }
         },
         "appServiceName": {
             "type": "string",
             "metadata": {
-                "description": "Name of company or organization for certificate subject"
+                "description": "Name of SCEPman's app service"
             }
         },
         "keyVaultName": {
@@ -51,14 +51,23 @@
                 "description": "The base URI where artifacts required by this template are located including a trailing '/'"
             },
             "defaultValue": "[uri(deployment().properties.templatelink.uri,'Artifacts.zip')]"
+        },
+        "location": {
+            "type": "string",
+            "metadata": {
+                "description": "Resource Grouü"
+            }
         }
+    },
+    "variables": {
+        "artifacts": "[uri(parameters('_artifactsLocation'), 'Artifacts.zip')]"
     },
     "resources": [
         {
             "apiVersion": "2019-08-01",
             "type": "Microsoft.Web/sites",
             "name": "[parameters('appServiceName')]",
-            "location": "[resourceGroup().location]",
+            "location": "[parameters('location')]",
             "properties": {
                 "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('AppServicePlanName'))]",
                 "httpsOnly": false,
@@ -70,7 +79,7 @@
                     "appSettings": [
                         {
                             "name": "WEBSITE_RUN_FROM_PACKAGE",
-                            "value": "[parameters('_artifactsLocation')]"
+                            "value": "[variables('artifacts')]"
                         },
                         {
                             "name": "AppConfig:BaseUrl",

@@ -5,23 +5,35 @@
         "AppServicePlanName": {
             "type": "string",
             "metadata": {
-                "description": "Name of company or organization for certificate subject"
+                "description": "Name of the App Service Plan to be created"
             }
         },
         "appServiceName": {
             "type": "string",
             "metadata": {
-                "description": "Name of company or organization for certificate subject"
+                "description": "Name of App Service to be created"
+            }
+        },
+        "appServiceName2": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of second App Service to be created"
+            }
+        },        
+        "location": {
+            "type": "string",
+            "metadata": {
+                "description": "Resource Group"
             }
         }
     },
-    
+
     "resources": [
         {
             "apiVersion": "2019-08-01",
             "type": "Microsoft.Web/serverfarms",
             "name": "[parameters('AppServicePlanName')]",
-            "location": "[resourceGroup().location]",
+            "location": "[parameters('location')]",
             "sku": {
                 "Tier": "Standard",
                 "Name": "S1"
@@ -36,7 +48,24 @@
             "apiVersion": "2019-08-01",
             "type": "Microsoft.Web/sites",
             "name": "[parameters('appServiceName')]",
-            "location": "[resourceGroup().location]",
+            "location": "[parameters('location')]",
+            "identity": {
+                "principalId": "",
+                "tenantId": "",
+                "type": "SystemAssigned"
+            },
+            "properties": {
+                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('AppServicePlanName'))]"
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/serverfarms', parameters('AppServicePlanName'))]"
+            ]
+        },
+        {
+            "apiVersion": "2019-08-01",
+            "type": "Microsoft.Web/sites",
+            "name": "[parameters('appServiceName2')]",
+            "location": "[parameters('location')]",
             "identity": {
                 "principalId": "",
                 "tenantId": "",
