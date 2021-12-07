@@ -138,6 +138,9 @@
                     },
                     "_artifactsLocation": {
                         "value": "[parameters('_artifactsLocation')]"
+                    },
+                    "location": {
+                        "value": "[variables('resourceGroup')]"                        
                     }
                 }
             }
