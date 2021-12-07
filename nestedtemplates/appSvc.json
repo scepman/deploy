@@ -13,18 +13,6 @@
             "metadata": {
                 "description": "Name of App Service to be created"
             }
-        },
-        "appServiceName2": {
-            "type": "string",
-            "metadata": {
-                "description": "Name of second App Service to be created"
-            }
-        },        
-        "location": {
-            "type": "string",
-            "metadata": {
-                "description": "Resource Group"
-            }
         }
     },
 
@@ -33,7 +21,7 @@
             "apiVersion": "2019-08-01",
             "type": "Microsoft.Web/serverfarms",
             "name": "[parameters('AppServicePlanName')]",
-            "location": "[parameters('location')]",
+            "location": "[resourceGroup().location]",
             "sku": {
                 "Tier": "Standard",
                 "Name": "S1"
@@ -48,7 +36,7 @@
             "apiVersion": "2019-08-01",
             "type": "Microsoft.Web/sites",
             "name": "[parameters('appServiceName')]",
-            "location": "[parameters('location')]",
+            "location": "[resourceGroup().location]",
             "identity": {
                 "principalId": "",
                 "tenantId": "",
