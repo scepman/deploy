@@ -19,7 +19,7 @@
         "location": {
             "type": "string",
             "metadata": {
-                "description": "Resource Grouü"
+                "description": "Resource Group"
             }
         }
     },
