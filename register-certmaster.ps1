@@ -1,5 +1,5 @@
 # for testing
-$env:SCEPMAN_APP_SERVICE_NAME = "as-scepman-askjvljweklraesr"
+$env:SCEPMAN_APP_SERVICE_NAME = "as-scepman-deploytest"
 $env:CERTMASTER_APP_SERVICE_NAME = "aleen-as-certmaster-askjvljweklraesr"
 #$env:SCEPMAN_RESOURCE_GROUP = "rg-SCEPman" # Optional
 
@@ -7,9 +7,6 @@ $SCEPmanAppServiceName = $env:SCEPMAN_APP_SERVICE_NAME
 $CertMasterAppServiceName = $env:CERTMASTER_APP_SERVICE_NAME
 $CertMasterBaseURL = "https://$CertMasterAppServiceName.azurewebsites.net"
 $SCEPmanResourceGroup = $env:SCEPMAN_RESOURCE_GROUP
-
-### TODO: Add Scepman App Service identification
-
 
 az login
 
@@ -20,6 +17,14 @@ if ([String]::IsNullOrWhiteSpace($SCEPmanResourceGroup)) {
   $scwebapp = ConvertFrom-Json $scwebappjson
 
   $SCEPmanResourceGroup = $scwebapp.resourceGroup
+}
+
+if ([String]::IsNullOrWhiteSpace($CertMasterAppServiceName)) {
+  # TODO: If undefined, find CertMaster App Service Name automatically
+#       Criteria:
+#        - Only two App Services in SCEPman's resource group. One is SCEPman, the other the CertMaster candidate
+#        - Configuration value AppConfig:SCEPman:URL must be present, then it must be a CertMaster
+#        - In a default installation, the URL must contain SCEPman's app service name. We require this.
 }
 
 # Some hard-coded definitions
