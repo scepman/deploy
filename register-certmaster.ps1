@@ -1,7 +1,7 @@
 # for testing
 $env:SCEPMAN_APP_SERVICE_NAME = "as-scepman-askjvljweklraesr"
 $env:CERTMASTER_APP_SERVICE_NAME = "aleen-as-certmaster-askjvljweklraesr"
-$env:SCEPMAN_RESOURCE_GROUP = "rg-SCEPman"
+#$env:SCEPMAN_RESOURCE_GROUP = "rg-SCEPman" # Optional
 
 $SCEPmanAppServiceName = $env:SCEPMAN_APP_SERVICE_NAME
 $CertMasterAppServiceName = $env:CERTMASTER_APP_SERVICE_NAME
@@ -12,6 +12,15 @@ $SCEPmanResourceGroup = $env:SCEPMAN_RESOURCE_GROUP
 
 
 az login
+
+if ([String]::IsNullOrWhiteSpace($SCEPmanResourceGroup)) {
+  # No resource group given, search for it now
+  $scwebapplines = az webapp list --query "[?name=='$SCEPmanAppServiceName']"
+  $scwebappjson = [System.String]::Concat($scwebapplines)
+  $scwebapp = ConvertFrom-Json $scwebappjson
+
+  $SCEPmanResourceGroup = $scwebapp.resourceGroup
+}
 
 # Some hard-coded definitions
 $MSGraphAppId = "00000003-0000-0000-c000-000000000000"
