@@ -55,7 +55,7 @@
         },
         {
             "type": "Microsoft.Authorization/roleAssignments",
-            "apiVersion": "2021-04-01",
+            "apiVersion": "2021-04-01-preview",
             "name": "[concat('roleAssignment-cm-sa-',parameters('StorageAccountName'))]",
             "properties": {
                 "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', '0a9a7e1f-b9d0-4cc4-a60d-0319b160aaa3')]", //0a9a7e1f-b9d0-4cc4-a60d-0319b160aaa3 is Storage Table Data Contributor
@@ -65,7 +65,7 @@
         },
         {
             "type": "Microsoft.Authorization/roleAssignments",
-            "apiVersion": "2021-04-01",
+            "apiVersion": "2021-04-01-preview",
             "name": "[concat('roleAssignment-sc-sa-',parameters('StorageAccountName'))]",
             "properties": {
                 "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', '0a9a7e1f-b9d0-4cc4-a60d-0319b160aaa3')]", //0a9a7e1f-b9d0-4cc4-a60d-0319b160aaa3 is Storage Table Data Contributor
