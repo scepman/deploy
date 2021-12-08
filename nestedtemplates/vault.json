@@ -13,7 +13,7 @@
         "appServiceName": {
             "type": "string",
             "metadata": {
-                "description": "Name of company or organization for certificate subject"
+                "description": "Name of SCEPman app service, whom will be assigned permissions to the KV"
             }
         },
         "location": {
