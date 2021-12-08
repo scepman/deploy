@@ -55,7 +55,8 @@
                 "type": "SystemAssigned"
             },
             "properties": {
-                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('AppServicePlanName'))]"
+                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('AppServicePlanName'))]",
+                "clientAffinityEnabled": false
             },
             "dependsOn": [
                 "[resourceId('Microsoft.Web/serverfarms', parameters('AppServicePlanName'))]"
@@ -72,7 +73,9 @@
                 "type": "SystemAssigned"
             },
             "properties": {
-                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('AppServicePlanName'))]"
+                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('AppServicePlanName'))]",
+                "httpsOnly": true,
+                "clientAffinityEnabled": true
             },
             "dependsOn": [
                 "[resourceId('Microsoft.Web/serverfarms', parameters('AppServicePlanName'))]"
