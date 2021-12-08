@@ -13,7 +13,19 @@
             "metadata": {
                 "description": "Location where the resources will be deployed"
             }
-        }
+        },
+        "appServiceName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of SCEPman app service, whom will be assigned permissions to the vault"
+            }
+        },
+        "appServiceName2": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of CertMaster app service, whom will be assigned permissions to the KV"
+            }
+        }        
     },
     "resources": [
         {
@@ -39,6 +51,26 @@
                     "routingChoice": "MicrosoftRouting"
                 },
                 "supportsHttpsTrafficOnly": "true"
+            }
+        },
+        {
+            "type": "Microsoft.Authorization/roleAssignments",
+            "apiVersion": "2021-04-01",
+            "name": "[concat('roleAssignment-cm-sa-',parameters('StorageAccountName'))]",
+            "properties": {
+                "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', '0a9a7e1f-b9d0-4cc4-a60d-0319b160aaa3')]", //0a9a7e1f-b9d0-4cc4-a60d-0319b160aaa3 is Storage Table Data Contributor
+                "principalId": "[reference(resourceId('Microsoft.Web/sites/', parameters('appServiceName2')), '2019-08-01', 'Full').identity.principalId]",
+                "scope": "[resourceGroup().id]"
+            }
+        },
+        {
+            "type": "Microsoft.Authorization/roleAssignments",
+            "apiVersion": "2021-04-01",
+            "name": "[concat('roleAssignment-sc-sa-',parameters('StorageAccountName'))]",
+            "properties": {
+                "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', '0a9a7e1f-b9d0-4cc4-a60d-0319b160aaa3')]", //0a9a7e1f-b9d0-4cc4-a60d-0319b160aaa3 is Storage Table Data Contributor
+                "principalId": "[reference(resourceId('Microsoft.Web/sites/', parameters('appServiceName')), '2019-08-01', 'Full').identity.principalId]",
+                "scope": "[resourceGroup().id]"
             }
         }
     ]
