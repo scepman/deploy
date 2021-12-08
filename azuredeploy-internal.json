@@ -247,6 +247,12 @@
                                     },
                                     "location": {
                                         "value": "[variables('resourceGroup')]"
+                                    },
+                                    "appServiceName": {
+                                        "value": "[variables('AppServiceName')]"
+                                    },
+                                    "appServiceName2": {
+                                        "value": "[variables('AppServiceCertMasterName')]"
                                     }
                                 }
                             }
