@@ -92,20 +92,6 @@ $serviceprincipaljsoncm = [System.String]::Concat($serviceprincipallinescm)
 $serviceprincipalcm = ConvertFrom-Json $serviceprincipaljsoncm
 
 
-## TODO: Find Service Principal for System-assigned identity of SCEPman - Done
-## TODO: SCEPman Identity shall have the permissions - Done
-## TODO: Find Service Principal for System-assigned identity of CertMaster - Done
-## TODO: SCEPman App registration with Expose API and Manifest - Done
-
-## TODO: CertMaster Identity shall have the SCEPman permission - Done
-
-
-## TODO: CertMaster App registration with Manifest; service authentication and delegated permission - Done
-
-
-## TODO: Make some az calls robust
-
-
 ### SCEPman App Registration
 # JSON defining App Role that CertMaster uses to authenticate against SCEPman
 $ScepmanManifest = '[{ 
