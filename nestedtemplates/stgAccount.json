@@ -58,6 +58,9 @@
             "apiVersion": "2021-04-01-preview",
             "name": "[guid(concat('roleAssignment-cm-sa-',parameters('StorageAccountName')))]",
             "scope": "[concat('Microsoft.Storage/storageAccounts', '/', parameters('StorageAccountName'))]",
+            "dependsOn": [
+                "[parameters('StorageAccountName')]"
+            ],
             "properties": {
                 "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', '0a9a7e1f-b9d0-4cc4-a60d-0319b160aaa3')]", //0a9a7e1f-b9d0-4cc4-a60d-0319b160aaa3 is Storage Table Data Contributor
                 "principalId": "[reference(resourceId('Microsoft.Web/sites/', parameters('appServiceName2')), '2019-08-01', 'Full').identity.principalId]"
@@ -68,6 +71,9 @@
             "apiVersion": "2021-04-01-preview",
             "name": "[guid(concat('roleAssignment-sc-sa-',parameters('StorageAccountName')))]",
             "scope": "[concat('Microsoft.Storage/storageAccounts', '/', parameters('StorageAccountName'))]",
+            "dependsOn": [
+                "[parameters('StorageAccountName')]"
+            ],
             "properties": {
                 "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', '0a9a7e1f-b9d0-4cc4-a60d-0319b160aaa3')]", //0a9a7e1f-b9d0-4cc4-a60d-0319b160aaa3 is Storage Table Data Contributor
                 "principalId": "[reference(resourceId('Microsoft.Web/sites/', parameters('appServiceName')), '2019-08-01', 'Full').identity.principalId]"
