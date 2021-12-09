@@ -21,6 +21,19 @@ if ([String]::IsNullOrWhiteSpace($SCEPmanResourceGroup)) {
 
 if ([String]::IsNullOrWhiteSpace($CertMasterAppServiceName)) {
   # TODO: If undefined, find CertMaster App Service Name automatically
+  $rgwebappslines = az webapp list --resource-group $SCEPmanResourceGroup
+  $rgwebappsjson = [System.String]::Concat($rgwebappslines)
+  $rgwebapps = ConvertFrom-Json $rgwebappsjson
+  if($rgwebapps.Count -eq 2) {
+    $potentialcmwebapp = $rgwebapps | ? {$_.name -ne "$SCEPmanAppServiceName"}
+    $scepmanurlsettingcount = az webapp config appsettings list --name $potentialcmwebapp.name --resource-group $SCEPmanResourceGroup --query "[?name=='AppConfig:SCEPman:URL'].value | length(@)"
+    if($scepmanurlsettingcount -eq 1) {
+        $CertMasterAppServiceName = $potentialcmwebapp.name
+    }
+  }
+
+  # TODO: Throw error is app name is not found?
+
 #       Criteria:
 #        - Only two App Services in SCEPman's resource group. One is SCEPman, the other the CertMaster candidate
 #        - Configuration value AppConfig:SCEPman:URL must be present, then it must be a CertMaster
