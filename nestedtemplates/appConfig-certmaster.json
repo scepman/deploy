@@ -20,18 +20,6 @@
     "scepmanUrl":{
       "type": "string"
     },
-    "appRegistrationGuid": {
-      "type": "string",
-      "metadata": {
-          "description": "GUID of AAD app registration"
-      }
-    },
-    "appRegistrationKey": {
-        "type": "string",
-        "metadata": {
-            "description": "Secret of AAD app registration"
-        }
-    },
     "location": {
       "type": "string",
       "metadata": {
@@ -66,14 +54,6 @@
             {
                 "name": "AppConfig:SCEPman:URL",
                 "value": "[parameters('scepmanUrl')]"                        
-            },
-            {
-              "name": "AppConfig:AuthConfig:ApplicationId",
-              "value": "[parameters('appRegistrationGuid')]"
-            },
-            {
-              "name": "AppConfig:AuthConfig:ApplicationKey",
-              "value": "[parameters('appRegistrationKey')]"
             },
             {
               "name": "AppConfig:AuthConfig:TenantName",

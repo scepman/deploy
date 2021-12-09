@@ -16,18 +16,6 @@
                 "description": "License Key for SCEPman"
             }
         },
-        "appRegistrationGuid": {
-            "type": "string",
-            "metadata": {
-                "description": "GUID of AAD app registration"
-            }
-        },
-        "appRegistrationKey": {
-            "type": "string",
-            "metadata": {
-                "description": "Secret of AAD app registration"
-            }
-        },
         "keyVaultName": {
             "type": "string",
             "minLength": 3,
@@ -169,10 +157,10 @@
                                         "value": "[parameters('OrgName')]"
                                     },
                                     "appRegistrationGuid": {
-                                        "value": "[parameters('appRegistrationGuid')]"
+                                        "value": ""
                                     },
                                     "appRegistrationKey": {
-                                        "value": "[parameters('appRegistrationKey')]"
+                                        "value": ""
                                     },
                                     "_artifactsLocation": {
                                         "value": "[variables('_artifactsLocation')]"
@@ -212,12 +200,6 @@
                                     },
                                     "StorageAccountName": {
                                         "value": "[variables('storageAccountName')]"
-                                    },
-                                    "appRegistrationGuid": {
-                                        "value": "[parameters('appRegistrationGuid')]"
-                                    },
-                                    "appRegistrationKey": {
-                                        "value": "[parameters('appRegistrationKey')]"
                                     },
                                     "_artifactsLocation": {
                                         "value": "[variables('_artifactsLocationCertMaster')]"
