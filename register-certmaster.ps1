@@ -1,12 +1,15 @@
 # for testing
-$env:SCEPMAN_APP_SERVICE_NAME = "as-scepman-deploytest"
-$env:CERTMASTER_APP_SERVICE_NAME = "aleen-as-certmaster-askjvljweklraesr"
+#$env:SCEPMAN_APP_SERVICE_NAME = "as-scepman-deploytest"
+#$env:CERTMASTER_APP_SERVICE_NAME = "aleen-as-certmaster-askjvljweklraesr"
 #$env:SCEPMAN_RESOURCE_GROUP = "rg-SCEPman" # Optional
 
 $SCEPmanAppServiceName = $env:SCEPMAN_APP_SERVICE_NAME
 $CertMasterAppServiceName = $env:CERTMASTER_APP_SERVICE_NAME
-$CertMasterBaseURL = "https://$CertMasterAppServiceName.azurewebsites.net"
 $SCEPmanResourceGroup = $env:SCEPMAN_RESOURCE_GROUP
+
+if ([String]::IsNullOrWhiteSpace($SCEPmanAppServiceName)) {
+  $SCEPmanAppServiceName = Read-Host "Please enter the SCEPman app service name"
+}
 
 az login
 
@@ -20,25 +23,33 @@ if ([String]::IsNullOrWhiteSpace($SCEPmanResourceGroup)) {
 }
 
 if ([String]::IsNullOrWhiteSpace($CertMasterAppServiceName)) {
-  # TODO: If undefined, find CertMaster App Service Name automatically
+
+#       Criteria:
+#       - Only two App Services in SCEPman's resource group. One is SCEPman, the other the CertMaster candidate
+#       - Configuration value AppConfig:SCEPman:URL must be present, then it must be a CertMaster
+#       - In a default installation, the URL must contain SCEPman's app service name. We require this.
+
   $rgwebappslines = az webapp list --resource-group $SCEPmanResourceGroup
   $rgwebappsjson = [System.String]::Concat($rgwebappslines)
   $rgwebapps = ConvertFrom-Json $rgwebappsjson
   if($rgwebapps.Count -eq 2) {
-    $potentialcmwebapp = $rgwebapps | ? {$_.name -ne "$SCEPmanAppServiceName"}
+    $potentialcmwebapp = $rgwebapps | ? {$_.name -ne $SCEPmanAppServiceName}
     $scepmanurlsettingcount = az webapp config appsettings list --name $potentialcmwebapp.name --resource-group $SCEPmanResourceGroup --query "[?name=='AppConfig:SCEPman:URL'].value | length(@)"
     if($scepmanurlsettingcount -eq 1) {
-        $CertMasterAppServiceName = $potentialcmwebapp.name
+        $hascorrectscepmanurl = az webapp config appsettings list --name $potentialcmwebapp.name --resource-group $SCEPmanResourceGroup --query "contains([?name=='AppConfig:SCEPman:URL'].value | [0], '$SCEPmanAppServiceName')"
+        if($hascorrectscepmanurl -eq $true) {
+          $CertMasterAppServiceName = $potentialcmwebapp.name
+        }
     }
   }
 
-  # TODO: Throw error is app name is not found?
-
-#       Criteria:
-#        - Only two App Services in SCEPman's resource group. One is SCEPman, the other the CertMaster candidate
-#        - Configuration value AppConfig:SCEPman:URL must be present, then it must be a CertMaster
-#        - In a default installation, the URL must contain SCEPman's app service name. We require this.
+  if ([String]::IsNullOrWhiteSpace($CertMasterAppServiceName)) {
+    Write-Error "Unable to determine the Certmaster app service name"
+    throw "Unable to determine the Certmaster app service name"
+  }
 }
+
+$CertMasterBaseURL = "https://$CertMasterAppServiceName.azurewebsites.net"
 
 # Some hard-coded definitions
 $MSGraphAppId = "00000003-0000-0000-c000-000000000000"
@@ -83,7 +94,7 @@ function ExecuteAzCommandRobustly($azCommand, $principalId = $null, $appRoleId =
   }
   if ($azErrorCode -ne 0 ) {
     Write-Error "Error $azErrorCode when executing $azCommand : $lastAzOutput"
-    #exit $lastAzError
+    throw "Error $azErrorCode when executing $azCommand : $lastAzOutput"
   }
   else {
     return $lastAzOutput
@@ -132,7 +143,7 @@ $ScepmanManifest = '[{
 }]'.Replace("`r", [String]::Empty).Replace("`n", [String]::Empty)
 
 # Register SCEPman App
-$appreglinessc = ExecuteAzCommandRobustly -azCommand "az ad app create --display-name SCEPman-xyz3 --app-roles '$ScepmanManifest'"
+$appreglinessc = ExecuteAzCommandRobustly -azCommand "az ad app create --display-name SCEPman-api --app-roles '$ScepmanManifest'"
 $appregjsonsc = [System.String]::Concat($appreglinessc)
 $appregsc = ConvertFrom-Json $appregjsonsc
 
@@ -165,7 +176,7 @@ $CertmasterManifest = '[{
 }]'.Replace("`r", [String]::Empty).Replace("`n", [String]::Empty)
 
 # Register CertMaster App
-$appreglinescm = ExecuteAzCommandRobustly -azCommand "az ad app create --display-name SCEPman-CertMaster-xyz4 --reply-urls `"$CertMasterBaseURL/signin-oidc`" --app-roles '$CertmasterManifest'"
+$appreglinescm = ExecuteAzCommandRobustly -azCommand "az ad app create --display-name SCEPman-CertMaster --reply-urls `"$CertMasterBaseURL/signin-oidc`" --app-roles '$CertmasterManifest'"
 $appregjsoncm = [System.String]::Concat($appreglinescm)
 $appregcm = ConvertFrom-Json $appregjsoncm
 az ad sp create --id $appregcm.appId
