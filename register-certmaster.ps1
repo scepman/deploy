@@ -177,7 +177,7 @@ $CertmasterManifest = '[{
 }]'.Replace("`r", [String]::Empty).Replace("`n", [String]::Empty)
 
 # Register CertMaster App
-$appreglinescm = ExecuteAzCommandRobustly -azCommand "az ad app create --display-name SCEPman-CertMaster --reply-urls `"$CertMasterBaseURL/signin-oidc`" --app-roles '$CertmasterManifest'"
+$appreglinescm = ExecuteAzCommandRobustly -azCommand "az ad app create --display-name SCEPman-CertMaster --reply-urls `"$CertMasterBaseURL/.auth/login/aad/callback`" --app-roles '$CertmasterManifest'"
 $appregjsoncm = [System.String]::Concat($appreglinescm)
 $appregcm = ConvertFrom-Json $appregjsoncm
 az ad sp create --id $appregcm.appId
