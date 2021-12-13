@@ -156,12 +156,6 @@
                                     "OrgName": {
                                         "value": "[parameters('OrgName')]"
                                     },
-                                    "appRegistrationGuid": {
-                                        "value": ""
-                                    },
-                                    "appRegistrationKey": {
-                                        "value": ""
-                                    },
                                     "_artifactsLocation": {
                                         "value": "[variables('_artifactsLocation')]"
                                     },
@@ -197,9 +191,6 @@
                                     },
                                     "scepmanUrl": {
                                         "value": "[concat('https://',variables('AppServiceName'),'.azurewebsites.net')]"
-                                    },
-                                    "StorageAccountName": {
-                                        "value": "[variables('storageAccountName')]"
                                     },
                                     "_artifactsLocation": {
                                         "value": "[variables('_artifactsLocationCertMaster')]"
