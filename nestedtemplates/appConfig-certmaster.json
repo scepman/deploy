@@ -2,12 +2,6 @@
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "StorageAccountName": {
-      "type": "string",
-      "metadata": {
-        "description": "Name of the storage account"
-      }
-    },
     "_artifactsLocation": {
       "type": "string"
     },
@@ -48,20 +42,12 @@
               "value": "[variables('artifacts')]"
             },
             {
-              "name": "AppConfig:AzureStorage:ConnectionString",
-              "value": "[Concat('DefaultEndpointsProtocol=https;AccountName=',parameters('StorageAccountName'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName')), '2019-04-01').keys[0].value)]"
-            },
-            {
                 "name": "AppConfig:SCEPman:URL",
                 "value": "[parameters('scepmanUrl')]"                        
             },
             {
               "name": "AppConfig:AuthConfig:TenantName",
               "value": "[subscription().tenantId]"
-            },
-            {
-              "name": "AppConfig:AuthConfig:SCEPmanAPIScope",
-              "value": "xyz"
             }
           ]
         }
