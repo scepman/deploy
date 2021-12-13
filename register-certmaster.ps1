@@ -101,6 +101,7 @@ function ExecuteAzCommandRobustly($azCommand, $principalId = $null, $appRoleId =
   }
 }
 
+
 ## Service Principal for System-assigned identity of SCEPman
 $serviceprincipallinessc = az webapp identity show --name $SCEPmanAppServiceName --resource-group $SCEPmanResourceGroup
 $serviceprincipaljsonsc = [System.String]::Concat($serviceprincipallinessc)
@@ -198,3 +199,7 @@ az webapp auth microsoft update --name $CertMasterAppServiceName --resource-grou
 
 # Add the Redirect To
 az webapp auth update --name $CertMasterAppServiceName --resource-group $SCEPmanResourceGroup --redirect-provider AzureActiveDirectory
+
+# Add ApplicationId and SCEPman API scope
+$CertmasterAppSettings = "{\`"AppConfig:AuthConfig:ApplicationId\`":\`"$($appregcm.appId)\`",\`"AppConfig:AuthConfig:SCEPmanAPIScope\`":\`"api://$($appregsc.appId)\`"}".Replace("`r", [String]::Empty).Replace("`n", [String]::Empty)
+az webapp config appsettings set --name $CertMasterAppServiceName --resource-group $SCEPmanResourceGroup --settings $CertmasterAppSettings
