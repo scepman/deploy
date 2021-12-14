@@ -49,7 +49,7 @@
             },
             {
               "name": "AppConfig:AzureStorage:TableStorageEndpoint",
-              "value": "[Concat('https://',parameters('StorageAccountName'),'.table.core.windows.net']"
+              "value": "[Concat('https://',parameters('StorageAccountName'),'.table.core.windows.net')]"
             },
             {
                 "name": "AppConfig:SCEPman:URL",
