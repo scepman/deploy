@@ -192,6 +192,9 @@
                                     "scepmanUrl": {
                                         "value": "[concat('https://',variables('AppServiceName'),'.azurewebsites.net')]"
                                     },
+                                    "StorageAccountName": {
+                                        "value": "[variables('storageAccountName')]"
+                                    },
                                     "_artifactsLocation": {
                                         "value": "[variables('_artifactsLocationCertMaster')]"
                                     },

@@ -2,6 +2,12 @@
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
+    "StorageAccountName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the storage account"
+      }
+    },
     "_artifactsLocation": {
       "type": "string"
     },
@@ -40,6 +46,10 @@
             {
               "name": "WEBSITE_RUN_FROM_PACKAGE",
               "value": "[variables('artifacts')]"
+            },
+            {
+              "name": "AppConfig:AzureStorage:TableStorageEndpoint",
+              "value": "[Concat('https://',parameters('StorageAccountName'),'.table.core.windows.net']"
             },
             {
                 "name": "AppConfig:SCEPman:URL",
