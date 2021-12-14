@@ -200,6 +200,10 @@ az webapp auth microsoft update --name $CertMasterAppServiceName --resource-grou
 # Add the Redirect To
 az webapp auth update --name $CertMasterAppServiceName --resource-group $SCEPmanResourceGroup --redirect-provider AzureActiveDirectory
 
-# Add ApplicationId and SCEPman API scope
+# Add ApplicationId in SCEPman web app settings
+$ScepManAppSettings = "{\`"AppConfig:AuthConfig:ApplicationId\`":\`"$($appregsc.appId)\`"}".Replace("`r", [String]::Empty).Replace("`n", [String]::Empty)
+az webapp config appsettings set --name $SCEPmanAppServiceName --resource-group $SCEPmanResourceGroup --settings $ScepManAppSettings
+
+# Add ApplicationId and SCEPman API scope in certmaster web app settings
 $CertmasterAppSettings = "{\`"AppConfig:AuthConfig:ApplicationId\`":\`"$($appregcm.appId)\`",\`"AppConfig:AuthConfig:SCEPmanAPIScope\`":\`"api://$($appregsc.appId)\`"}".Replace("`r", [String]::Empty).Replace("`n", [String]::Empty)
 az webapp config appsettings set --name $CertMasterAppServiceName --resource-group $SCEPmanResourceGroup --settings $CertmasterAppSettings
