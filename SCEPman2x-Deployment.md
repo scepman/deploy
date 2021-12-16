@@ -34,6 +34,10 @@ Prerequistes:
 3. You will be asked for the name of SCEPman app service.
 4. Log on with a Global Admin account when asked to.
 
-### Create root certificate
+### Create Root Certificate
 
 * Follow instructions on the homepage of your SCEPman installation.
+
+## Upgrade From 1.x To 2.x
+
+To be described ...
