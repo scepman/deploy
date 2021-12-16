@@ -156,6 +156,12 @@
                                     "OrgName": {
                                         "value": "[parameters('OrgName')]"
                                     },
+                                    "appRegistrationGuid": {
+                                        "value": ""
+                                    },
+                                    "appRegistrationKey": {
+                                        "value": ""
+                                    },
                                     "_artifactsLocation": {
                                         "value": "[variables('_artifactsLocation')]"
                                     },
