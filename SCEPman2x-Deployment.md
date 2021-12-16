@@ -19,7 +19,7 @@ Fill out the values in the form, similar to this screenshot:
 
 1. Select an existing resource group or create a new one. The SCEPMan resources will be deployed in this resource group.
 2. Set the location according to your location
-3. Define a name for key vault, app service plan, storage account, and for the two web sites.
+3. Define a name for key vault, app service plan, storage account, and for the two web sites. The two web sites are the SCEPman App Service and the CertMaster App Service. You will need the name of the SCEPman App Service later on.
 4. Agree to the terms and conditions by clicking the checkbox
 5. Click **Purchase**
 
@@ -30,4 +30,10 @@ Prerequistes:
 - A workstation with [az CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli) installed (Alternatively: Azure Cloud Shell)
 
 1. Download the <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fscepman%2Finstall%2Fmaster%2Fregister-certmaster.ps1" target="_blank">SCEPman configuration PowerShell Script</a>.
-2. Execu
+2. Execute the script.
+3. You will be asked for the name of SCEPman app service.
+4. Log on with a Global Admin account when asked to.
+
+### Create root certificate
+
+* Follow instructions on the homepage of your SCEPman installation.
