@@ -38,6 +38,14 @@ Prerequistes:
 
 * Follow instructions on the homepage of your SCEPman installation.
 
+### Granting the Rights to Request Certificates via the CertMaster Website
+
+Create an AAD Group, possibly a Priviledged Access Group, for the people that shall be able to create web server certificates via CertMaster.
+
+In the Azure Portal, visit [Enterprise applications](https://portal.azure.com/#blade/Microsoft_AAD_IAM/StartboardApplicationsMenuBlade/AllApps/menuId/). Select "All Applications" as Application type, search for *SCEPman-CertMaster*, and select the displayed application. Navigate to *Users and groups* and click *Add user/group* on the top menu. Select the group you have previously created. The role will automatically be chosen as *Full Admin*. After you hit *Assign*, direct members of the group can visit the CertMaster website and request certificates. Note that using CertMaster is an Enterprise feature. After assignment, the setting should look like this:
+
+![Screenshot](./docs/images/app-role-assignment.png)
+
 ## Upgrade From 1.x To 2.x
 
 To be described ...
