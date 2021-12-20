@@ -135,7 +135,8 @@
                             "name": "[variables('deploymentConfigurationName')]",
                             "dependsOn": [
                                 "[concat('Microsoft.Resources/deployments/', variables('deploymentAppServiceName'))]",
-                                "[concat('Microsoft.Resources/deployments/', variables('deploymentVaultName'))]"
+                                "[concat('Microsoft.Resources/deployments/', variables('deploymentVaultName'))]",
+                                "[concat('Microsoft.Resources/deployments/', variables('deploymentStorageAccount'))]"
                             ],
                             "properties": {
                                 "mode": "Incremental",
