@@ -28,7 +28,7 @@
     }
   },
   "variables": {
-    "artifacts": "[uri(parameters('_artifactsLocation'), 'CertMaster-Artifacts.zip')]"
+    "artifacts": "[uri(parameters('_artifactsLocation'), 'CertMaster-Artifacts-Intern.zip')]"
   },
   "resources": [
     {

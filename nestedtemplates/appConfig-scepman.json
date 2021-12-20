@@ -60,7 +60,7 @@
         }
     },
     "variables": {
-        "artifacts": "[uri(parameters('_artifactsLocation'), 'Artifacts.zip')]"
+        "artifacts": "[uri(parameters('_artifactsLocation'), 'Artifacts-Intern.zip')]"
     },
     "resources": [
         {
