@@ -144,6 +144,9 @@
                                     "contentVersion": "1.0.0.0"
                                 },
                                 "parameters": {
+                                    "StorageAccountName": {
+                                        "value": "[variables('storageAccountName')]"
+                                    },
                                     "AppServicePlanName": {
                                         "value": "[variables('AppServicePlanName')]"
                                     },
