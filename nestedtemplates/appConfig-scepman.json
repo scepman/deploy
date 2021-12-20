@@ -2,6 +2,12 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
+        "StorageAccountName": {
+            "type": "string",
+            "metadata": {
+              "description": "Name of the storage account"
+            }
+        },
         "AppServicePlanName": {
             "type": "string",
             "metadata": {
@@ -108,6 +114,10 @@
                         {
                             "name": "AppConfig:KeyVaultConfig:KeyVaultURL",
                             "value": "[reference(resourceid('Microsoft.KeyVault/vaults/', parameters('keyVaultName')), '2019-09-01', 'Full').properties.vaultUri]"
+                        },
+                        {
+                          "name": "AppConfig:AzureStorage:TableStorageEndpoint",
+                          "value": "[Concat('https://',parameters('StorageAccountName'),'.table.core.windows.net')]"
                         },
                         {
                             "name": "AppConfig:KeyVaultConfig:RootCertificateConfig:CertificateName",
