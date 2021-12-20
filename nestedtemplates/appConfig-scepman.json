@@ -45,12 +45,6 @@
                 "description": "GUID of AAD app registration"
             }
         },
-        "appRegistrationKey": {
-            "type": "string",
-            "metadata": {
-                "description": "Secret of AAD app registration"
-            }
-        },
         "_artifactsLocation": {
             "type": "string",
             "metadata": {
