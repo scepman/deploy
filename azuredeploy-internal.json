@@ -51,7 +51,7 @@
         "_artifactsLocationCertMaster": "[concat(variables('repositoryUrl'),'dist-certmaster/CertMaster-Artifacts.zip')]",
         "appSvcTemplateUri": "[concat(variables('repositoryUrl'), 'nestedtemplates/appSvcDouble.json')]",
         "vaultTemplateUri": "[concat(variables('repositoryUrl'), 'nestedtemplates/vault.json')]",
-        "appConfigTemplateUri": "[concat(variables('repositoryUrl'), 'nestedtemplates/appConfig.json')]",
+        "appConfigTemplateUri": "[concat(variables('repositoryUrl'), 'nestedtemplates/appConfig-scepman.json')]",
         "appConfigCertMasterTemplateUri": "[concat(variables('repositoryUrl'), 'nestedtemplates/appConfig-certmaster.json')]",
         "stgAccountTemplateUri": "[concat(variables('repositoryUrl'), 'nestedtemplates/stgAccount.json')]",
         "AppServicePlanName": "[parameters('appServicePlanName')]",
@@ -158,10 +158,7 @@
                                     },
                                     "appRegistrationGuid": {
                                         "value": ""
-                                    },
-                                    "appRegistrationKey": {
-                                        "value": ""
-                                    },
+                                    },  
                                     "_artifactsLocation": {
                                         "value": "[variables('_artifactsLocation')]"
                                     },
