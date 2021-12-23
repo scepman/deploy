@@ -11,7 +11,7 @@ if ([String]::IsNullOrWhiteSpace($SCEPmanAppServiceName)) {
   $SCEPmanAppServiceName = Read-Host "Please enter the SCEPman app service name"
 }
 
-#az login
+az login
 
 # Some hard-coded definitions
 $MSGraphAppId = "00000003-0000-0000-c000-000000000000"
