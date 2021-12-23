@@ -127,11 +127,44 @@ function GetCertMasterAppServiceName {
         }
       }
       if ([String]::IsNullOrWhiteSpace($CertMasterAppServiceName)) {
-        Write-Error "Unable to determine the Certmaster app service name"
-        throw "Unable to determine the Certmaster app service name"
+        Write-Warning "Unable to determine the Certmaster app service name"
+        return $null
       }
     }
     return $CertMasterAppServiceName;
+}
+
+function CreateCertMasterAppService {
+  $CertMasterAppServiceName = GetCertMasterAppServiceName
+
+  if ($null -eq $CertMasterAppServiceName) {
+    $scwebapp = ConvertLinesToObject -lines $(az webapp list --query "[?name=='$SCEPmanAppServiceName']")
+    $scwebapp.appServicePlanId
+    $CertMasterAppServiceName = $scwebapp.name
+    if ($CertMasterAppServiceName.Length -gt 57) {
+      $CertMasterAppServiceName = $CertMasterAppServiceName.Substring(0,57)
+    }
+    $CertMasterAppServiceName += "-cm"
+    # TODO: Ask the user to confirm the name
+
+    $dummy = az webapp create --resource-group $SCEPmanResourceGroup --plan $scwebapp.appServicePlanId --name $CertMasterAppServiceName --assign-identity [system]
+
+    # Do all the configuration that the ARM template does normally
+    $CertmasterAppSettings = @{
+      WEBSITE_RUN_FROM_PACKAGE = "https://raw.githubusercontent.com/scepman/install/master/dist-certmaster/CertMaster-Artifacts-Intern.zip";
+      "AppConfig:AuthConfig:TenantId" = $tenant.id;
+      "AppConfig:SCEPman:URL" = "https://$($scwebapp.defaultHostName)/";
+      "AppConfig:AzureStorage:TableStorageEndpoint" = [string]::Empty # TODO: Enter the right value
+    } | ConvertTo-Json -Compress
+    $CertMasterAppSettings = $CertmasterAppSettings.Replace('"', '\"')
+
+    $dummy = az webapp config appsettings set --name $CertMasterAppServiceName --resource-group $SCEPmanResourceGroup --settings $CertmasterAppSettings
+    # TODO: Enforce HTTPS
+    # TODO: Switch to 64 Bits plattform
+    # TODO: Compare other settings
+  }
+
+  return $CertMasterAppServiceName
 }
 
 function GetServicePrincipal($appServiceNameParam, $resourceGroupParam) {
@@ -194,7 +227,7 @@ function AddDelegatedPermissionToCertMasterApp($appId) {
 
 $tenant = GetTenantDetails
 $SCEPmanResourceGroup = GetResourceGroup
-$CertMasterAppServiceName = GetCertMasterAppServiceName
+$CertMasterAppServiceName = CreateCertMasterAppService
 $CertMasterBaseURL = "https://$CertMasterAppServiceName.azurewebsites.net"
 $graphResourceId = GetAzureResourceAppId -appId $MSGraphAppId
 $intuneResourceId = GetAzureResourceAppId -appId $IntuneAppId
