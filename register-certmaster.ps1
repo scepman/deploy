@@ -3,6 +3,8 @@
 #$env:CERTMASTER_APP_SERVICE_NAME = "aleen-as-certmaster-askjvljweklraesr"
 #$env:SCEPMAN_RESOURCE_GROUP = "rg-SCEPman" # Optional
 
+$InformationPreference="Continue"
+
 $SCEPmanAppServiceName = $env:SCEPMAN_APP_SERVICE_NAME
 $CertMasterAppServiceName = $env:CERTMASTER_APP_SERVICE_NAME
 $SCEPmanResourceGroup = $env:SCEPMAN_RESOURCE_GROUP
@@ -138,8 +140,8 @@ function CreateCertMasterAppService {
   $CertMasterAppServiceName = GetCertMasterAppServiceName
 
   if ($null -eq $CertMasterAppServiceName) {
+    Write-Information 'CertMaster web app not found. We will create one now'
     $scwebapp = ConvertLinesToObject -lines $(az webapp list --query "[?name=='$SCEPmanAppServiceName']")
-    $scwebapp.appServicePlanId
     $CertMasterAppServiceName = $scwebapp.name
     if ($CertMasterAppServiceName.Length -gt 57) {
       $CertMasterAppServiceName = $CertMasterAppServiceName.Substring(0,57)
@@ -147,24 +149,89 @@ function CreateCertMasterAppService {
     $CertMasterAppServiceName += "-cm"
     # TODO: Ask the user to confirm the name
 
-    $dummy = az webapp create --resource-group $SCEPmanResourceGroup --plan $scwebapp.appServicePlanId --name $CertMasterAppServiceName --assign-identity [system]
+    $dummy = az webapp create --resource-group $SCEPmanResourceGroup --plan $scwebapp.appServicePlanId --name $CertMasterAppServiceName --assign-identity [system] --% --runtime "DOTNET|5.0"
+    Write-Information "CertMaster web app $CertMasterAppServiceName created"
 
     # Do all the configuration that the ARM template does normally
     $CertmasterAppSettings = @{
-      WEBSITE_RUN_FROM_PACKAGE = "https://raw.githubusercontent.com/scepman/install/master/dist-certmaster/CertMaster-Artifacts-Intern.zip";
-      "AppConfig:AuthConfig:TenantId" = $tenant.id;
+      WEBSITE_RUN_FROM_PACKAGE = "https://raw.githubusercontent.com/scepman/install/master/dist-certmaster/CertMaster-Artifacts-Intern.zip"; # TODO: Correct artifacts name
+      "AppConfig:AuthConfig:TenantId" = $tenant.tenantId;
       "AppConfig:SCEPman:URL" = "https://$($scwebapp.defaultHostName)/";
-      "AppConfig:AzureStorage:TableStorageEndpoint" = [string]::Empty # TODO: Enter the right value
     } | ConvertTo-Json -Compress
     $CertMasterAppSettings = $CertmasterAppSettings.Replace('"', '\"')
 
-    $dummy = az webapp config appsettings set --name $CertMasterAppServiceName --resource-group $SCEPmanResourceGroup --settings $CertmasterAppSettings
+    Write-Debug 'Configuring CertMaster web app settings'
+    $dummy = az webapp config set --name $CertMasterAppServiceName --resource-group $SCEPmanResourceGroup --use-32bit-worker-process $false --ftps-state 'Disabled' --always-on $true
+    $dummy = az webapp update --name $CertMasterAppServiceName --resource-group $SCEPmanResourceGroup --https-only $true
+    $dummy = az webapp config appsettings set --name $CertMasterAppServiceName --resource-group $SCEPmanResourceGroup --settings $CertMasterAppSettings 
     # TODO: Enforce HTTPS
     # TODO: Switch to 64 Bits plattform
     # TODO: Compare other settings
   }
 
   return $CertMasterAppServiceName
+}
+
+function GetStorageAccount {
+    $storageaccounts = ConvertLinesToObject -lines $(az storage account list --resource-group $SCEPmanResourceGroup)
+    if($storageaccounts.Count -eq 1) {
+        return $storageaccounts[0]
+    }
+    if($storageaccounts.Count -gt 1) {
+        $potentialStorageAccountName = Read-Host "We have found more than one storage accounts in the resource group. Please hit enter now if you still want to create a new storage account or enter the name of the storage account you would like to use, and then hit enter"
+        if(!$potentialStorageAccountName) {
+            Write-Information "User selected to create a new storage account"
+            return $null
+        } else {
+            $potentialStorageAccount = $storageaccounts | ? { $_.name -eq $potentialStorageAccountName }
+            if($null -eq $potentialStorageAccount) {
+                Write-Error "We couldn't find a storage account witht name $potentialStorageAccountName. Please try to re-run the script"
+                throw "We couldn't find a storage account witht name $potentialStorageAccountName. Please try to re-run the script"
+            } else {
+                return $potentialStorageAccount
+            }
+        }
+    }
+    else {
+        Write-Warning "Unable to determine the storage account"
+        return $null
+    }
+}
+
+
+function CreateScStorageAccount {
+    $ScStorageAccount = GetStorageAccount
+    if($null -eq $ScStorageAccount) {
+        Write-Information 'Storage account not found. We will create one now'
+        $storageAccountName = $SCEPmanResourceGroup -replace '[^a-z0-9]',''
+        if($storageAccountName.Length -gt 19) {
+            $storageAccountName = $storageAccountName.Substring(0,19)
+        }
+        $storageAccountName = "stg$($storageAccountName)cm"
+        # TODO: Ask the user to confirm the storage account name. Do we need to validate the user input?
+        $ScStorageAccount = ConvertLinesToObject -lines $(az storage account create --name $storageAccountName --resource-group $SCEPmanResourceGroup --sku 'Standard_LRS' --kind 'StorageV2' --access-tier 'Hot' --allow-blob-public-access $true --allow-cross-tenant-replication $false --allow-shared-key-access $false --enable-nfs-v3 $false --min-tls-version 'TLS1_2' --publish-internet-endpoints $false --publish-microsoft-endpoints $false --routing-choice 'MicrosoftRouting' --https-only $true)
+        if($null -eq $ScStorageAccount) {
+            Write-Error 'Storage account not found and we are unable to create one. Please check logs for more details before re-running the script'
+            throw 'Storage account not found and we are unable to create one. Please check logs for more details before re-running the script'
+        }
+        Write-Information "Storage account $storageAccountName created"
+    }
+    return $ScStorageAccount
+}
+
+function SetTableStorageEndpointsInScAndCmAppSettings {
+    $AppSettings = @{
+      "AppConfig:AzureStorage:TableStorageEndpoint" = $($ScStorageAccount.primaryEndpoints.table) # TODO: Enter the right value
+    } | ConvertTo-Json -Compress
+    $AppSettings = $AppSettings.Replace('"', '\"')
+    Write-Debug "Configuring table storage endpoints in SCEPman and CertMaster"
+    $dummy = az webapp config appsettings set --name $CertMasterAppServiceName --resource-group $SCEPmanResourceGroup --settings $AppSettings
+    $dummy = az webapp config appsettings set --name $SCEPmanAppServiceName --resource-group $SCEPmanResourceGroup --settings $AppSettings
+}
+
+function CreateRoleAssignementsForStorageAccount {
+    $dummy = az role assignment create --role 'Storage Table Data Contributor' --assignee-object-id $serviceprincipalcm.principalId --assignee-principal-type 'ServicePrincipal' --scope `/subscriptions/$($tenant.id)/resourceGroups/$SCEPmanResourceGroup/providers/Microsoft.Storage/storageAccounts/$($ScStorageAccount.name)`
+    $dummy = az role assignment create --role 'Storage Table Data Contributor' --assignee-object-id $serviceprincipalsc.principalId --assignee-principal-type 'ServicePrincipal' --scope `/subscriptions/$($tenant.id)/resourceGroups/$SCEPmanResourceGroup/providers/Microsoft.Storage/storageAccounts/$($ScStorageAccount.name)`
 }
 
 function GetServicePrincipal($appServiceNameParam, $resourceGroupParam) {
@@ -208,10 +275,10 @@ function RegisterAzureADApp($name, $manifest, $replyUrls = $null) {
     if($null -eq $azureAdAppReg) {
         #App Registration doesn't exist.
         if($null -eq $replyUrls) {
-            $azureAdAppReg = ExecuteAzCommandRobustly -azCommand "az ad app create --display-name '$name' --app-roles '$manifest'"     
+            $azureAdAppReg = ConvertLinesToObject -lines $(ExecuteAzCommandRobustly -azCommand "az ad app create --display-name '$name' --app-roles '$manifest'")
         }
         else {
-            $azureAdAppReg = ExecuteAzCommandRobustly -azCommand "az ad app create --display-name '$name' --app-roles '$manifest' --reply-urls '$replyUrls'" 
+            $azureAdAppReg = ConvertLinesToObject -lines $(ExecuteAzCommandRobustly -azCommand "az ad app create --display-name '$name' --app-roles '$manifest' --reply-urls '$replyUrls'")
         }
     }  
     return $azureAdAppReg
@@ -225,12 +292,21 @@ function AddDelegatedPermissionToCertMasterApp($appId) {
     $dummy = ExecuteAzCommandRobustly -azCommand "az ad app permission grant --id $appId --api $MSGraphAppId --scope `"User.Read`""
 }
 
+Write-Information "Configuring SCEPman and CertMaster"
+
+Write-Debug "Getting tenant details"
 $tenant = GetTenantDetails
+
+Write-Debug "Setting resource group"
 $SCEPmanResourceGroup = GetResourceGroup
+
+Write-Debug "Getting storage account"
+$ScStorageAccount = CreateScStorageAccount
+
+Write-Debug "Getting CertMaster web app"
 $CertMasterAppServiceName = CreateCertMasterAppService
-$CertMasterBaseURL = "https://$CertMasterAppServiceName.azurewebsites.net"
-$graphResourceId = GetAzureResourceAppId -appId $MSGraphAppId
-$intuneResourceId = GetAzureResourceAppId -appId $IntuneAppId
+
+SetTableStorageEndpointsInScAndCmAppSettings
 
 # Service principal of System-assigned identity of SCEPman
 $serviceprincipalsc = GetServicePrincipal -appServiceNameParam $SCEPmanAppServiceName -resourceGroupParam $SCEPmanResourceGroup
@@ -238,51 +314,55 @@ $serviceprincipalsc = GetServicePrincipal -appServiceNameParam $SCEPmanAppServic
 # Service principal of System-assigned identity of CertMaster
 $serviceprincipalcm = GetServicePrincipal -appServiceNameParam $CertMasterAppServiceName -resourceGroupParam $SCEPmanResourceGroup
 
+Write-Information "Setting permissions in storage account for SCEPman and CertMaster"
+CreateRoleAssignementsForStorageAccount
+
+$CertMasterBaseURL = "https://$CertMasterAppServiceName.azurewebsites.net"
+Write-Debug "CertMaster web app url is $CertMasterBaseURL"
+
+$graphResourceId = GetAzureResourceAppId -appId $MSGraphAppId
+$intuneResourceId = GetAzureResourceAppId -appId $IntuneAppId
+
+
 ### Set managed identity permissions for SCEPman
 $resourcePermissionsForSCEPman = 
     @([pscustomobject]@{'resourceId'=$graphResourceId;'appRoleId'=$MSGraphDirectoryReadAllPermission;},
       [pscustomobject]@{'resourceId'=$graphResourceId;'appRoleId'=$MSGraphDeviceManagementReadPermission;},
       [pscustomobject]@{'resourceId'=$intuneResourceId;'appRoleId'=$IntuneSCEPChallengePermission;}
 )
+Write-Information "Setting up permissions for SCEPman"
 SetManagedIdentityPermissions -principalId $serviceprincipalsc.principalId -resourcePermissions $resourcePermissionsForSCEPman
 
 
+Write-Information "Creating Azure AD app registration for SCEPman"
 ### SCEPman App Registration
-
 # Register SCEPman App
 $appregsc = RegisterAzureADApp -name $azureADAppNameForSCEPman -manifest $ScepmanManifest
-$spsc = CreateServicePrincipal -appId $appregsc.appId
+$spsc = CreateServicePrincipal -appId $($appregsc.appId)
 
 $ScepManSubmitCSRPermission = $appregsc.appRoles[0].id
 
 # Expose SCEPman API
 ExecuteAzCommandRobustly -azCommand "az ad app update --id $($appregsc.appId) --identifier-uris `"api://$($appregsc.appId)`""
 
+Write-Information "Allowing CertMaster to submit CSR requests to SCEPman API"
 # Allow CertMaster to submit CSR requests to SCEPman API
 $resourcePermissionsForCertMaster = @([pscustomobject]@{'resourceId'=$($spsc.objectId);'appRoleId'=$ScepManSubmitCSRPermission;})
 SetManagedIdentityPermissions -principalId $serviceprincipalcm.principalId -resourcePermissions $resourcePermissionsForCertMaster
 
 
+Write-Information "Creating Azure AD app registration for CertMaster"
 ### CertMaster App Registration
 
 # Register CertMaster App
 $appregcm = RegisterAzureADApp -name $azureADAppNameForCertMaster -manifest $CertmasterManifest -replyUrls `"$CertMasterBaseURL/signin-oidc`"
-$dummy = CreateServicePrincipal -appId $appregcm.appId
+$dummy = CreateServicePrincipal -appId $($appregcm.appId)
 
 # Add Microsoft Graph's User.Read as delegated permission for CertMaster
 AddDelegatedPermissionToCertMasterApp -appId $appregcm.appId
 
 
-
-### Add CertMaster app service authentication
-# Use v2 auth commands
-# az extension add --name authV2
-
-# Enable the authentication
-# az webapp auth microsoft update --name $CertMasterAppServiceName --resource-group $SCEPmanResourceGroup --client-id $appregcm.appId --issuer "https://sts.windows.net/$($tenant.tenantId)/v2.0" --yes
-
-# Add the Redirect To
-# az webapp auth update --name $CertMasterAppServiceName --resource-group $SCEPmanResourceGroup --redirect-provider AzureActiveDirectory
+Write-Debug "Configuring SCEPman and CertMaster web app settings"
 
 # Add ApplicationId in SCEPman web app settings
 $ScepManAppSettings = "{\`"AppConfig:AuthConfig:ApplicationId\`":\`"$($appregsc.appId)\`"}".Replace("`r", [String]::Empty).Replace("`n", [String]::Empty)
@@ -291,3 +371,5 @@ $dummy = az webapp config appsettings set --name $SCEPmanAppServiceName --resour
 # Add ApplicationId and SCEPman API scope in certmaster web app settings
 $CertmasterAppSettings = "{\`"AppConfig:AuthConfig:ApplicationId\`":\`"$($appregcm.appId)\`",\`"AppConfig:AuthConfig:SCEPmanAPIScope\`":\`"api://$($appregsc.appId)\`"}".Replace("`r", [String]::Empty).Replace("`n", [String]::Empty)
 $dummy = az webapp config appsettings set --name $CertMasterAppServiceName --resource-group $SCEPmanResourceGroup --settings $CertmasterAppSettings
+
+Write-Information "SCEPman and CertMaster configuration completed"
