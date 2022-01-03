@@ -9,7 +9,10 @@
       }
     },
     "_artifactsLocation": {
-      "type": "string"
+        "type": "string",
+        "metadata": {
+            "description": "The full URI where artifacts required by this template are located"
+        }
     },
     "AppServicePlanName": {
       "type": "string"
@@ -28,7 +31,7 @@
     }
   },
   "variables": {
-    "artifacts": "[uri(parameters('_artifactsLocation'), 'CertMaster-Artifacts-Intern.zip')]"
+    "artifactsLocation": "[parameters('_artifactsLocation')]"
   },
   "resources": [
     {
@@ -45,7 +48,7 @@
           "appSettings": [
             {
               "name": "WEBSITE_RUN_FROM_PACKAGE",
-              "value": "[variables('artifacts')]"
+              "value": "[variables('artifactsLocation')]"
             },
             {
               "name": "AppConfig:AzureStorage:TableStorageEndpoint",
