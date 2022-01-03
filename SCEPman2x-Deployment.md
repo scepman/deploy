@@ -11,7 +11,7 @@ If you want to upgrade from SCEPman 1.x to SCEPman 2.x, you can just auto-update
 Log in with an AAD Administrator account and visit this site. Click on a deployment link:
 
 - Production channel is still on SCEPman 1.x
-- Beta Channel is still on SCEPman 1.x
+- <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fscepman%2Finstall%2Fmaster%2Fazuredeploy-beta.json" target="_blank">Beta Channel</a>
 - <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fscepman%2Finstall%2Fmaster%2Fazuredeploy-internal.json" target="_blank">Internal Channel</a>
 
 Fill out the values in the form, similar to this screenshot:
