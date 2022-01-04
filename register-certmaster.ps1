@@ -156,7 +156,7 @@ function CreateCertMasterAppService {
     }
     
     $CertMasterAppServiceName += "-cm"
-    $potentialCertMasterAppServiceName = Read-Host 'CertMaster web app not found. Please hit enter now if you want to create the app with name $CertMasterAppServiceName or enter the name of your choice, and then hit enter'
+    $potentialCertMasterAppServiceName = Read-Host "CertMaster web app not found. Please hit enter now if you want to create the app with name $CertMasterAppServiceName or enter the name of your choice, and then hit enter"
     
     if($potentialCertMasterAppServiceName) {
         $CertMasterAppServiceName = $potentialCertMasterAppServiceName
@@ -223,7 +223,7 @@ function CreateScStorageAccount {
             $storageAccountName = $storageAccountName.Substring(0,19)
         }
         $storageAccountName = "stg$($storageAccountName)cm"
-        $potentialStorageAccountName = Read-Host 'Storage account not found. Please hit enter now if you want to create the storage account with name $storageAccountName or enter the name of your choice, and then hit enter'
+        $potentialStorageAccountName = Read-Host "Storage account not found. Please hit enter now if you want to create the storage account with name $storageAccountName or enter the name of your choice, and then hit enter"
         if($potentialStorageAccountName) {
             $storageAccountName = $potentialStorageAccountName
         }
@@ -366,6 +366,8 @@ CreateRoleAssignementsForStorageAccount
 $CertMasterBaseURL = "https://$CertMasterAppServiceName.azurewebsites.net"
 Write-Information "CertMaster web app url is $CertMasterBaseURL"
 
+$SCEPmanBaseURL = "https://$SCEPmanAppServiceName.azurewebsites.net"
+
 $graphResourceId = GetAzureResourceAppId -appId $MSGraphAppId
 $intuneResourceId = GetAzureResourceAppId -appId $IntuneAppId
 
@@ -411,13 +413,13 @@ AddDelegatedPermissionToCertMasterApp -appId $appregcm.appId
 Write-Information "Configuring SCEPman and CertMaster web app settings"
 
 # Add ApplicationId in SCEPman web app settings
-$ScepManAppSettings = "{\`"AppConfig:AuthConfig:ApplicationId\`":\`"$($appregsc.appId)\`"}".Replace("`r", [String]::Empty).Replace("`n", [String]::Empty)
+$ScepManAppSettings = "{\`"AppConfig:AuthConfig:ApplicationId\`":\`"$($appregsc.appId)\`",\`"AppConfig:CertMaster:URL\`":\`"$($SCEPmanBaseURL)\`"}".Replace("`r", [String]::Empty).Replace("`n", [String]::Empty)
 $dummy = az webapp config appsettings set --name $SCEPmanAppServiceName --resource-group $SCEPmanResourceGroup --settings $ScepManAppSettings
 
 $existingApplicationKeySc = az webapp config appsettings list --name $SCEPmanAppServiceName --resource-group $SCEPmanResourceGroup --query "[?name=='AppConfig:AuthConfig:ApplicationKey'].value | [0]"
 if(![string]::IsNullOrEmpty($existingApplicationKeySc)) {
-    az webapp config appsettings set --name $SCEPmanAppServiceName --resource-group $SCEPmanResourceGroup --settings BackUp:AppConfig:AuthConfig:ApplicationKey=$existingApplicationKeySc
-    az webapp config appsettings delete --name $SCEPmanAppServiceName --resource-group $SCEPmanResourceGroup --setting-names AppConfig:AuthConfig:ApplicationKey
+    $dummy = az webapp config appsettings set --name $SCEPmanAppServiceName --resource-group $SCEPmanResourceGroup --settings BackUp:AppConfig:AuthConfig:ApplicationKey=$existingApplicationKeySc
+    $dummy = az webapp config appsettings delete --name $SCEPmanAppServiceName --resource-group $SCEPmanResourceGroup --setting-names AppConfig:AuthConfig:ApplicationKey
 }
 
 # Add ApplicationId and SCEPman API scope in certmaster web app settings
