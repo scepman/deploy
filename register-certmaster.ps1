@@ -136,18 +136,36 @@ function GetCertMasterAppServiceName {
 
 function CreateCertMasterAppService {
   $CertMasterAppServiceName = GetCertMasterAppServiceName
+  $CreateCertMasterAppService = $false
 
-  # TODO: If Certmaster app service name exists, check if the app service also exists. If not, create the app service
-
-  if ($null -eq $CertMasterAppServiceName) {
-    Write-Information 'CertMaster web app not found. We will create one now'
-    $scwebapp = ConvertLinesToObject -lines $(az webapp list --query "[?name=='$SCEPmanAppServiceName']")
+  if($null -eq $CertMasterAppServiceName) {
+    $CreateCertMasterAppService =  $true
+  } else {
+    $CertMasterWebAppsCount = az webapp list --resource-group $SCEPmanResourceGroup --query "[?name=='$CertMasterAppServiceName'] | length(@)"
+    if(0 -eq $CertMasterWebAppsCount) {
+        $CreateCertMasterAppService =  $true
+    }
+  }
+  
+  $scwebapp = ConvertLinesToObject -lines $(az webapp list --query "[?name=='$SCEPmanAppServiceName']")
+  
+  if($null -eq $CertMasterAppServiceName) {
     $CertMasterAppServiceName = $scwebapp.name
     if ($CertMasterAppServiceName.Length -gt 57) {
       $CertMasterAppServiceName = $CertMasterAppServiceName.Substring(0,57)
     }
+    
     $CertMasterAppServiceName += "-cm"
-    # TODO: Ask the user to confirm the name
+    $potentialCertMasterAppServiceName = Read-Host 'CertMaster web app not found. Please hit enter now if you want to create the app with name $CertMasterAppServiceName or enter the name of your choice, and then hit enter'
+    
+    if($potentialCertMasterAppServiceName) {
+        $CertMasterAppServiceName = $potentialCertMasterAppServiceName
+    }
+  }
+
+  if ($true -eq $CreateCertMasterAppService) {
+    
+    Write-Information "User selected to create the app with the name $CertMasterAppServiceName"
 
     $dummy = az webapp create --resource-group $SCEPmanResourceGroup --plan $scwebapp.appServicePlanId --name $CertMasterAppServiceName --assign-identity [system] --% --runtime "DOTNET|5.0"
     Write-Information "CertMaster web app $CertMasterAppServiceName created"
@@ -205,7 +223,10 @@ function CreateScStorageAccount {
             $storageAccountName = $storageAccountName.Substring(0,19)
         }
         $storageAccountName = "stg$($storageAccountName)cm"
-        # TODO: Ask the user to confirm the storage account name. Do we need to validate the user input?
+        $potentialStorageAccountName = Read-Host 'Storage account not found. Please hit enter now if you want to create the storage account with name $storageAccountName or enter the name of your choice, and then hit enter'
+        if($potentialStorageAccountName) {
+            $storageAccountName = $potentialStorageAccountName
+        }
         $ScStorageAccount = ConvertLinesToObject -lines $(az storage account create --name $storageAccountName --resource-group $SCEPmanResourceGroup --sku 'Standard_LRS' --kind 'StorageV2' --access-tier 'Hot' --allow-blob-public-access $true --allow-cross-tenant-replication $false --allow-shared-key-access $false --enable-nfs-v3 $false --min-tls-version 'TLS1_2' --publish-internet-endpoints $false --publish-microsoft-endpoints $false --routing-choice 'MicrosoftRouting' --https-only $true)
         if($null -eq $ScStorageAccount) {
             Write-Error 'Storage account not found and we are unable to create one. Please check logs for more details before re-running the script'
@@ -217,13 +238,39 @@ function CreateScStorageAccount {
 }
 
 function SetTableStorageEndpointsInScAndCmAppSettings {
+    
+    $existingTableStorageEndpointSettingSc = az webapp config appsettings list --name $SCEPmanAppServiceName --resource-group $SCEPmanResourceGroup --query "[?name=='AppConfig:CertificateStorage:TableStorageEndpoint'].value | [0]"
+    $existingTableStorageEndpointSettingCm = az webapp config appsettings list --name $CertMasterAppServiceName --resource-group $SCEPmanResourceGroup --query "[?name=='AppConfig:AzureStorage:TableStorageEndpoint'].value | [0]"
+    $storageAccountTableEndpoint = $null
+
+    if(![string]::IsNullOrEmpty($existingTableStorageEndpointSettingSc)) {
+        if(![string]::IsNullOrEmpty($existingTableStorageEndpointSettingCm) -and $existingTableStorageEndpointSettingSc -ne $existingTableStorageEndpointSettingCm) {
+            Write-Error "Inconsistency: SCEPman($SCEPmanAppServiceName) and CertMaster($CertMasterAppServiceName) have different storage accounts configured"
+            throw "Inconsistency: SCEPman($SCEPmanAppServiceName) and CertMaster($CertMasterAppServiceName) have different storage accounts configured"
+        }
+        $storageAccountTableEndpoint = $existingTableStorageEndpointSettingSc
+    }
+
+    if([string]::IsNullOrEmpty($storageAccountTableEndpoint) -and ![string]::IsNullOrEmpty($existingTableStorageEndpointSettingCm)) {
+        $storageAccountTableEndpoint = $existingTableStorageEndpointSettingCm
+    }
+
+    if([string]::IsNullOrEmpty($storageAccountTableEndpoint)) {
+        Write-Information "Getting storage account"
+        $ScStorageAccount = CreateScStorageAccount
+        $storageAccountTableEndpoint = $($ScStorageAccount.primaryEndpoints.table)
+    } else {
+        Write-Debug 'Storage account table endpoint found in app settings'        
+    }
+
+
     $AppSettingsTableStorageEndpointsCm = @{
-      "AppConfig:AzureStorage:TableStorageEndpoint" = $($ScStorageAccount.primaryEndpoints.table)
+      "AppConfig:AzureStorage:TableStorageEndpoint" = $storageAccountTableEndpoint
     } | ConvertTo-Json -Compress
     $AppSettingsTableStorageEndpointsCm = $AppSettingsTableStorageEndpointsCm.Replace('"', '\"')
 
     $AppSettingsTableStorageEndpointsSc = @{
-      "AppConfig:CertificateStorage:TableStorageEndpoint" = $($ScStorageAccount.primaryEndpoints.table)
+      "AppConfig:CertificateStorage:TableStorageEndpoint" = $storageAccountTableEndpoint
     } | ConvertTo-Json -Compress
     $AppSettingsTableStorageEndpointsSc = $AppSettingsTableStorageEndpointsSc.Replace('"', '\"')
     Write-Debug "Configuring table storage endpoints in SCEPman and CertMaster"
@@ -302,9 +349,6 @@ $tenant = GetTenantDetails
 Write-Information "Setting resource group"
 $SCEPmanResourceGroup = GetResourceGroup
 
-Write-Information "Getting storage account"
-$ScStorageAccount = CreateScStorageAccount
-
 Write-Information "Getting CertMaster web app"
 $CertMasterAppServiceName = CreateCertMasterAppService
 
@@ -370,7 +414,11 @@ Write-Information "Configuring SCEPman and CertMaster web app settings"
 $ScepManAppSettings = "{\`"AppConfig:AuthConfig:ApplicationId\`":\`"$($appregsc.appId)\`"}".Replace("`r", [String]::Empty).Replace("`n", [String]::Empty)
 $dummy = az webapp config appsettings set --name $SCEPmanAppServiceName --resource-group $SCEPmanResourceGroup --settings $ScepManAppSettings
 
-# TODO: Rename application key to "Backup{..ApplicationKey}"
+$existingApplicationKeySc = az webapp config appsettings list --name $SCEPmanAppServiceName --resource-group $SCEPmanResourceGroup --query "[?name=='AppConfig:AuthConfig:ApplicationKey'].value | [0]"
+if(![string]::IsNullOrEmpty($existingApplicationKeySc)) {
+    az webapp config appsettings set --name $SCEPmanAppServiceName --resource-group $SCEPmanResourceGroup --settings BackUp:AppConfig:AuthConfig:ApplicationKey=$existingApplicationKeySc
+    az webapp config appsettings delete --name $SCEPmanAppServiceName --resource-group $SCEPmanResourceGroup --setting-names AppConfig:AuthConfig:ApplicationKey
+}
 
 # Add ApplicationId and SCEPman API scope in certmaster web app settings
 $CertmasterAppSettings = "{\`"AppConfig:AuthConfig:ApplicationId\`":\`"$($appregcm.appId)\`",\`"AppConfig:AuthConfig:SCEPmanAPIScope\`":\`"api://$($appregsc.appId)\`"}".Replace("`r", [String]::Empty).Replace("`n", [String]::Empty)
