@@ -263,19 +263,9 @@ function SetTableStorageEndpointsInScAndCmAppSettings {
         Write-Debug 'Storage account table endpoint found in app settings'        
     }
 
-
-    $AppSettingsTableStorageEndpointsCm = @{
-      "AppConfig:AzureStorage:TableStorageEndpoint" = $storageAccountTableEndpoint
-    } | ConvertTo-Json -Compress
-    $AppSettingsTableStorageEndpointsCm = $AppSettingsTableStorageEndpointsCm.Replace('"', '\"')
-
-    $AppSettingsTableStorageEndpointsSc = @{
-      "AppConfig:CertificateStorage:TableStorageEndpoint" = $storageAccountTableEndpoint
-    } | ConvertTo-Json -Compress
-    $AppSettingsTableStorageEndpointsSc = $AppSettingsTableStorageEndpointsSc.Replace('"', '\"')
     Write-Debug "Configuring table storage endpoints in SCEPman and CertMaster"
-    $dummy = az webapp config appsettings set --name $CertMasterAppServiceName --resource-group $SCEPmanResourceGroup --settings $AppSettingsTableStorageEndpointsCm
-    $dummy = az webapp config appsettings set --name $SCEPmanAppServiceName --resource-group $SCEPmanResourceGroup --settings $AppSettingsTableStorageEndpointsSc
+    $dummy = az webapp config appsettings set --name $CertMasterAppServiceName --resource-group $SCEPmanResourceGroup --settings AppConfig:AzureStorage:TableStorageEndpoint=$storageAccountTableEndpoint
+    $dummy = az webapp config appsettings set --name $SCEPmanAppServiceName --resource-group $SCEPmanResourceGroup --settings AppConfig:CertificateStorage:TableStorageEndpoint=$storageAccountTableEndpoint
 }
 
 function CreateRoleAssignementsForStorageAccount {
