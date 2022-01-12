@@ -109,10 +109,6 @@
                             "value": "[reference(resourceid('Microsoft.KeyVault/vaults/', parameters('keyVaultName')), '2019-09-01', 'Full').properties.vaultUri]"
                         },
                         {
-                            "name": "AppConfig:IntuneSCEPServiceEndpointResolverStrategy",
-                            "value": "MSGraph"
-                        },                        
-                        {
                           "name": "AppConfig:CertificateStorage:TableStorageEndpoint",
                           "value": "[Concat('https://',parameters('StorageAccountName'),'.table.core.windows.net')]"
                         },
