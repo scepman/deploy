@@ -58,7 +58,7 @@ function ConvertLinesToObject($lines) {
     return ConvertFrom-Json $linesJson
 }
 
-function GetTenantDetails {
+function GetSubscriptionDetails {
   return ConvertLinesToObject -lines $(az account show)
 }
 
@@ -173,7 +173,7 @@ function CreateCertMasterAppService {
     # Do all the configuration that the ARM template does normally
     $CertmasterAppSettings = @{
       WEBSITE_RUN_FROM_PACKAGE = "https://raw.githubusercontent.com/scepman/install/master/dist-certmaster/CertMaster-Artifacts.zip";
-      "AppConfig:AuthConfig:TenantId" = $tenant.tenantId;
+      "AppConfig:AuthConfig:TenantId" = $subscription.tenantId;
       "AppConfig:SCEPman:URL" = "https://$($scwebapp.defaultHostName)/";
     } | ConvertTo-Json -Compress
     $CertMasterAppSettings = $CertmasterAppSettings.Replace('"', '\"')
@@ -189,11 +189,8 @@ function CreateCertMasterAppService {
 
 function GetStorageAccount {
     $storageaccounts = ConvertLinesToObject -lines $(az storage account list --resource-group $SCEPmanResourceGroup)
-    if($storageaccounts.Count -eq 1) {
-        return $storageaccounts[0]
-    }
-    if($storageaccounts.Count -gt 1) {
-        $potentialStorageAccountName = Read-Host "We have found more than one storage accounts in the resource group. Please hit enter now if you still want to create a new storage account or enter the name of the storage account you would like to use, and then hit enter"
+    if($storageaccounts.Count -gt 0) {
+        $potentialStorageAccountName = Read-Host "We have found one or more existing storage accounts in the resource group $SCEPmanResourceGroup. Please hit enter now if you still want to create a new storage account or enter the name of the storage account you would like to use, and then hit enter"
         if(!$potentialStorageAccountName) {
             Write-Information "User selected to create a new storage account"
             return $null
@@ -234,6 +231,9 @@ function CreateScStorageAccount {
         }
         Write-Information "Storage account $storageAccountName created"
     }
+    Write-Information "Setting permissions in storage account for SCEPman and CertMaster"
+    $dummy = az role assignment create --role 'Storage Table Data Contributor' --assignee-object-id $serviceprincipalcm.principalId --assignee-principal-type 'ServicePrincipal' --scope `/subscriptions/$($subscription.id)/resourceGroups/$SCEPmanResourceGroup/providers/Microsoft.Storage/storageAccounts/$($ScStorageAccount.name)`
+    $dummy = az role assignment create --role 'Storage Table Data Contributor' --assignee-object-id $serviceprincipalsc.principalId --assignee-principal-type 'ServicePrincipal' --scope `/subscriptions/$($subscription.id)/resourceGroups/$SCEPmanResourceGroup/providers/Microsoft.Storage/storageAccounts/$($ScStorageAccount.name)`
     return $ScStorageAccount
 }
 
@@ -266,11 +266,6 @@ function SetTableStorageEndpointsInScAndCmAppSettings {
     Write-Debug "Configuring table storage endpoints in SCEPman and CertMaster"
     $dummy = az webapp config appsettings set --name $CertMasterAppServiceName --resource-group $SCEPmanResourceGroup --settings AppConfig:AzureStorage:TableStorageEndpoint=$storageAccountTableEndpoint
     $dummy = az webapp config appsettings set --name $SCEPmanAppServiceName --resource-group $SCEPmanResourceGroup --settings AppConfig:CertificateStorage:TableStorageEndpoint=$storageAccountTableEndpoint
-}
-
-function CreateRoleAssignementsForStorageAccount {
-    $dummy = az role assignment create --role 'Storage Table Data Contributor' --assignee-object-id $serviceprincipalcm.principalId --assignee-principal-type 'ServicePrincipal' --scope `/subscriptions/$($tenant.id)/resourceGroups/$SCEPmanResourceGroup/providers/Microsoft.Storage/storageAccounts/$($ScStorageAccount.name)`
-    $dummy = az role assignment create --role 'Storage Table Data Contributor' --assignee-object-id $serviceprincipalsc.principalId --assignee-principal-type 'ServicePrincipal' --scope `/subscriptions/$($tenant.id)/resourceGroups/$SCEPmanResourceGroup/providers/Microsoft.Storage/storageAccounts/$($ScStorageAccount.name)`
 }
 
 function GetServicePrincipal($appServiceNameParam, $resourceGroupParam) {
@@ -333,8 +328,8 @@ function AddDelegatedPermissionToCertMasterApp($appId) {
 
 Write-Information "Configuring SCEPman and CertMaster"
 
-Write-Information "Getting tenant details"
-$tenant = GetTenantDetails
+Write-Information "Getting subscription details"
+$subscription = GetSubscriptionDetails
 
 Write-Information "Setting resource group"
 $SCEPmanResourceGroup = GetResourceGroup
@@ -342,16 +337,13 @@ $SCEPmanResourceGroup = GetResourceGroup
 Write-Information "Getting CertMaster web app"
 $CertMasterAppServiceName = CreateCertMasterAppService
 
-SetTableStorageEndpointsInScAndCmAppSettings
-
 # Service principal of System-assigned identity of SCEPman
 $serviceprincipalsc = GetServicePrincipal -appServiceNameParam $SCEPmanAppServiceName -resourceGroupParam $SCEPmanResourceGroup
 
 # Service principal of System-assigned identity of CertMaster
 $serviceprincipalcm = GetServicePrincipal -appServiceNameParam $CertMasterAppServiceName -resourceGroupParam $SCEPmanResourceGroup
 
-Write-Information "Setting permissions in storage account for SCEPman and CertMaster"
-CreateRoleAssignementsForStorageAccount
+SetTableStorageEndpointsInScAndCmAppSettings
 
 $CertMasterBaseURL = "https://$CertMasterAppServiceName.azurewebsites.net"
 Write-Information "CertMaster web app url is $CertMasterBaseURL"
@@ -403,7 +395,7 @@ AddDelegatedPermissionToCertMasterApp -appId $appregcm.appId
 Write-Information "Configuring SCEPman and CertMaster web app settings"
 
 # Add ApplicationId in SCEPman web app settings
-$ScepManAppSettings = "{\`"AppConfig:AuthConfig:ApplicationId\`":\`"$($appregsc.appId)\`",\`"AppConfig:CertMaster:URL\`":\`"$($SCEPmanBaseURL)\`"}".Replace("`r", [String]::Empty).Replace("`n", [String]::Empty)
+$ScepManAppSettings = "{\`"AppConfig:AuthConfig:ApplicationId\`":\`"$($appregsc.appId)\`",\`"AppConfig:CertMaster:URL\`":\`"$($CertMasterBaseURL)\`"}".Replace("`r", [String]::Empty).Replace("`n", [String]::Empty)
 $dummy = az webapp config appsettings set --name $SCEPmanAppServiceName --resource-group $SCEPmanResourceGroup --settings $ScepManAppSettings
 
 $existingApplicationKeySc = az webapp config appsettings list --name $SCEPmanAppServiceName --resource-group $SCEPmanResourceGroup --query "[?name=='AppConfig:AuthConfig:ApplicationKey'].value | [0]"
