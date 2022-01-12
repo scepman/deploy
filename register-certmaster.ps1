@@ -13,6 +13,8 @@ if ([String]::IsNullOrWhiteSpace($SCEPmanAppServiceName)) {
 
 $dummy = az login
 
+# TODO: Now we are in the default seubscription. It may be the wrong subscription ...
+
 # Some hard-coded definitions
 $MSGraphAppId = "00000003-0000-0000-c000-000000000000"
 $MSGraphDirectoryReadAllPermission = "7ab1d382-f21e-4acd-a863-ba3e13f7da61"
