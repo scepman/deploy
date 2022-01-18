@@ -118,20 +118,24 @@ function GetCertMasterAppServiceName {
     #       - In a default installation, the URL must contain SCEPman's app service name. We require this.
 
       $rgwebapps = ConvertLinesToObject -lines $(az webapp list --resource-group $SCEPmanResourceGroup)
-      if($rgwebapps.Count -eq 2) {
-        $potentialcmwebapp = $rgwebapps | ? {$_.name -ne $SCEPmanAppServiceName}
-        $scepmanurlsettingcount = az webapp config appsettings list --name $potentialcmwebapp.name --resource-group $SCEPmanResourceGroup --query "[?name=='AppConfig:SCEPman:URL'].value | length(@)"
-        if($scepmanurlsettingcount -eq 1) {
-            $hascorrectscepmanurl = az webapp config appsettings list --name $potentialcmwebapp.name --resource-group $SCEPmanResourceGroup --query "contains([?name=='AppConfig:SCEPman:URL'].value | [0], '$SCEPmanAppServiceName')"
-            if($hascorrectscepmanurl -eq $true) {
-              $CertMasterAppServiceName = $potentialcmwebapp.name
+      Write-Information "$($rgwebapps.Count) web apps found in the resource group $SCEPmanResourceGroup. We are finding if the CertMaster app is already created"
+      if($rgwebapps.Count -gt 1) {
+        ForEach($potentialcmwebapp in $rgwebapps) {
+            if($potentialcmwebapp.name -ne $SCEPmanAppServiceName) {
+                $scepmanurlsettingcount = az webapp config appsettings list --name $potentialcmwebapp.name --resource-group $SCEPmanResourceGroup --query "[?name=='AppConfig:SCEPman:URL'].value | length(@)"
+                if($scepmanurlsettingcount -eq 1) {
+                    $hascorrectscepmanurl = az webapp config appsettings list --name $potentialcmwebapp.name --resource-group $SCEPmanResourceGroup --query "contains([?name=='AppConfig:SCEPman:URL'].value | [0], '$SCEPmanAppServiceName')"
+                    if($hascorrectscepmanurl -eq $true) {
+                        Write-Information "CertMaster web app $($potentialcmwebapp.name) found."
+                        $CertMasterAppServiceName = $potentialcmwebapp.name
+                        return $potentialcmwebapp.name
+                    }
+                }
             }
         }
       }
-      if ([String]::IsNullOrWhiteSpace($CertMasterAppServiceName)) {
-        Write-Warning "Unable to determine the Certmaster app service name"
-        return $null
-      }
+      Write-Warning "Unable to determine the Certmaster app service name"
+      return $null
     }
     return $CertMasterAppServiceName;
 }
