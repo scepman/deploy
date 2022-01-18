@@ -11,6 +11,8 @@ if ([String]::IsNullOrWhiteSpace($SCEPmanAppServiceName)) {
   $SCEPmanAppServiceName = Read-Host "Please enter the SCEPman app service name"
 }
 
+#TODO az login only if not already logged in
+
 $dummy = az login
 
 # TODO: Now we are in the default seubscription. It may be the wrong subscription ...
@@ -52,6 +54,7 @@ $CertmasterManifest = '[{
     \"value\": \"Admin.Full\"
 }]'.Replace("`r", [String]::Empty).Replace("`n", [String]::Empty)
 
+
 function ConvertLinesToObject($lines) {
     if($null -eq $lines) {
         return $null
@@ -61,7 +64,23 @@ function ConvertLinesToObject($lines) {
 }
 
 function GetSubscriptionDetails {
-  return ConvertLinesToObject -lines $(az account show)
+  $subscriptions = ConvertLinesToObject -lines $(az account list)
+  if ($subscriptions.count -gt 1){
+    Write-Host "Multiple subscriptions found. Please select a subscription!"
+    for($i = 0; $i -lt $subscriptions.count; $i++){
+        Write-Host "$($i + 1): $($subscriptions[$i].name) | Subscription Id: $($subscriptions[$i].id) | Press '$($i + 1)' to use this subscription"
+    }
+    $selection = Read-Host -Prompt "Please enter the number of the subscription"
+    $potentialSubscription = $subscriptions[$($selection - 1)]
+    if($null -eq $potentialSubscription) {
+        Write-Error "We couldn't find the selected subscription. Please try to re-run the script"
+        throw "We couldn't find the selected subscription. Please try to re-run the script"
+    }
+  } else {
+    $potentialSubscription = $subscriptions[0]
+  }
+  $dummy = az account set --subscription $($potentialSubscription.id)
+  return $potentialSubscription
 }
 
 # It is intended to use for az cli add permissions and az cli add permissions admin
@@ -284,12 +303,12 @@ function GetAzureResourceAppId($appId) {
 
 function SetManagedIdentityPermissions($principalId, $resourcePermissions) {
     $graphEndpointForAppRoleAssignments = "https://graph.microsoft.com/v1.0/servicePrincipals/$($principalId)/appRoleAssignments"
-    $alreadyAssignedPermissions = az rest --method get --uri $graphEndpointForAppRoleAssignments --headers "Content-Type=application/json" --query 'value[].appRoleId' --output tsv
+    $alreadyAssignedPermissions = ConvertLinesToObject -lines $(ExecuteAzCommandRobustly -azCommand "az rest --method get --uri '$graphEndpointForAppRoleAssignments' --headers 'Content-Type=application/json' --query 'value[].appRoleId' --output tsv")
     
     ForEach($resourcePermission in $resourcePermissions) {
         if(($alreadyAssignedPermissions -contains $resourcePermission.appRoleId) -eq $false) {
             $bodyToAddPermission = "{'principalId': '$($principalId)','resourceId': '$($resourcePermission.resourceId)','appRoleId':'$($resourcePermission.appRoleId)'}"
-            $dummy = az rest --method post --uri $graphEndpointForAppRoleAssignments --body $bodyToAddPermission --headers "Content-Type=application/json"
+            $dummy = ExecuteAzCommandRobustly -azCommand "az rest --method post --uri '$graphEndpointForAppRoleAssignments' --body `"$bodyToAddPermission`" --headers 'Content-Type=application/json'" -principalId $principalId -appRoleId $resourcePermission.appRoleId
         }
     }
 }
