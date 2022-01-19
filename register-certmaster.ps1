@@ -306,7 +306,6 @@ function GetAzureResourceAppId($appId) {
 
 function SetManagedIdentityPermissions($principalId, $resourcePermissions) {
     $graphEndpointForAppRoleAssignments = "https://graph.microsoft.com/v1.0/servicePrincipals/$($principalId)/appRoleAssignments"
-    ConvertLinesToObject -lines $("az rest --method get --uri '$graphEndpointForAppRoleAssignments' --headers 'Content-Type=application/json' --query 'value[].appRoleId' --output tsv")
     $alreadyAssignedPermissions = ExecuteAzCommandRobustly -azCommand "az rest --method get --uri '$graphEndpointForAppRoleAssignments' --headers 'Content-Type=application/json' --query 'value[].appRoleId' --output tsv"
     
     ForEach($resourcePermission in $resourcePermissions) {
