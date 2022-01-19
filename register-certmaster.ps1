@@ -87,7 +87,7 @@ function GetSubscriptionDetails {
 # $azCommand - The command to execute. 
 # 
 function ExecuteAzCommandRobustly($azCommand, $principalId = $null, $appRoleId = $null) {
-  $azErrorCode = 1 # A number not null
+  $azErrorCode = 1234 # A number not null
   $retryCount = 0
   while ($azErrorCode -ne 0 -and $retryCount -le $MAX_RETRY_COUNT) {
     $lastAzOutput = Invoke-Expression $azCommand # the output is often empty in case of error :-(. az just writes to the console then
