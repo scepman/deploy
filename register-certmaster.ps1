@@ -117,12 +117,14 @@ function ExecuteAzCommandRobustly($azCommand, $principalId = $null, $appRoleId =
 function GetResourceGroup {
   if ([String]::IsNullOrWhiteSpace($SCEPmanResourceGroup)) {
     # No resource group given, search for it now
-    $scwebapp = ConvertLinesToObject -lines $(az webapp list --query "[?name=='$SCEPmanAppServiceName']")
-    $SCEPmanResourceGroup = $scwebapp.resourceGroup
-    if ([String]::IsNullOrWhiteSpace($SCEPmanResourceGroup)) {
-      Write-Error "Unable to determine the resource group"
-      throw "Unable to determine the resource group"
+    $allwebapps = ConvertLinesToObject -lines $(az webapp list --query "[].{name : name, resourceGroup : resourceGroup}")
+    ForEach($webapp in $allwebapps) {
+        if($webapp.name -eq $SCEPmanAppServiceName) {
+            return $webapp.resourceGroup;
+        }
     }
+    Write-Error "Unable to determine the resource group"
+    throw "Unable to determine the resource group"
   }
   return $SCEPmanResourceGroup;
 }
@@ -143,7 +145,8 @@ function GetCertMasterAppServiceName {
             if($potentialcmwebapp.name -ne $SCEPmanAppServiceName) {
                 $scepmanurlsettingcount = az webapp config appsettings list --name $potentialcmwebapp.name --resource-group $SCEPmanResourceGroup --query "[?name=='AppConfig:SCEPman:URL'].value | length(@)"
                 if($scepmanurlsettingcount -eq 1) {
-                    $hascorrectscepmanurl = az webapp config appsettings list --name $potentialcmwebapp.name --resource-group $SCEPmanResourceGroup --query "contains([?name=='AppConfig:SCEPman:URL'].value | [0], '$SCEPmanAppServiceName')"
+                    $scepmanUrl = az webapp config appsettings list --name $potentialcmwebapp.name --resource-group $SCEPmanResourceGroup --query "[?name=='AppConfig:SCEPman:URL'].value"
+                    $hascorrectscepmanurl = $scepmanUrl.ToUpperInvariant().Contains($SCEPmanAppServiceName.ToUpperInvariant())
                     if($hascorrectscepmanurl -eq $true) {
                         Write-Information "CertMaster web app $($potentialcmwebapp.name) found."
                         $CertMasterAppServiceName = $potentialcmwebapp.name
@@ -303,7 +306,8 @@ function GetAzureResourceAppId($appId) {
 
 function SetManagedIdentityPermissions($principalId, $resourcePermissions) {
     $graphEndpointForAppRoleAssignments = "https://graph.microsoft.com/v1.0/servicePrincipals/$($principalId)/appRoleAssignments"
-    $alreadyAssignedPermissions = ConvertLinesToObject -lines $(ExecuteAzCommandRobustly -azCommand "az rest --method get --uri '$graphEndpointForAppRoleAssignments' --headers 'Content-Type=application/json' --query 'value[].appRoleId' --output tsv")
+    ConvertLinesToObject -lines $("az rest --method get --uri '$graphEndpointForAppRoleAssignments' --headers 'Content-Type=application/json' --query 'value[].appRoleId' --output tsv")
+    $alreadyAssignedPermissions = ExecuteAzCommandRobustly -azCommand "az rest --method get --uri '$graphEndpointForAppRoleAssignments' --headers 'Content-Type=application/json' --query 'value[].appRoleId' --output tsv"
     
     ForEach($resourcePermission in $resourcePermissions) {
         if(($alreadyAssignedPermissions -contains $resourcePermission.appRoleId) -eq $false) {
