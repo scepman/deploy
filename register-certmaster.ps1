@@ -123,8 +123,8 @@ function GetResourceGroup {
             return $webapp.resourceGroup;
         }
     }
-    Write-Error "Unable to determine the resource group"
-    throw "Unable to determine the resource group"
+    Write-Error "Unable to determine the resource group. This generally happens when a wrong name is entered for the SCEPman web app!"
+    throw "Unable to determine the resource group. This generally happens when a wrong name is entered for the SCEPman web app!"
   }
   return $SCEPmanResourceGroup;
 }
