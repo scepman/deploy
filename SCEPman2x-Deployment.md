@@ -60,11 +60,11 @@ This means that you can [switch between channels in the main component as was po
 
 If you want to use the new SCEPman Certificate Master component to issue server certificates, you need to add the additional Azure resources and configure them. This also enables authentication as Managed Identity, one advantage of which is that you do not require any application secrets anymore. Thus, you also don't need to worry about expiration of application secrets. This is how you do it:
 
-After upgrading the main component, you configure the wiring between the components with [the same method that you would use for a new installation](#Configure_App_Registrations). In contrast to a new installation, this will also create the two new Azure resources.
+After upgrading the main component, you configure the wiring between the components with [the same method that you would use for a new installation](#configure-app-registrations). In contrast to a new installation, this will also create the two new Azure resources.
 
 WARNING: The script currently does not yet support upgrading Deployment slots.
 
-Using Certificate Master requires that you [assign the necessary rights](#Granting the Rights to Request Certificates via the Certificate Master Website) to somebody and that you [enable certificate submission](#Enable Certificate Master in SCEPman) in SCEPman.
+Using Certificate Master requires that you [assign the necessary rights](#granting-the-rights-to-request-certificates-via-the-certificate-master-website) to somebody and that you [enable certificate submission](#enable-certificate-master-in-scepman) in SCEPman.
 
 ## Downgrade From 2.x To 1.x
 
