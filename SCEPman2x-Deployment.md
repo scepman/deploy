@@ -50,7 +50,7 @@ In the Azure Portal, visit [Enterprise applications](https://portal.azure.com/#b
 
 Now you still need to tell SCEPman that requesting certificates via Certificate Master is enabled. For this, please add the application setting "AppConfig:DirectCSRValidation:Enabled" with the value "true" to the SCEPman app service (not Certificate Master).
 
-## Upgrade From 1.x To 2.x
+## Upgrade from 1.x to 2.x
 
 SCEPman 2.0 comprises two additional Azure resources, an Azure Storage account and an App Service called "Certificate Master". These are used to issue and manage the server certificates. But you can run SCEPman 2.0 also without them if you just go for the client certificates as before.
 
@@ -66,7 +66,7 @@ WARNING: The script currently does not yet support upgrading Deployment slots.
 
 Using Certificate Master requires that you [assign the necessary rights](#granting-the-rights-to-request-certificates-via-the-certificate-master-website) to somebody and that you [enable certificate submission](#enable-certificate-master-in-scepman) in SCEPman.
 
-## Downgrade From 2.x To 1.x
+## Downgrade from 2.x to 1.x
 
 When it comes to the main SCEPman component, you can just switch between versions using [the WEBSITE_RUN_FROM_PACKAGE setting](https://docs.scepman.com/scepman-configuration/optional/application-artifacts#change-artifacts).
 
