@@ -23,7 +23,7 @@
             "metadata": {
                 "description": "Specifies the name of the Azure Key Vault. The name of a Key Vault must be globally unique and contain only DNS-compatible characters (letters, numbers, and hyphens)."
             },
-            "defaultValue": "[concat('kv-',take(replace(toLower(parameters('OrgName')),' ',''),6),'-scepman')]"
+            "defaultValue": "[concat('kv-','-scepman')]"
         },
         "storageAccountName": {
             "type": "string",
@@ -45,7 +45,7 @@
             "metadata": {
                 "description": "The SCEPman App Service and part of the default FQDN. Therefore, it must be globally unique and contain only DNS-compatible characters."
             },
-            "defaultValue": "[concat('as-',take(replace(toLower(parameters('OrgName')),' ',''),6),'-scepman')]"
+            "defaultValue": "[concat('as-',parameters('OrgName'),'-scepman')]"
         },
         "appServiceCertMasterName": {
             "type": "string",
