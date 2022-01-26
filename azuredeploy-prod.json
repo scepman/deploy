@@ -36,6 +36,13 @@
                 "description": "Specifies the name of the key vault."
             }
         },
+        "existingAppServicePlanID": {
+            "type": "string",
+            "defaultValue": "none",
+            "metadata": {
+                "description": "Provide the AppServicePlan ID of an existing App Service Plan. Keep default value 'none' if you want to create a new one."
+            }
+        },
         "appServicePlanName": {
             "type": "string",
             "maxLength": 40
@@ -56,7 +63,7 @@
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "https://raw.githubusercontent.com/scepman/install/master/nestedtemplates/scepman.json",
+                    "uri": "https://raw.githubusercontent.com/grabery/install/master/nestedtemplates/scepman.json",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
@@ -74,6 +81,9 @@
                     },
                     "keyVaultName": {
                         "value": "[parameters('keyVaultName')]"
+                    },
+                    "existingAppServicePlanID": {
+                        "value": "[parameters('existingAppServicePlanID')]"
                     },
                     "appServicePlanName": {
                         "value": "[parameters('appServicePlanName')]"

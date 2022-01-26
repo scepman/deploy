@@ -35,6 +35,12 @@
                 "description": "Specifies the name of the key vault."
             }
         },
+        "existingAppServicePlanID": {
+            "type": "string",
+            "metadata": {
+                "description": "Provide the AppServicePlan ID of an existing App Service Plan. Keep default value 'none' if you want to create a new one."
+            }
+        },
         "appServicePlanName": {
             "type": "string",
             "maxLength": 40
@@ -61,10 +67,13 @@
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "https://raw.githubusercontent.com/scepman/install/master/nestedtemplates/appSvc.json",
+                    "uri": "https://raw.githubusercontent.com/grabery/install/master/nestedtemplates/appSvc.json",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
+                    "existingAppServicePlanID": {
+                        "value": "[parameters('existingAppServicePlanID')]"
+                    },
                     "AppServicePlanName": {
                         "value": "[parameters('AppServicePlanName')]"
                     },
@@ -84,7 +93,7 @@
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "https://raw.githubusercontent.com/scepman/install/master/nestedtemplates/vault.json",
+                    "uri": "https://raw.githubusercontent.com/grabery/install/master/nestedtemplates/vault.json",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
@@ -111,10 +120,13 @@
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "https://raw.githubusercontent.com/scepman/install/master/nestedtemplates/appConfig.json",
+                    "uri": "https://raw.githubusercontent.com/grabery/install/master/nestedtemplates/appConfig.json",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
+                    "existingAppServicePlanID": {
+                        "value": "[parameters('existingAppServicePlanID')]"
+                    },
                     "AppServicePlanName": {
                         "value": "[parameters('AppServicePlanName')]"
                     },

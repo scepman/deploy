@@ -2,6 +2,12 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
+        "existingAppServicePlanID": {
+            "type": "string",
+            "metadata": {
+                "description": "Provide the AppServicePlan ID of an existing App Service Plan. Keep default value 'none' if you want to create a new one."
+            }
+        },
         "AppServicePlanName": {
             "type": "string",
             "metadata": {
@@ -18,6 +24,7 @@
 
     "resources": [
         {
+            "condition": "[equals(parameters('existingAppServicePlanID'), 'none')]",
             "apiVersion": "2019-08-01",
             "type": "Microsoft.Web/serverfarms",
             "name": "[parameters('AppServicePlanName')]",
@@ -43,7 +50,7 @@
                 "type": "SystemAssigned"
             },
             "properties": {
-                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('AppServicePlanName'))]"
+                "serverFarmId": "[if(equals(parameters('existingAppServicePlanID'), 'none'), resourceId('Microsoft.Web/serverfarms', parameters('AppServicePlanName')), parameters('existingAppServicePlanID'))]"
             },
             "dependsOn": [
                 "[resourceId('Microsoft.Web/serverfarms', parameters('AppServicePlanName'))]"
