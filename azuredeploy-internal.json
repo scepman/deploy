@@ -21,28 +21,39 @@
             "minLength": 3,
             "maxLength": 24,
             "metadata": {
-                "description": "Specifies the name of the key vault."
-            }
+                "description": "Specifies the name of the Azure Key Vault. The name of a Key Vault must be globally unique and contain only DNS-compatible characters (letters, numbers, and hyphens)."
+            },
+            "defaultValue": "[concat('kv-',take(replace(toLower(parameters('OrgName')),' ',''),6),'-scepman')]"
         },
         "storageAccountName": {
             "type": "string",
             "minLength": 3,
             "maxLength": 24,
             "metadata": {
-                "description": "Choose a unique name for your storage account. Storage account names must be between 3 and 24 characters in length and may contain numbers and lowercase letters only."
-            }
+                "description": "Choose a globally unique name for your storage account. Storage account names must be between 3 and 24 characters in length and may contain numbers and lowercase letters only."
+            },
+            "defaultValue": "[concat('stg',take(replace(toLower(parameters('OrgName')),' ',''),6),'scepman')]"
         },
         "appServicePlanName": {
             "type": "string",
-            "maxLength": 40
+            "maxLength": 40,
+            "defaultValue": "[concat('asp-',take(replace(toLower(parameters('OrgName')),' ',''),6),'-scepman')]"
         },
         "appServiceName": {
             "type": "string",
-            "maxLength": 60
+            "maxLength": 60,
+            "metadata": {
+                "description": "The SCEPman App Service and part of the default FQDN. Therefore, it must be globally unique and contain only DNS-compatible characters."
+            },
+            "defaultValue": "[concat('as-',take(replace(toLower(parameters('OrgName')),' ',''),6),'-scepman')]"
         },
         "appServiceCertMasterName": {
             "type": "string",
-            "maxLength": 60
+            "maxLength": 60,
+            "metadata": {
+                "description": "The App Service for the component SCEPman Certificate Master. As it is part of the default FQDN, it must be globally unique and contain only DNS-compatible characters."
+            },
+            "defaultValue": "[concat('as-',take(replace(toLower(parameters('OrgName')),' ',''),6),'-scepman-cm')]"
         }
     },
     "variables": {
