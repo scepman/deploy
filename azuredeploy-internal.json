@@ -32,7 +32,7 @@
             "metadata": {
                 "description": "Choose a globally unique name for your storage account. Storage account names must be between 3 and 24 characters in length and may contain numbers and lowercase letters only."
             },
-            "defaultValue": "[concat('stg',take(replace(toLower(parameters('OrgName')),' ',''),6),'scepman')]"
+            "defaultValue": "[concat('storage', uniqueString(resourceGroup().id))]"
         },
         "appServicePlanName": {
             "type": "string",
