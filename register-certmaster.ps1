@@ -422,8 +422,8 @@ AddDelegatedPermissionToCertMasterApp -appId $appregcm.appId
 
 Write-Information "Configuring SCEPman and CertMaster web app settings"
 
-# Add ApplicationId in SCEPman web app settings
-$ScepManAppSettings = "{\`"AppConfig:AuthConfig:ApplicationId\`":\`"$($appregsc.appId)\`",\`"AppConfig:CertMaster:URL\`":\`"$($CertMasterBaseURL)\`"}".Replace("`r", [String]::Empty).Replace("`n", [String]::Empty)
+# Add ApplicationId and some additional defaults in SCEPman web app settings
+$ScepManAppSettings = "{\`"AppConfig:AuthConfig:ApplicationId\`":\`"$($appregsc.appId)\`",\`"AppConfig:CertMaster:URL\`":\`"$($CertMasterBaseURL)\`",\`"AppConfig:DirectCSRValidation:Enabled\`":\`"true\`"}".Replace("`r", [String]::Empty).Replace("`n", [String]::Empty)
 $dummy = az webapp config appsettings set --name $SCEPmanAppServiceName --resource-group $SCEPmanResourceGroup --settings $ScepManAppSettings
 
 $existingApplicationKeySc = az webapp config appsettings list --name $SCEPmanAppServiceName --resource-group $SCEPmanResourceGroup --query "[?name=='AppConfig:AuthConfig:ApplicationKey'].value | [0]"

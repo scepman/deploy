@@ -104,6 +104,10 @@
                             "name": "AppConfig:DebugMode",
                             "value": "false"
                         },
+						{
+                            "name": "AppConfig:DirectCSRValidation:Enabled",
+                            "value": "true"
+                        },
                         {
                             "name": "AppConfig:KeyVaultConfig:KeyVaultURL",
                             "value": "[reference(resourceid('Microsoft.KeyVault/vaults/', parameters('keyVaultName')), '2019-09-01', 'Full').properties.vaultUri]"
