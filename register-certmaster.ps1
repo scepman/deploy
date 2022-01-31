@@ -13,7 +13,7 @@ if ([String]::IsNullOrWhiteSpace($SCEPmanAppServiceName)) {
 
 #TODO az login only if not already logged in
 
-#$dummy = az login
+$dummy = az login
 
 # TODO: Now we are in the default seubscription. It may be the wrong subscription ...
 
