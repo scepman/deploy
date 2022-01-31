@@ -170,10 +170,7 @@
                                     },
                                     "OrgName": {
                                         "value": "[parameters('OrgName')]"
-                                    },
-                                    "appRegistrationGuid": {
-                                        "value": ""
-                                    },  
+                                    }, 
                                     "_artifactsLocation": {
                                         "value": "[variables('_artifactsLocation')]"
                                     },

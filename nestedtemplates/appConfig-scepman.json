@@ -39,12 +39,6 @@
                 "description": "License Key for SCEPman"
             }
         },
-        "appRegistrationGuid": {
-            "type": "string",
-            "metadata": {
-                "description": "GUID of AAD app registration"
-            }
-        },
         "_artifactsLocation": {
             "type": "string",
             "metadata": {
@@ -87,10 +81,6 @@
                         {
                             "name": "AppConfig:LicenseKey",
                             "value": "[parameters('license')]"
-                        },
-                        {
-                            "name": "AppConfig:AuthConfig:ApplicationId",
-                            "value": "[parameters('appRegistrationGuid')]"
                         },
                         {
                             "name": "AppConfig:AuthConfig:TenantId",
