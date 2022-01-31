@@ -13,7 +13,7 @@ if ([String]::IsNullOrWhiteSpace($SCEPmanAppServiceName)) {
 
 #TODO az login only if not already logged in
 
-$dummy = az login
+#$dummy = az login
 
 # TODO: Now we are in the default seubscription. It may be the wrong subscription ...
 
@@ -145,7 +145,7 @@ function GetCertMasterAppServiceName {
             if($potentialcmwebapp.name -ne $SCEPmanAppServiceName) {
                 $scepmanurlsettingcount = az webapp config appsettings list --name $potentialcmwebapp.name --resource-group $SCEPmanResourceGroup --query "[?name=='AppConfig:SCEPman:URL'].value | length(@)"
                 if($scepmanurlsettingcount -eq 1) {
-                    $scepmanUrl = az webapp config appsettings list --name $potentialcmwebapp.name --resource-group $SCEPmanResourceGroup --query "[?name=='AppConfig:SCEPman:URL'].value"
+                    $scepmanUrl = az webapp config appsettings list --name $potentialcmwebapp.name --resource-group $SCEPmanResourceGroup --query "[?name=='AppConfig:SCEPman:URL'].value | [0]"
                     $hascorrectscepmanurl = $scepmanUrl.ToUpperInvariant().Contains($SCEPmanAppServiceName.ToUpperInvariant())
                     if($hascorrectscepmanurl -eq $true) {
                         Write-Information "CertMaster web app $($potentialcmwebapp.name) found."
