@@ -23,7 +23,7 @@
             "metadata": {
                 "description": "Specifies the name of the Azure Key Vault. The name of a Key Vault must be globally unique and contain only DNS-compatible characters (letters, numbers, and hyphens)."
             },
-            "defaultValue": "[concat('kv-','-scepman')]"
+            "defaultValue": "kv-scepman-<uniquename>"
         },
         "storageAccountName": {
             "type": "string",
@@ -32,12 +32,12 @@
             "metadata": {
                 "description": "Choose a globally unique name for your storage account. Storage account names must be between 3 and 24 characters in length and may contain numbers and lowercase letters only."
             },
-            "defaultValue": "[concat('storage', uniqueString(resourceGroup().id))]"
+            "defaultValue": "storagescepman<uniquename>"
         },
         "appServicePlanName": {
             "type": "string",
             "maxLength": 40,
-            "defaultValue": "[concat('asp-',take(replace(toLower(parameters('OrgName')),' ',''),6),'-scepman')]"
+            "defaultValue": "asp-<uniquename>-scepman"
         },
         "appServiceName": {
             "type": "string",
@@ -45,7 +45,7 @@
             "metadata": {
                 "description": "The SCEPman App Service and part of the default FQDN. Therefore, it must be globally unique and contain only DNS-compatible characters."
             },
-            "defaultValue": "[concat('as-',parameters('OrgName'),'-scepman')]"
+            "defaultValue": "as-<uniquename>-scepman"
         },
         "appServiceCertMasterName": {
             "type": "string",
@@ -53,7 +53,7 @@
             "metadata": {
                 "description": "The App Service for the component SCEPman Certificate Master. As it is part of the default FQDN, it must be globally unique and contain only DNS-compatible characters."
             },
-            "defaultValue": "[concat('as-',take(replace(toLower(parameters('OrgName')),' ',''),6),'-scepman-cm')]"
+            "defaultValue": "as-<uniquename>-scepman-cm"
         }
     },
     "variables": {
