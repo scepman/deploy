@@ -7,14 +7,6 @@ $SCEPmanAppServiceName = $env:SCEPMAN_APP_SERVICE_NAME
 $CertMasterAppServiceName = $env:CERTMASTER_APP_SERVICE_NAME
 $SCEPmanResourceGroup = $env:SCEPMAN_RESOURCE_GROUP
 
-if ([String]::IsNullOrWhiteSpace($SCEPmanAppServiceName)) {
-  $SCEPmanAppServiceName = Read-Host "Please enter the SCEPman app service name"
-}
-
-#TODO az login only if not already logged in
-
-$dummy = az login
-
 # Some hard-coded definitions
 $MSGraphAppId = "00000003-0000-0000-c000-000000000000"
 $MSGraphDirectoryReadAllPermission = "7ab1d382-f21e-4acd-a863-ba3e13f7da61"
@@ -59,6 +51,23 @@ function ConvertLinesToObject($lines) {
     }
     $linesJson = [System.String]::Concat($lines)
     return ConvertFrom-Json $linesJson
+}
+
+function AzLogin {
+    $account = az account show 2>&1
+    if ($account.GetType() -eq [System.Management.Automation.ErrorRecord]) {
+        if ($account.ToString().Contains("az login")) {
+            Write-Information "Not logged in to az yet. Please log in."
+            $dummy = az login # TODO: Check whether the login worked
+        }
+        else {
+            Write-Error "Error $account while trying to use az" # possibly az not installed?
+            throw $account
+        }
+    } else {
+        $accountInfo = ConvertLinesToObject($account)
+        Write-Output "Logged in to az as $($accountInfo.user.name)"
+    }
 }
 
 function GetSubscriptionDetails {
@@ -352,7 +361,14 @@ function AddDelegatedPermissionToCertMasterApp($appId) {
     $dummy = ExecuteAzCommandRobustly -azCommand "az ad app permission grant --id $appId --api $MSGraphAppId --scope `"User.Read`""
 }
 
+if ([String]::IsNullOrWhiteSpace($SCEPmanAppServiceName)) {
+  $SCEPmanAppServiceName = Read-Host "Please enter the SCEPman app service name"
+}
+
 Write-Information "Configuring SCEPman and CertMaster"
+
+Write-Information "Logging in to az"
+AzLogin
 
 Write-Information "Getting subscription details"
 $subscription = GetSubscriptionDetails
