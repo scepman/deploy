@@ -266,9 +266,14 @@ function CreateScStorageAccount {
         }
         Write-Information "Storage account $storageAccountName created"
     }
-    Write-Information "Setting permissions in storage account for SCEPman and CertMaster"
+    Write-Information "Setting permissions in storage account for SCEPman, SCEPman's deployment slots(if any), and CertMaster"
     $dummy = az role assignment create --role 'Storage Table Data Contributor' --assignee-object-id $serviceprincipalcm.principalId --assignee-principal-type 'ServicePrincipal' --scope `/subscriptions/$($subscription.id)/resourceGroups/$SCEPmanResourceGroup/providers/Microsoft.Storage/storageAccounts/$($ScStorageAccount.name)`
     $dummy = az role assignment create --role 'Storage Table Data Contributor' --assignee-object-id $serviceprincipalsc.principalId --assignee-principal-type 'ServicePrincipal' --scope `/subscriptions/$($subscription.id)/resourceGroups/$SCEPmanResourceGroup/providers/Microsoft.Storage/storageAccounts/$($ScStorageAccount.name)`
+    if($true -eq $scHasDeploymentSlots) {
+        ForEach($tempServicePrincipal in $serviceprincipalOfScDeploymentSlots) {
+            $dummy = az role assignment create --role 'Storage Table Data Contributor' --assignee-object-id $tempServicePrincipal.principalId --assignee-principal-type 'ServicePrincipal' --scope `/subscriptions/$($subscription.id)/resourceGroups/$SCEPmanResourceGroup/providers/Microsoft.Storage/storageAccounts/$($ScStorageAccount.name)`
+        }
+    }
     return $ScStorageAccount
 }
 
@@ -298,13 +303,27 @@ function SetTableStorageEndpointsInScAndCmAppSettings {
         Write-Debug 'Storage account table endpoint found in app settings'        
     }
 
-    Write-Debug "Configuring table storage endpoints in SCEPman and CertMaster"
+    Write-Debug "Configuring table storage endpoints in SCEPman, SCEPman's deployment slots(if any), and CertMaster"
     $dummy = az webapp config appsettings set --name $CertMasterAppServiceName --resource-group $SCEPmanResourceGroup --settings AppConfig:AzureStorage:TableStorageEndpoint=$storageAccountTableEndpoint
     $dummy = az webapp config appsettings set --name $SCEPmanAppServiceName --resource-group $SCEPmanResourceGroup --settings AppConfig:CertificateStorage:TableStorageEndpoint=$storageAccountTableEndpoint
+    if($true -eq $scHasDeploymentSlots) {
+        ForEach($tempDeploymentSlot in $deploymentSlotsSc) {
+            $dummy = az webapp config appsettings set --name $SCEPmanAppServiceName --resource-group $SCEPmanResourceGroup --settings AppConfig:CertificateStorage:TableStorageEndpoint=$storageAccountTableEndpoint --slot $tempDeploymentSlot
+        }
+    }
 }
 
-function GetServicePrincipal($appServiceNameParam, $resourceGroupParam) {
-    return ConvertLinesToObject -lines $(az webapp identity show --name $appServiceNameParam --resource-group $resourceGroupParam)
+function GetDeploymentSlots($appServiceNameParam, $resourceGroupParam) {
+    $deploymentSlots = ConvertLinesToObject -lines $(az webapp deployment slot list --name $SCEPmanAppServiceName --resource-group $SCEPmanResourceGroup --query '[].name')
+    return $deploymentSlots
+}
+
+function GetServicePrincipal($appServiceNameParam, $resourceGroupParam, $slotNameParam = $null) {
+    $identityShowParams = "";
+    if($slotNameParam) {
+        $identityShowParams = "--slot", $slotNameParam
+    }
+    return ConvertLinesToObject -lines $(az webapp identity show --name $appServiceNameParam --resource-group $resourceGroupParam @identityShowParams)
 }
 
 function GetAzureResourceAppId($appId) {
@@ -376,6 +395,17 @@ $subscription = GetSubscriptionDetails
 Write-Information "Setting resource group"
 $SCEPmanResourceGroup = GetResourceGroup
 
+Write-Information "Getting SCEPman deployment slots"
+$scHasDeploymentSlots = $false
+$deploymentSlotsSc = GetDeploymentSlots -appServiceNameParam $SCEPmanAppServiceName -resourceGroupParam $SCEPmanResourceGroup
+if($null -ne $deploymentSlotsSc -and $deploymentSlotsSc.Count -gt 0) {
+    $scHasDeploymentSlots = $true
+    Write-Debug "$($deploymentSlotsSc.Count) found"
+} else {
+    Write-Debug "No deployment slots found" 
+}
+
+
 Write-Information "Getting CertMaster web app"
 $CertMasterAppServiceName = CreateCertMasterAppService
 
@@ -384,6 +414,19 @@ $serviceprincipalsc = GetServicePrincipal -appServiceNameParam $SCEPmanAppServic
 
 # Service principal of System-assigned identity of CertMaster
 $serviceprincipalcm = GetServicePrincipal -appServiceNameParam $CertMasterAppServiceName -resourceGroupParam $SCEPmanResourceGroup
+
+$serviceprincipalOfScDeploymentSlots = @()
+
+if($true -eq $scHasDeploymentSlots) {
+    ForEach($deploymentSlot in $deploymentSlotsSc) {
+        $tempDeploymentSlot = GetServicePrincipal -appServiceNameParam $SCEPmanAppServiceName -resourceGroupParam $SCEPmanResourceGroup -slotNameParam $deploymentSlot
+        if($null -eq $tempDeploymentSlot) {
+            Write-Error "Deployment slot '$deploymentSlot' doesn't have managed identity turned on"
+            throw "Deployment slot '$deploymentSlot' doesn't have managed identity turned on"
+        }
+        $serviceprincipalOfScDeploymentSlots += $tempDeploymentSlot
+    }
+}
 
 SetTableStorageEndpointsInScAndCmAppSettings
 
@@ -405,6 +448,12 @@ $resourcePermissionsForSCEPman =
 Write-Information "Setting up permissions for SCEPman"
 SetManagedIdentityPermissions -principalId $serviceprincipalsc.principalId -resourcePermissions $resourcePermissionsForSCEPman
 
+if($true -eq $scHasDeploymentSlots) {
+    Write-Information "Setting up permissions for SCEPman deployment slots"
+    ForEach($tempServicePrincipal in $serviceprincipalOfScDeploymentSlots) {
+        SetManagedIdentityPermissions -principalId $tempServicePrincipal.principalId -resourcePermissions $resourcePermissionsForSCEPman        
+    }
+}
 
 Write-Information "Creating Azure AD app registration for SCEPman"
 ### SCEPman App Registration
@@ -434,16 +483,32 @@ $dummy = CreateServicePrincipal -appId $($appregcm.appId)
 AddDelegatedPermissionToCertMasterApp -appId $appregcm.appId
 
 
-Write-Information "Configuring SCEPman and CertMaster web app settings"
+Write-Information "Configuring SCEPman, SCEPman's deployment slots(if any), and CertMaster web app settings"
 
 # Add ApplicationId and some additional defaults in SCEPman web app settings
 $ScepManAppSettings = "{\`"AppConfig:AuthConfig:ApplicationId\`":\`"$($appregsc.appId)\`",\`"AppConfig:CertMaster:URL\`":\`"$($CertMasterBaseURL)\`",\`"AppConfig:DirectCSRValidation:Enabled\`":\`"true\`",\`"AppConfig:AuthConfig:UseManagedIdentity\`":\`"true\`"}".Replace("`r", [String]::Empty).Replace("`n", [String]::Empty)
 $dummy = az webapp config appsettings set --name $SCEPmanAppServiceName --resource-group $SCEPmanResourceGroup --settings $ScepManAppSettings
 
+if($true -eq $scHasDeploymentSlots) {
+    ForEach($tempDeploymentSlot in $deploymentSlotsSc) {
+        $dummy = az webapp config appsettings set --name $SCEPmanAppServiceName --resource-group $SCEPmanResourceGroup --settings $ScepManAppSettings --slot $tempDeploymentSlot   
+    }
+}
+
 $existingApplicationKeySc = az webapp config appsettings list --name $SCEPmanAppServiceName --resource-group $SCEPmanResourceGroup --query "[?name=='AppConfig:AuthConfig:ApplicationKey'].value | [0]"
 if(![string]::IsNullOrEmpty($existingApplicationKeySc)) {
     $dummy = az webapp config appsettings set --name $SCEPmanAppServiceName --resource-group $SCEPmanResourceGroup --settings BackUp:AppConfig:AuthConfig:ApplicationKey=$existingApplicationKeySc
     $dummy = az webapp config appsettings delete --name $SCEPmanAppServiceName --resource-group $SCEPmanResourceGroup --setting-names AppConfig:AuthConfig:ApplicationKey
+}
+
+if($true -eq $scHasDeploymentSlots) {
+    ForEach($tempDeploymentSlot in $deploymentSlotsSc) {
+        $existingApplicationKeySc = az webapp config appsettings list --name $SCEPmanAppServiceName --resource-group $SCEPmanResourceGroup --slot $tempDeploymentSlot --query "[?name=='AppConfig:AuthConfig:ApplicationKey'].value | [0]"
+        if(![string]::IsNullOrEmpty($existingApplicationKeySc)) {
+            $dummy = az webapp config appsettings set --name $SCEPmanAppServiceName --resource-group $SCEPmanResourceGroup --slot $tempDeploymentSlot --settings BackUp:AppConfig:AuthConfig:ApplicationKey=$existingApplicationKeySc
+            $dummy = az webapp config appsettings delete --name $SCEPmanAppServiceName --resource-group $SCEPmanResourceGroup --slot $tempDeploymentSlot --setting-names AppConfig:AuthConfig:ApplicationKey
+        }
+    }
 }
 
 # Add ApplicationId and SCEPman API scope in certmaster web app settings
