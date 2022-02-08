@@ -9,4 +9,4 @@ This script adds the required configuration to SCEPman (https://scepman.com/) ri
 
 ## License
 
-The script configure-scepman.ps1 is provided under the terms of the [MIT License](LICENSE.txt).
+The script configure-scepman.ps1 is provided under the terms of the [MIT License](LICENSE).
