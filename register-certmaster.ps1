@@ -320,7 +320,7 @@ function GetDeploymentSlots($appServiceNameParam, $resourceGroupParam) {
 
 function GetServicePrincipal($appServiceNameParam, $resourceGroupParam, $slotNameParam = $null) {
     $identityShowParams = "";
-    if($slotNameParam) {
+    if($null -ne $slotNameParam) {
         $identityShowParams = "--slot", $slotNameParam
     }
     return ConvertLinesToObject -lines $(az webapp identity show --name $appServiceNameParam --resource-group $resourceGroupParam @identityShowParams)
