@@ -97,14 +97,25 @@ function ExecuteAzCommandRobustly($azCommand, $principalId = $null, $appRoleId =
   $azErrorCode = 1234 # A number not null
   $retryCount = 0
   while ($azErrorCode -ne 0 -and $retryCount -le $MAX_RETRY_COUNT) {
-    $lastAzOutput = Invoke-Expression $azCommand # the output is often empty in case of error :-(. az just writes to the console then
+    $lastAzOutput = Invoke-Expression $azCommand 2>&1 # the output is often empty in case of error :-(. az just writes to the console then
     $azErrorCode = $LastExitCode
-    if($null -ne $appRoleId -and $azErrorCode -eq 0) {
-      $appRoleAssignments = ConvertLinesToObject -lines $(az rest --method get --url "https://graph.microsoft.com/v1.0/servicePrincipals/$principalId/appRoleAssignments")
-      $grantedPermission = $appRoleAssignments.value | ? { $_.appRoleId -eq $appRoleId }
-      if ($null -eq $grantedPermission) {
-        $azErrorCode = 999 # A number not 0
-      }
+    if ($lastAzOutput.GetType() -eq [System.Management.Automation.ErrorRecord]) {
+        if ($account.ToString().Contains("Permission being assigned already exists on the object")) {
+            Write-Information "Permission is already assigned when executing $azCommand"
+            $azErrorCode = 0
+        } else {
+            if (0 -eq $azErrorCode) {
+                $azErrorCode = 666 # A number not 0 to enforce another iteration of the loop and retry
+            }
+        }
+    } else {
+        if($null -ne $appRoleId -and $azErrorCode -eq 0) {
+            $appRoleAssignments = ConvertLinesToObject -lines $(az rest --method get --url "https://graph.microsoft.com/v1.0/servicePrincipals/$principalId/appRoleAssignments")
+            $grantedPermission = $appRoleAssignments.value | ? { $_.appRoleId -eq $appRoleId }
+            if ($null -eq $grantedPermission) {
+                $azErrorCode = 999 # A number not 0
+            }
+        }
     }
     if ($azErrorCode -ne 0) {
       ++$retryCount
@@ -113,8 +124,8 @@ function ExecuteAzCommandRobustly($azCommand, $principalId = $null, $appRoleId =
     }
   }
   if ($azErrorCode -ne 0 ) {
-    Write-Error "Error $azErrorCode when executing $azCommand : $lastAzOutput"
-    throw "Error $azErrorCode when executing $azCommand : $lastAzOutput"
+    Write-Error "Error $azErrorCode when executing $azCommand : $($lastAzOutput.ToString())"
+    throw "Error $azErrorCode when executing $azCommand : $($lastAzOutput.ToString())"
   }
   else {
     return $lastAzOutput
@@ -375,7 +386,7 @@ function RegisterAzureADApp($name, $manifest, $replyUrls = $null) {
 function AddDelegatedPermissionToCertMasterApp($appId) {
     $certMasterPermissions = ConvertLinesToObject -lines $(az ad app permission list --id $appId --query "[0]")
     if($null -eq ($certMasterPermissions.resourceAccess | ? { $_.id -eq $MSGraphUserReadPermission })) {
-        $dummy = ExecuteAzCommandRobustly -azCommand "az ad app permission add --id $appId --api $MSGraphAppId --api-permissions `"$MSGraphUserReadPermission=Scope`" 2>&1"
+        $dummy = ExecuteAzCommandRobustly -azCommand "az ad app permission add --id $appId --api $MSGraphAppId --api-permissions `"$MSGraphUserReadPermission=Scope`" 2>&1" # TODO: Why the error redirect here?
     }
     $dummy = ExecuteAzCommandRobustly -azCommand "az ad app permission grant --id $appId --api $MSGraphAppId --scope `"User.Read`""
 }
