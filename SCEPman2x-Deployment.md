@@ -29,8 +29,8 @@ Prerequistes:
 - A Global Admin Account for the tenant to which you want to install SCEPman
 - A workstation with [az CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli) installed (Alternatively: Azure Cloud Shell)
 
-1. Download the <a href="https://raw.githubusercontent.com/scepman/install/master/setup/configure-scepman.psm1" target="_blank">SCEPman configuration PowerShell Module</a>.
-2. Import the module and run `Register-SCEPman`. We recommend setting `$InformationPreference = "Continue"` to get more feedback about what's happening.
+1. Download the <a href="https://raw.githubusercontent.com/scepman/install/master/setup/SCEPman.psm1" target="_blank">SCEPman configuration PowerShell Module</a>.
+2. Import the module and run `Complete-SCEPmanInstallation`. We recommend setting `$InformationPreference = "Continue"` to get more feedback about what's happening.
 3. You will be asked for the name of SCEPman app service.
 4. Log on with a Global Admin account when asked to.
 
