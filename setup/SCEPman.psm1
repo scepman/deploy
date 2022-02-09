@@ -99,7 +99,7 @@ function ExecuteAzCommandRobustly($azCommand, $principalId = $null, $appRoleId =
   while ($azErrorCode -ne 0 -and $retryCount -le $MAX_RETRY_COUNT) {
     $lastAzOutput = Invoke-Expression $azCommand 2>&1 # the output is often empty in case of error :-(. az just writes to the console then
     $azErrorCode = $LastExitCode
-    if ($lastAzOutput.GetType() -eq [System.Management.Automation.ErrorRecord]) {
+    if ($null -ne $lastAzOutput -and $lastAzOutput.GetType() -eq [System.Management.Automation.ErrorRecord]) {
         if ($account.ToString().Contains("Permission being assigned already exists on the object")) {
             Write-Information "Permission is already assigned when executing $azCommand"
             $azErrorCode = 0
