@@ -278,11 +278,11 @@ function CreateScStorageAccount {
         Write-Information "Storage account $storageAccountName created"
     }
     Write-Information "Setting permissions in storage account for SCEPman, SCEPman's deployment slots(if any), and CertMaster"
-    $dummy = az role assignment create --role 'Storage Table Data Contributor' --assignee-object-id $serviceprincipalcm.principalId --assignee-principal-type 'ServicePrincipal' --scope `/subscriptions/$($subscription.id)/resourceGroups/$SCEPmanResourceGroup/providers/Microsoft.Storage/storageAccounts/$($ScStorageAccount.name)`
-    $dummy = az role assignment create --role 'Storage Table Data Contributor' --assignee-object-id $serviceprincipalsc.principalId --assignee-principal-type 'ServicePrincipal' --scope `/subscriptions/$($subscription.id)/resourceGroups/$SCEPmanResourceGroup/providers/Microsoft.Storage/storageAccounts/$($ScStorageAccount.name)`
+    $dummy = az role assignment create --role 'Storage Table Data Contributor' --assignee-object-id $serviceprincipalcm.principalId --assignee-principal-type 'ServicePrincipal' --scope "/subscriptions/$($subscription.id)/resourceGroups/$SCEPmanResourceGroup/providers/Microsoft.Storage/storageAccounts/$($ScStorageAccount.name)"
+    $dummy = az role assignment create --role 'Storage Table Data Contributor' --assignee-object-id $serviceprincipalsc.principalId --assignee-principal-type 'ServicePrincipal' --scope "/subscriptions/$($subscription.id)/resourceGroups/$SCEPmanResourceGroup/providers/Microsoft.Storage/storageAccounts/$($ScStorageAccount.name)"
     if($true -eq $scHasDeploymentSlots) {
         ForEach($tempServicePrincipal in $serviceprincipalOfScDeploymentSlots) {
-            $dummy = az role assignment create --role 'Storage Table Data Contributor' --assignee-object-id $tempServicePrincipal.principalId --assignee-principal-type 'ServicePrincipal' --scope `/subscriptions/$($subscription.id)/resourceGroups/$SCEPmanResourceGroup/providers/Microsoft.Storage/storageAccounts/$($ScStorageAccount.name)`
+            $dummy = az role assignment create --role 'Storage Table Data Contributor' --assignee-object-id $tempServicePrincipal.principalId --assignee-principal-type 'ServicePrincipal' --scope "/subscriptions/$($subscription.id)/resourceGroups/$SCEPmanResourceGroup/providers/Microsoft.Storage/storageAccounts/$($ScStorageAccount.name)"
         }
     }
     return $ScStorageAccount
