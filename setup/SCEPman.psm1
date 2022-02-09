@@ -401,7 +401,7 @@ function AddDelegatedPermissionToCertMasterApp($appId) {
    # Configure SCEPman and ask interactively for the app service
    Configure-SCEPman
 #>
-function Register-SCEPman($SCEPmanAppServiceName, $CertMasterAppServiceName, $SCEPmanResourceGroup)
+function Complete-SCEPmanInstallation($SCEPmanAppServiceName, $CertMasterAppServiceName, $SCEPmanResourceGroup)
 {
     if ([String]::IsNullOrWhiteSpace($SCEPmanAppServiceName)) {
     $SCEPmanAppServiceName = Read-Host "Please enter the SCEPman app service name"
@@ -541,4 +541,4 @@ function Register-SCEPman($SCEPmanAppServiceName, $CertMasterAppServiceName, $SC
     Write-Information "SCEPman and CertMaster configuration completed"
 }
 
-Export-ModuleMember -Function Register-SCEPman
+Export-ModuleMember -Function Complete-SCEPmanInstallation
