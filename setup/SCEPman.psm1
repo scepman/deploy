@@ -100,7 +100,7 @@ function ExecuteAzCommandRobustly($azCommand, $principalId = $null, $appRoleId =
     $lastAzOutput = Invoke-Expression $azCommand 2>&1 # the output is often empty in case of error :-(. az just writes to the console then
     $azErrorCode = $LastExitCode
     if ($null -ne $lastAzOutput -and $lastAzOutput.GetType() -eq [System.Management.Automation.ErrorRecord]) {
-        if ($account.ToString().Contains("Permission being assigned already exists on the object")) {
+        if ($lastAzOutput.ToString().Contains("Permission being assigned already exists on the object")) {
             Write-Information "Permission is already assigned when executing $azCommand"
             $azErrorCode = 0
         } else {
@@ -270,7 +270,7 @@ function CreateScStorageAccount {
         if($potentialStorageAccountName) {
             $storageAccountName = $potentialStorageAccountName
         }
-        $ScStorageAccount = ConvertLinesToObject -lines $(az storage account create --name $storageAccountName --resource-group $SCEPmanResourceGroup --sku 'Standard_LRS' --kind 'StorageV2' --access-tier 'Hot' --allow-blob-public-access $true --allow-cross-tenant-replication $false --allow-shared-key-access $false --enable-nfs-v3 $false --min-tls-version 'TLS1_2' --publish-internet-endpoints $false --publish-microsoft-endpoints $false --routing-choice 'MicrosoftRouting' --https-only $true)
+        $ScStorageAccount = ConvertLinesToObject -lines $(az storage account create --name $storageAccountName --resource-group $SCEPmanResourceGroup --sku 'Standard_LRS' --kind 'StorageV2' --access-tier 'Hot' --allow-blob-public-access $true --allow-cross-tenant-replication $false --allow-shared-key-access $false --enable-nfs-v3 $false --min-tls-version 'TLS1_2' --publish-internet-endpoints $false --publish-microsoft-endpoints $false --routing-choice 'MicrosoftRouting' --https-only $true --only-show-errors)
         if($null -eq $ScStorageAccount) {
             Write-Error 'Storage account not found and we are unable to create one. Please check logs for more details before re-running the script'
             throw 'Storage account not found and we are unable to create one. Please check logs for more details before re-running the script'
@@ -386,9 +386,21 @@ function RegisterAzureADApp($name, $manifest, $replyUrls = $null) {
 function AddDelegatedPermissionToCertMasterApp($appId) {
     $certMasterPermissions = ConvertLinesToObject -lines $(az ad app permission list --id $appId --query "[0]")
     if($null -eq ($certMasterPermissions.resourceAccess | ? { $_.id -eq $MSGraphUserReadPermission })) {
-        $dummy = ExecuteAzCommandRobustly -azCommand "az ad app permission add --id $appId --api $MSGraphAppId --api-permissions `"$MSGraphUserReadPermission=Scope`" 2>&1" # TODO: Why the error redirect here?
+        $dummy = ExecuteAzCommandRobustly -azCommand "az ad app permission add --id $appId --api $MSGraphAppId --api-permissions `"$MSGraphUserReadPermission=Scope`" --only-show-errors"
     }
-    $dummy = ExecuteAzCommandRobustly -azCommand "az ad app permission grant --id $appId --api $MSGraphAppId --scope `"User.Read`""
+    $certMasterPermissionsGrantsString = ConvertLinesToObject -lines $(az ad app permission list-grants --id $appId --query "[0].scope")
+    $requiresPermissionGrant = $false
+    if ($null -eq $certMasterPermissionsGrantsString) {
+        $requiresPermissionGrant = $true
+    } else {
+        $certMasterPermissionsGrants = $certMasterPermissionsGrantsString.ToString().Split(" ")
+        if(($certMasterPermissionsGrants -contains "User.Read") -eq $false) {
+            $requiresPermissionGrant = $true
+        }
+    }
+    if($true -eq $requiresPermissionGrant) {
+        $dummy = ExecuteAzCommandRobustly -azCommand "az ad app permission grant --id $appId --api $MSGraphAppId --scope `"User.Read`" --expires `"never`""   
+    }
 }
 
 <#
