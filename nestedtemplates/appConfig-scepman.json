@@ -91,10 +91,6 @@
                             "value": "true"
                         },
 						{
-                            "name": "AppConfig:DebugMode",
-                            "value": "false"
-                        },
-						{
                             "name": "AppConfig:DirectCSRValidation:Enabled",
                             "value": "true"
                         },
