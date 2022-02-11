@@ -6,6 +6,7 @@
 $SCEPmanAppServiceName = $env:SCEPMAN_APP_SERVICE_NAME
 $CertMasterAppServiceName = $env:CERTMASTER_APP_SERVICE_NAME
 $SCEPmanResourceGroup = $env:SCEPMAN_RESOURCE_GROUP
+$SubscriptionId = $env:SUBSCRIPTION_ID
 
 # Some hard-coded definitions
 $MSGraphAppId = "00000003-0000-0000-c000-000000000000"
@@ -70,23 +71,63 @@ function AzLogin {
     }
 }
 
+function GetSubscriptionDetailsUsingSCEPmanAppName($subscriptions) {
+    $correctSubscription = $null
+    Write-Information "Finding correct subscription"
+    ForEach($tempSubscription in $subscriptions) {
+        #Az resource graph query => $dummy = ConvertLinesToObject -lines $(az graph query -q "Resources | where type == 'microsoft.web/sites' and name == '$SCEPmanAppServiceName' | project name, type")
+        #If Web app found if $dummy.count is 1
+        #TODO Check how to use with diff subscriptions
+        $webAppsInTheSubscription = ConvertLinesToObject -lines $(az webapp list --subscription $($tempSubscription.id) --query "[].name")
+        if($null -ne $webAppsInTheSubscription -and $webAppsInTheSubscription -contains $SCEPmanAppServiceName) {
+            $correctSubscription = $tempSubscription
+            break
+        }
+    }
+    Write-Output "$($correctSubscription.name)"
+    if($null -eq $correctSubscription) {
+        $errorMessage = "We are unable to determine the correct subscription. Please start over"
+        Write-Error $errorMessage
+        throw $errorMessage
+    }
+    return $correctSubscription
+}
+
 function GetSubscriptionDetails {
+  $potentialSubscription = $null
   $subscriptions = ConvertLinesToObject -lines $(az account list)
-  if ($subscriptions.count -gt 1){
-    Write-Host "Multiple subscriptions found. Please select a subscription!"
-    for($i = 0; $i -lt $subscriptions.count; $i++){
-        Write-Host "$($i + 1): $($subscriptions[$i].name) | Subscription Id: $($subscriptions[$i].id) | Press '$($i + 1)' to use this subscription"
-    }
-    $selection = Read-Host -Prompt "Please enter the number of the subscription"
-    $potentialSubscription = $subscriptions[$($selection - 1)]
+  if($false -eq [String]::IsNullOrWhiteSpace($SubscriptionId)) {
+    $potentialSubscription = $subscriptions | ? { $_.id -eq $SubscriptionId }
     if($null -eq $potentialSubscription) {
-        Write-Error "We couldn't find the selected subscription. Please try to re-run the script"
-        throw "We couldn't find the selected subscription. Please try to re-run the script"
+        Write-Warning "We are unable to find the subscription with id $SubscriptionId"
+        throw "We are unable to find the subscription with id $SubscriptionId"
     }
-  } else {
-    $potentialSubscription = $subscriptions[0]
+  }
+  if($null -eq $potentialSubscription) {
+    if($subscriptions.count -gt 1){
+        if($null -eq $potentialSubscription) {
+            Write-Host "Multiple subscriptions found! Select a subscription where the SCPEman is installed or press '0' to search across all of the subscriptions"
+            Write-Host "0: Search All Subscriptions | Press '0'"
+            for($i = 0; $i -lt $subscriptions.count; $i++){
+                Write-Host "$($i + 1): $($subscriptions[$i].name) | Subscription Id: $($subscriptions[$i].id) | Press '$($i + 1)' to use this subscription"
+            }
+            $selection = Read-Host -Prompt "Please enter your choice and hit enter"
+            if(0 -eq $selection) {
+                $potentialSubscription = GetSubscriptionDetailsUsingSCEPmanAppName -subscriptions $subscriptions
+            } else {
+                $potentialSubscription = $subscriptions[$($selection - 1)]   
+            }
+            if($null -eq $potentialSubscription) {
+                Write-Error "We couldn't find the selected subscription. Please try to re-run the script"
+                throw "We couldn't find the selected subscription. Please try to re-run the script"
+            }
+        }
+      } else {
+        $potentialSubscription = $subscriptions[0]
+      }
   }
   $dummy = az account set --subscription $($potentialSubscription.id)
+  Write-Information "Subscription is set to $($potentialSubscription.name)"
   return $potentialSubscription
 }
 
@@ -135,6 +176,8 @@ function ExecuteAzCommandRobustly($azCommand, $principalId = $null, $appRoleId =
 function GetResourceGroup {
   if ([String]::IsNullOrWhiteSpace($SCEPmanResourceGroup)) {
     # No resource group given, search for it now
+    # AZ resource graph query $dummy =  ConvertLinesToObject -lines $(az graph query -q "Resources | where type == 'microsoft.web/sites' and name == '$SCEPmanAppServiceName' | project name, resourceGroup")
+    # If $dummy.Count is 1, web app is found and $dummy.data[0].resourceGroup has the resource group
     $allwebapps = ConvertLinesToObject -lines $(az webapp list --query "[].{name : name, resourceGroup : resourceGroup}")
     ForEach($webapp in $allwebapps) {
         if($webapp.name -eq $SCEPmanAppServiceName) {
@@ -156,6 +199,8 @@ function GetCertMasterAppServiceName {
     #       - Configuration value AppConfig:SCEPman:URL must be present, then it must be a CertMaster
     #       - In a default installation, the URL must contain SCEPman's app service name. We require this.
 
+      # AZ resource graph query $dummy =  ConvertLinesToObject -lines $(az graph query -q "Resources | where type == 'microsoft.web/sites' and resourceGroup == '$SCEPmanResourceGroup' | project name")
+      
       $rgwebapps = ConvertLinesToObject -lines $(az webapp list --resource-group $SCEPmanResourceGroup)
       Write-Information "$($rgwebapps.Count) web apps found in the resource group $SCEPmanResourceGroup. We are finding if the CertMaster app is already created"
       if($rgwebapps.Count -gt 1) {
