@@ -1,4 +1,4 @@
-name: Check Markdown links
+name: Analyze Links and Style
 
 on: push
 
@@ -8,3 +8,22 @@ jobs:
     steps:
     - uses: actions/checkout@master
     - uses: gaurav-nelson/github-action-markdown-link-check@v1
+
+  analyze-powershell-script:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Run PSScriptAnalyzer
+      uses: -psscriptanalyzer-action
+      with:
+        path: .\
+        recurse: true 
+        output: results.sarif
+
+    - name: Upload PowerShell SARIF file
+      uses: github/codeql-action/upload-sarif@v1
+      with:
+        # Path to SARIF file relative to the root of the repository
+        sarif_file: results.sarif
+        # Optional category for the results
+        # Used to differentiate multiple results for one commit
+        category: PSScriptAnalyzer
