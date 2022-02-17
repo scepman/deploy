@@ -55,6 +55,21 @@ function ConvertLinesToObject($lines) {
 }
 
 function AzLogin {
+        # Check whether az is available
+    $azCommand = Get-Command az 2>&1
+    if ($azCommand.GetType() -eq [System.Management.Automation.ErrorRecord]) {
+        if ($azCommand.CategoryInfo.Reason -eq "CommandNotFoundException") {
+            $errorMessage = "Azure CLI (az) is not installed, but required. Please use the Azure Cloud Shell or install Azure CLI as described here: https://docs.microsoft.com/en-us/cli/azure/install-azure-cli"
+            Write-Error $errorMessage
+            throw $errorMessage
+        }
+        else {
+            Write-Error "Unknown error checking for az"
+            throw $azCommand
+        }
+    }
+
+        # check whether already logged in
     $account = az account show 2>&1
     if ($account.GetType() -eq [System.Management.Automation.ErrorRecord]) {
         if ($account.ToString().Contains("az login")) {
@@ -141,7 +156,7 @@ function ExecuteAzCommandRobustly($azCommand, $principalId = $null, $appRoleId =
     $lastAzOutput = Invoke-Expression $azCommand 2>&1 # the output is often empty in case of error :-(. az just writes to the console then
     $azErrorCode = $LastExitCode
     if ($null -ne $lastAzOutput -and $lastAzOutput.GetType() -eq [System.Management.Automation.ErrorRecord]) {
-        if ($lastAzOutput.ToString().Contains("Permission being assigned already exists on the object")) {
+        if ($lastAzOutput.ToString().Contains("Permission being assigned already exists on the object")) {  # TODO: Does this work in non-English environments?
             Write-Information "Permission is already assigned when executing $azCommand"
             $azErrorCode = 0
         } else {
