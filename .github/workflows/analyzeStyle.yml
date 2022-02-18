@@ -36,6 +36,7 @@ jobs:
       uses: aliencube/arm-ttk-actions@v0.3
       with:
         path: .
+        files: azuredeploy-internal.json,azuredeploy-beta.json,azuredeploy-prod.json
 
     - name: Test ARM Result
       shell: bash
