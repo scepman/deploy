@@ -12,6 +12,9 @@ jobs:
   analyze-powershell-script:
     runs-on: ubuntu-latest
     steps:
+    - name: Checkout the repo
+      uses: actions/checkout@v2
+
     - name: Run PSScriptAnalyzer
       uses: microsoft/psscriptanalyzer-action@main
       with:
@@ -31,6 +34,9 @@ jobs:
   check-arm-templates:
     runs-on: ubuntu-latest
     steps:
+    - name: Checkout the repo
+      uses: actions/checkout@v2
+
     - name: Test ARM Templates
       id: armtest
       uses: aliencube/arm-ttk-actions@v0.3
