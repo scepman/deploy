@@ -23,32 +23,13 @@ Fill out the values in the form, similar to this screenshot:
 4. Agree to the terms and conditions by clicking the checkbox
 5. Click **Purchase**
 
-### Configure App Registrations
+### SCEPman Post-Installation Configuration
 
-Prerequistes:
-- A Global Admin Account for the tenant to which you want to install SCEPman
-- A workstation with [az CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli) installed (Alternatively: Azure Cloud Shell)
-
-1. Download the <a href="https://raw.githubusercontent.com/scepman/install/master/setup/SCEPman.psm1" target="_blank">SCEPman configuration PowerShell Module</a>.
-2. Import the module and run `Complete-SCEPmanInstallation`. We recommend setting `$InformationPreference = "Continue"` to get more feedback about what's happening.
-3. You will be asked for the name of SCEPman app service.
-4. Log on with a Global Admin account when asked to.
+Please follow the [official guide in the SCEPman Docs for post-installation configuration](https://docs.scepman.com/scepman-configuration/post-installation-config).
 
 ### Create Root Certificate
 
 * Follow instructions on the homepage of your SCEPman installation.
-
-### Granting the Rights to Request Certificates via the Certificate Master Website
-
-Create an AAD Group, possibly a Priviledged Access Group, for the people that shall be able to create web server certificates via CertMaster.
-
-In the Azure Portal, visit [Enterprise applications](https://portal.azure.com/#blade/Microsoft_AAD_IAM/StartboardApplicationsMenuBlade/AllApps/menuId/). Select "All Applications" as Application type, search for *SCEPman-CertMaster*, and select the displayed application. Navigate to *Users and groups* and click *Add user/group* on the top menu. Select the group you have previously created. The role will automatically be chosen as *Full Admin*. After you hit *Assign*, direct members of the group can visit the Certificate Master website and request certificates. Note that using Certificate Master is an Enterprise feature. After assignment, the setting should look like this:
-
-![Screenshot](./docs/images/app-role-assignment.png)
-
-### Enable Certificate Master in SCEPman
-
-Now you still need to tell SCEPman that requesting certificates via Certificate Master is enabled. For this, please add the application setting "AppConfig:DirectCSRValidation:Enabled" with the value "true" to the SCEPman app service (not Certificate Master).
 
 ## Upgrade from 1.x to 2.x
 
@@ -60,11 +41,7 @@ This means that you can [switch between channels in the main component as was po
 
 If you want to use the new SCEPman Certificate Master component to issue server certificates, you need to add the additional Azure resources and configure them. This also enables authentication as Managed Identity, one advantage of which is that you do not require any application secrets anymore. Thus, you also don't need to worry about expiration of application secrets. This is how you do it:
 
-After upgrading the main component, you configure the wiring between the components with [the same method that you would use for a new installation](#configure-app-registrations). In contrast to a new installation, this will also create the two new Azure resources.
-
-WARNING: The script currently does not yet support upgrading Deployment slots.
-
-Using Certificate Master requires that you [assign the necessary rights](#granting-the-rights-to-request-certificates-via-the-certificate-master-website) to somebody and that you [enable certificate submission](#enable-certificate-master-in-scepman) in SCEPman.
+After upgrading the main component, you follow the guide from the official SCEPman Docs for the [post-installation configuration](https://docs.scepman.com/scepman-configuration/post-installation-config). In contrast to a new installation, this will also create the two new Azure resources.
 
 ## Downgrade from 2.x to 1.x
 
