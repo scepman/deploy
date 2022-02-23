@@ -37,14 +37,25 @@ jobs:
     - name: Checkout the repo
       uses: actions/checkout@v2
 
-    - name: Test ARM Templates
-      id: armtest
+    - name: Test ARM Template for Internal Channel
+      id: armtest-internal
       uses: aliencube/arm-ttk-actions@v0.3
       with:
-        path: .
+        path: ./azuredeploy-internal.json
+    - name: Test ARM Template for Beta Channel
+      id: armtest-beta
+      uses: aliencube/arm-ttk-actions@v0.3
+      with:
+        path: ./azuredeploy-beta.json
+    - name: Test ARM Template for Production Channel
+      id: armtest-prod
+      uses: aliencube/arm-ttk-actions@v0.3
+      with:
+        path: ./azuredeploy-prod.json
+
 
     - name: Test ARM Result
       shell: bash
       continue-on-error: true
       run: |
-        echo "${{ toJSON(fromJSON(steps.armtest.outputs.results)) }}"    
+        echo "${{ toJSON(fromJSON(steps.armtest-internal.outputs.results)) }}"    
