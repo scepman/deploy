@@ -12,5 +12,5 @@ jobs:
 
       - name: Publish
         run: |
-          Publish-Module -Path . -NuGetApiKey ${{secrets.PSGalleryAPIKey}}
+          Publish-Module -Path scepman-psmodule/scepman -NuGetApiKey ${{secrets.PSGalleryAPIKey}}
         shell: pwsh
