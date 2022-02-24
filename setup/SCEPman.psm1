@@ -89,17 +89,10 @@ function AzLogin {
 function GetSubscriptionDetailsUsingSCEPmanAppName($subscriptions) {
     $correctSubscription = $null
     Write-Information "Finding correct subscription"
-    ForEach($tempSubscription in $subscriptions) {
-        #Az resource graph query => $dummy = ConvertLinesToObject -lines $(az graph query -q "Resources | where type == 'microsoft.web/sites' and name == '$SCEPmanAppServiceName' | project name, type")
-        #If Web app found if $dummy.count is 1
-        #TODO Check how to use with diff subscriptions
-        $webAppsInTheSubscription = ConvertLinesToObject -lines $(az webapp list --subscription $($tempSubscription.id) --query "[].name")
-        if($null -ne $webAppsInTheSubscription -and $webAppsInTheSubscription -contains $SCEPmanAppServiceName) {
-            $correctSubscription = $tempSubscription
-            break
-        }
+    $scWebAppsAcrossAllAccessibleSubscriptions = ConvertLinesToObject -lines $(az graph query -q "Resources | where type == 'microsoft.web/sites' and name == '$SCEPmanAppServiceName' | project name, subscriptionId" -s $subscriptions.id)
+    if($scWebAppsAcrossAllAccessibleSubscriptions.count -eq 1) {
+        $correctSubscription = $subscriptions | ? { $_.id -eq $scWebAppsAcrossAllAccessibleSubscriptions.data[0].subscriptionId }
     }
-    Write-Output "$($correctSubscription.name)"
     if($null -eq $correctSubscription) {
         $errorMessage = "We are unable to determine the correct subscription. Please start over"
         Write-Error $errorMessage
@@ -120,22 +113,20 @@ function GetSubscriptionDetails {
   }
   if($null -eq $potentialSubscription) {
     if($subscriptions.count -gt 1){
+        Write-Host "Multiple subscriptions found! Select a subscription where the SCPEman is installed or press '0' to search across all of the subscriptions"
+        Write-Host "0: Search All Subscriptions | Press '0'"
+        for($i = 0; $i -lt $subscriptions.count; $i++){
+            Write-Host "$($i + 1): $($subscriptions[$i].name) | Subscription Id: $($subscriptions[$i].id) | Press '$($i + 1)' to use this subscription"
+        }
+        $selection = Read-Host -Prompt "Please enter your choice and hit enter"
+        if(0 -eq $selection) {
+            $potentialSubscription = GetSubscriptionDetailsUsingSCEPmanAppName -subscriptions $subscriptions
+        } else {
+            $potentialSubscription = $subscriptions[$($selection - 1)]   
+        }
         if($null -eq $potentialSubscription) {
-            Write-Host "Multiple subscriptions found! Select a subscription where the SCPEman is installed or press '0' to search across all of the subscriptions"
-            Write-Host "0: Search All Subscriptions | Press '0'"
-            for($i = 0; $i -lt $subscriptions.count; $i++){
-                Write-Host "$($i + 1): $($subscriptions[$i].name) | Subscription Id: $($subscriptions[$i].id) | Press '$($i + 1)' to use this subscription"
-            }
-            $selection = Read-Host -Prompt "Please enter your choice and hit enter"
-            if(0 -eq $selection) {
-                $potentialSubscription = GetSubscriptionDetailsUsingSCEPmanAppName -subscriptions $subscriptions
-            } else {
-                $potentialSubscription = $subscriptions[$($selection - 1)]   
-            }
-            if($null -eq $potentialSubscription) {
-                Write-Error "We couldn't find the selected subscription. Please try to re-run the script"
-                throw "We couldn't find the selected subscription. Please try to re-run the script"
-            }
+            Write-Error "We couldn't find the selected subscription. Please try to re-run the script"
+            throw "We couldn't find the selected subscription. Please try to re-run the script"
         }
       } else {
         $potentialSubscription = $subscriptions[0]
@@ -191,13 +182,9 @@ function ExecuteAzCommandRobustly($azCommand, $principalId = $null, $appRoleId =
 function GetResourceGroup {
   if ([String]::IsNullOrWhiteSpace($SCEPmanResourceGroup)) {
     # No resource group given, search for it now
-    # AZ resource graph query $dummy =  ConvertLinesToObject -lines $(az graph query -q "Resources | where type == 'microsoft.web/sites' and name == '$SCEPmanAppServiceName' | project name, resourceGroup")
-    # If $dummy.Count is 1, web app is found and $dummy.data[0].resourceGroup has the resource group
-    $allwebapps = ConvertLinesToObject -lines $(az webapp list --query "[].{name : name, resourceGroup : resourceGroup}")
-    ForEach($webapp in $allwebapps) {
-        if($webapp.name -eq $SCEPmanAppServiceName) {
-            return $webapp.resourceGroup;
-        }
+    $scWebAppsInTheSubscription = ConvertLinesToObject -lines $(az graph query -q "Resources | where type == 'microsoft.web/sites' and name == '$SCEPmanAppServiceName' | project name, resourceGroup")
+    if($null -ne $scWebAppsInTheSubscription -and $($scWebAppsInTheSubscription.count) -eq 1) {
+        return $scWebAppsInTheSubscription.data[0].resourceGroup
     }
     Write-Error "Unable to determine the resource group. This generally happens when a wrong name is entered for the SCEPman web app!"
     throw "Unable to determine the resource group. This generally happens when a wrong name is entered for the SCEPman web app!"
@@ -214,22 +201,18 @@ function GetCertMasterAppServiceName {
     #       - Configuration value AppConfig:SCEPman:URL must be present, then it must be a CertMaster
     #       - In a default installation, the URL must contain SCEPman's app service name. We require this.
 
-      # AZ resource graph query $dummy =  ConvertLinesToObject -lines $(az graph query -q "Resources | where type == 'microsoft.web/sites' and resourceGroup == '$SCEPmanResourceGroup' | project name")
-      
-      $rgwebapps = ConvertLinesToObject -lines $(az webapp list --resource-group $SCEPmanResourceGroup)
-      Write-Information "$($rgwebapps.Count) web apps found in the resource group $SCEPmanResourceGroup. We are finding if the CertMaster app is already created"
-      if($rgwebapps.Count -gt 1) {
-        ForEach($potentialcmwebapp in $rgwebapps) {
-            if($potentialcmwebapp.name -ne $SCEPmanAppServiceName) {
-                $scepmanurlsettingcount = az webapp config appsettings list --name $potentialcmwebapp.name --resource-group $SCEPmanResourceGroup --query "[?name=='AppConfig:SCEPman:URL'].value | length(@)"
-                if($scepmanurlsettingcount -eq 1) {
-                    $scepmanUrl = az webapp config appsettings list --name $potentialcmwebapp.name --resource-group $SCEPmanResourceGroup --query "[?name=='AppConfig:SCEPman:URL'].value | [0]"
-                    $hascorrectscepmanurl = $scepmanUrl.ToUpperInvariant().Contains($SCEPmanAppServiceName.ToUpperInvariant())
-                    if($hascorrectscepmanurl -eq $true) {
-                        Write-Information "CertMaster web app $($potentialcmwebapp.name) found."
-                        $CertMasterAppServiceName = $potentialcmwebapp.name
-                        return $potentialcmwebapp.name
-                    }
+      $rgwebapps =  ConvertLinesToObject -lines $(az graph query -q "Resources | where type == 'microsoft.web/sites' and resourceGroup == '$SCEPmanResourceGroup' and name !~ '$SCEPmanAppServiceName' | project name")
+      Write-Information "$($rgwebapps.count + 1) web apps found in the resource group $SCEPmanResourceGroup. We are finding if the CertMaster app is already created"
+      if($rgwebapps.count -gt 0) {
+        ForEach($potentialcmwebapp in $rgwebapps.data) {
+            $scepmanurlsettingcount = az webapp config appsettings list --name $potentialcmwebapp.name --resource-group $SCEPmanResourceGroup --query "[?name=='AppConfig:SCEPman:URL'].value | length(@)"
+            if($scepmanurlsettingcount -eq 1) {
+                $scepmanUrl = az webapp config appsettings list --name $potentialcmwebapp.name --resource-group $SCEPmanResourceGroup --query "[?name=='AppConfig:SCEPman:URL'].value | [0]"
+                $hascorrectscepmanurl = $scepmanUrl.ToUpperInvariant().Contains($SCEPmanAppServiceName.ToUpperInvariant())
+                if($hascorrectscepmanurl -eq $true) {
+                    Write-Information "CertMaster web app $($potentialcmwebapp.name) found."
+                    $CertMasterAppServiceName = $potentialcmwebapp.name
+                    return $potentialcmwebapp.name
                 }
             }
         }
@@ -247,16 +230,17 @@ function CreateCertMasterAppService {
   if($null -eq $CertMasterAppServiceName) {
     $CreateCertMasterAppService =  $true
   } else {
-    $CertMasterWebAppsCount = az webapp list --resource-group $SCEPmanResourceGroup --query "[?name=='$CertMasterAppServiceName'] | length(@)"
-    if(0 -eq $CertMasterWebAppsCount) {
+    # This can happen if user uses environment variable to set the CertMaster app service name
+    $CertMasterWebApps = ConvertLinesToObject -lines $(az graph query -q "Resources | where type == 'microsoft.web/sites' and resourceGroup == '$SCEPmanResourceGroup' and name =~ '$CertMasterAppServiceName' | project name")
+    if(0 -eq $CertMasterWebApps.count) {
         $CreateCertMasterAppService =  $true
     }
   }
   
-  $scwebapp = ConvertLinesToObject -lines $(az webapp list --query "[?name=='$SCEPmanAppServiceName']")
+  $scwebapp = ConvertLinesToObject -lines $(az graph query -q "Resources | where type == 'microsoft.web/sites' and resourceGroup == '$SCEPmanResourceGroup' and name =~ '$SCEPmanAppServiceName'")
   
   if($null -eq $CertMasterAppServiceName) {
-    $CertMasterAppServiceName = $scwebapp.name
+    $CertMasterAppServiceName = $scwebapp.data.name
     if ($CertMasterAppServiceName.Length -gt 57) {
       $CertMasterAppServiceName = $CertMasterAppServiceName.Substring(0,57)
     }
@@ -273,14 +257,14 @@ function CreateCertMasterAppService {
     
     Write-Information "User selected to create the app with the name $CertMasterAppServiceName"
 
-    $dummy = az webapp create --resource-group $SCEPmanResourceGroup --plan $scwebapp.appServicePlanId --name $CertMasterAppServiceName --assign-identity [system] --% --runtime "DOTNET|5.0"
+    $dummy = az webapp create --resource-group $SCEPmanResourceGroup --plan $scwebapp.data.properties.serverFarmId --name $CertMasterAppServiceName --assign-identity [system] --% --runtime "DOTNET|5.0"
     Write-Information "CertMaster web app $CertMasterAppServiceName created"
 
     # Do all the configuration that the ARM template does normally
     $CertmasterAppSettings = @{
       WEBSITE_RUN_FROM_PACKAGE = "https://raw.githubusercontent.com/scepman/install/master/dist-certmaster/CertMaster-Artifacts.zip";
       "AppConfig:AuthConfig:TenantId" = $subscription.tenantId;
-      "AppConfig:SCEPman:URL" = "https://$($scwebapp.defaultHostName)/";
+      "AppConfig:SCEPman:URL" = "https://$($scwebapp.data.properties.defaultHostName)/";
     } | ConvertTo-Json -Compress
     $CertMasterAppSettings = $CertmasterAppSettings.Replace('"', '\"')
 
@@ -294,14 +278,14 @@ function CreateCertMasterAppService {
 }
 
 function GetStorageAccount {
-    $storageaccounts = ConvertLinesToObject -lines $(az storage account list --resource-group $SCEPmanResourceGroup)
-    if($storageaccounts.Count -gt 0) {
+    $storageaccounts = ConvertLinesToObject -lines $(az graph query -q "Resources | where type == 'microsoft.storage/storageaccounts' and resourceGroup == '$SCEPmanResourceGroup' | project name, primaryEndpoints = properties.primaryEndpoints")
+    if($storageaccounts.count -gt 0) {
         $potentialStorageAccountName = Read-Host "We have found one or more existing storage accounts in the resource group $SCEPmanResourceGroup. Please hit enter now if you still want to create a new storage account or enter the name of the storage account you would like to use, and then hit enter"
         if(!$potentialStorageAccountName) {
             Write-Information "User selected to create a new storage account"
             return $null
         } else {
-            $potentialStorageAccount = $storageaccounts | ? { $_.name -eq $potentialStorageAccountName }
+            $potentialStorageAccount = $storageaccounts.data | ? { $_.name -eq $potentialStorageAccountName }
             if($null -eq $potentialStorageAccount) {
                 Write-Error "We couldn't find a storage account with name $potentialStorageAccountName. Please try to re-run the script"
                 throw "We couldn't find a storage account with name $potentialStorageAccountName. Please try to re-run the script"
@@ -326,7 +310,7 @@ function CreateScStorageAccount {
             $storageAccountName = $storageAccountName.Substring(0,19)
         }
         $storageAccountName = "stg$($storageAccountName)cm"
-        $potentialStorageAccountName = Read-Host "Storage account not found. Please hit enter now if you want to create the storage account with name $storageAccountName or enter the name of your choice, and then hit enter"
+        $potentialStorageAccountName = Read-Host "Please hit enter now if you want to create the storage account with name $storageAccountName or enter the name of your choice, and then hit enter"
         if($potentialStorageAccountName) {
             $storageAccountName = $potentialStorageAccountName
         }
@@ -374,12 +358,14 @@ function SetTableStorageEndpointsInScAndCmAppSettings {
         Write-Debug 'Storage account table endpoint found in app settings'        
     }
 
+    #TODO: Grant permissions to the existing storage accounts
+
     Write-Debug "Configuring table storage endpoints in SCEPman, SCEPman's deployment slots(if any), and CertMaster"
     $dummy = az webapp config appsettings set --name $CertMasterAppServiceName --resource-group $SCEPmanResourceGroup --settings AppConfig:AzureStorage:TableStorageEndpoint=$storageAccountTableEndpoint
     $dummy = az webapp config appsettings set --name $SCEPmanAppServiceName --resource-group $SCEPmanResourceGroup --settings AppConfig:CertificateStorage:TableStorageEndpoint=$storageAccountTableEndpoint
     if($true -eq $scHasDeploymentSlots) {
         ForEach($tempDeploymentSlot in $deploymentSlotsSc) {
-            $dummy = az webapp config appsettings set --name $SCEPmanAppServiceName --resource-group $SCEPmanResourceGroup --settings AppConfig:CertificateStorage:TableStorageEndpoint=$storageAccountTableEndpoint --slot $tempDeploymentSlot
+            $dummy = az webapp config appsettings set --name $SCEPmanAppServiceName --resource-group $SCEPmanResourceGroup --settings AppConfig:CertificateStorage:TableStorageEndpoint=$script:storageAccountTableEndpoint --slot $tempDeploymentSlot
         }
     }
 }
@@ -489,6 +475,9 @@ function Complete-SCEPmanInstallation($SCEPmanAppServiceName, $CertMasterAppServ
     if ([String]::IsNullOrWhiteSpace($SCEPmanAppServiceName)) {
     $SCEPmanAppServiceName = Read-Host "Please enter the SCEPman app service name"
     }
+
+    Write-Information "Installing az resource graph extension"
+    az extension add --name resource-graph --only-show-errors
 
     Write-Information "Configuring SCEPman and CertMaster"
 
