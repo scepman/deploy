@@ -16,7 +16,7 @@ jobs:
       uses: actions/checkout@v2
 
     - name: Run PSScriptAnalyzer
-      uses: microsoft/psscriptanalyzer-action@v1.0
+      uses: bb-froggy/psscriptanalyzer-action@main
       with:
         path: .\
         recurse: true 
