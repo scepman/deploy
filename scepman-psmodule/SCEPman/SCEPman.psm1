@@ -74,7 +74,7 @@ function AzLogin {
     if ($account.GetType() -eq [System.Management.Automation.ErrorRecord]) {
         if ($account.ToString().Contains("az login")) {
             Write-Information "Not logged in to az yet. Please log in."
-            $dummy = az login # TODO: Check whether the login worked
+            $null = az login # TODO: Check whether the login worked
         }
         else {
             Write-Error "Error $account while trying to use az" # possibly az not installed?
@@ -132,7 +132,7 @@ function GetSubscriptionDetails {
         $potentialSubscription = $subscriptions[0]
       }
   }
-  $dummy = az account set --subscription $($potentialSubscription.id)
+  $null = az account set --subscription $($potentialSubscription.id)
   Write-Information "Subscription is set to $($potentialSubscription.name)"
   return $potentialSubscription
 }
@@ -257,7 +257,7 @@ function CreateCertMasterAppService {
     
     Write-Information "User selected to create the app with the name $CertMasterAppServiceName"
 
-    $dummy = az webapp create --resource-group $SCEPmanResourceGroup --plan $scwebapp.data.properties.serverFarmId --name $CertMasterAppServiceName --assign-identity [system] --% --runtime "DOTNET|5.0"
+    $null = az webapp create --resource-group $SCEPmanResourceGroup --plan $scwebapp.data.properties.serverFarmId --name $CertMasterAppServiceName --assign-identity [system] --% --runtime "DOTNET|5.0"
     Write-Information "CertMaster web app $CertMasterAppServiceName created"
 
     # Do all the configuration that the ARM template does normally
@@ -269,9 +269,9 @@ function CreateCertMasterAppService {
     $CertMasterAppSettings = $CertmasterAppSettings.Replace('"', '\"')
 
     Write-Debug 'Configuring CertMaster web app settings'
-    $dummy = az webapp config set --name $CertMasterAppServiceName --resource-group $SCEPmanResourceGroup --use-32bit-worker-process $false --ftps-state 'Disabled' --always-on $true
-    $dummy = az webapp update --name $CertMasterAppServiceName --resource-group $SCEPmanResourceGroup --https-only $true
-    $dummy = az webapp config appsettings set --name $CertMasterAppServiceName --resource-group $SCEPmanResourceGroup --settings $CertMasterAppSettings 
+    $null = az webapp config set --name $CertMasterAppServiceName --resource-group $SCEPmanResourceGroup --use-32bit-worker-process $false --ftps-state 'Disabled' --always-on $true
+    $null = az webapp update --name $CertMasterAppServiceName --resource-group $SCEPmanResourceGroup --https-only $true
+    $null = az webapp config appsettings set --name $CertMasterAppServiceName --resource-group $SCEPmanResourceGroup --settings $CertMasterAppSettings 
   }
 
   return $CertMasterAppServiceName
@@ -322,11 +322,11 @@ function CreateScStorageAccount {
         Write-Information "Storage account $storageAccountName created"
     }
     Write-Information "Setting permissions in storage account for SCEPman, SCEPman's deployment slots(if any), and CertMaster"
-    $dummy = az role assignment create --role 'Storage Table Data Contributor' --assignee-object-id $serviceprincipalcm.principalId --assignee-principal-type 'ServicePrincipal' --scope "/subscriptions/$($subscription.id)/resourceGroups/$SCEPmanResourceGroup/providers/Microsoft.Storage/storageAccounts/$($ScStorageAccount.name)"
-    $dummy = az role assignment create --role 'Storage Table Data Contributor' --assignee-object-id $serviceprincipalsc.principalId --assignee-principal-type 'ServicePrincipal' --scope "/subscriptions/$($subscription.id)/resourceGroups/$SCEPmanResourceGroup/providers/Microsoft.Storage/storageAccounts/$($ScStorageAccount.name)"
+    $null = az role assignment create --role 'Storage Table Data Contributor' --assignee-object-id $serviceprincipalcm.principalId --assignee-principal-type 'ServicePrincipal' --scope "/subscriptions/$($subscription.id)/resourceGroups/$SCEPmanResourceGroup/providers/Microsoft.Storage/storageAccounts/$($ScStorageAccount.name)"
+    $null = az role assignment create --role 'Storage Table Data Contributor' --assignee-object-id $serviceprincipalsc.principalId --assignee-principal-type 'ServicePrincipal' --scope "/subscriptions/$($subscription.id)/resourceGroups/$SCEPmanResourceGroup/providers/Microsoft.Storage/storageAccounts/$($ScStorageAccount.name)"
     if($true -eq $scHasDeploymentSlots) {
         ForEach($tempServicePrincipal in $serviceprincipalOfScDeploymentSlots) {
-            $dummy = az role assignment create --role 'Storage Table Data Contributor' --assignee-object-id $tempServicePrincipal.principalId --assignee-principal-type 'ServicePrincipal' --scope "/subscriptions/$($subscription.id)/resourceGroups/$SCEPmanResourceGroup/providers/Microsoft.Storage/storageAccounts/$($ScStorageAccount.name)"
+            $null = az role assignment create --role 'Storage Table Data Contributor' --assignee-object-id $tempServicePrincipal.principalId --assignee-principal-type 'ServicePrincipal' --scope "/subscriptions/$($subscription.id)/resourceGroups/$SCEPmanResourceGroup/providers/Microsoft.Storage/storageAccounts/$($ScStorageAccount.name)"
         }
     }
     return $ScStorageAccount
@@ -361,11 +361,11 @@ function SetTableStorageEndpointsInScAndCmAppSettings {
     #TODO: Grant permissions to the existing storage accounts
 
     Write-Debug "Configuring table storage endpoints in SCEPman, SCEPman's deployment slots(if any), and CertMaster"
-    $dummy = az webapp config appsettings set --name $CertMasterAppServiceName --resource-group $SCEPmanResourceGroup --settings AppConfig:AzureStorage:TableStorageEndpoint=$storageAccountTableEndpoint
-    $dummy = az webapp config appsettings set --name $SCEPmanAppServiceName --resource-group $SCEPmanResourceGroup --settings AppConfig:CertificateStorage:TableStorageEndpoint=$storageAccountTableEndpoint
+    $null = az webapp config appsettings set --name $CertMasterAppServiceName --resource-group $SCEPmanResourceGroup --settings AppConfig:AzureStorage:TableStorageEndpoint=$storageAccountTableEndpoint
+    $null = az webapp config appsettings set --name $SCEPmanAppServiceName --resource-group $SCEPmanResourceGroup --settings AppConfig:CertificateStorage:TableStorageEndpoint=$storageAccountTableEndpoint
     if($true -eq $scHasDeploymentSlots) {
         ForEach($tempDeploymentSlot in $deploymentSlotsSc) {
-            $dummy = az webapp config appsettings set --name $SCEPmanAppServiceName --resource-group $SCEPmanResourceGroup --settings AppConfig:CertificateStorage:TableStorageEndpoint=$script:storageAccountTableEndpoint --slot $tempDeploymentSlot
+            $null = az webapp config appsettings set --name $SCEPmanAppServiceName --resource-group $SCEPmanResourceGroup --settings AppConfig:CertificateStorage:TableStorageEndpoint=$script:storageAccountTableEndpoint --slot $tempDeploymentSlot
         }
     }
 }
@@ -394,7 +394,7 @@ function SetManagedIdentityPermissions($principalId, $resourcePermissions) {
     ForEach($resourcePermission in $resourcePermissions) {
         if(($alreadyAssignedPermissions -contains $resourcePermission.appRoleId) -eq $false) {
             $bodyToAddPermission = "{'principalId': '$($principalId)','resourceId': '$($resourcePermission.resourceId)','appRoleId':'$($resourcePermission.appRoleId)'}"
-            $dummy = ExecuteAzCommandRobustly -azCommand "az rest --method post --uri '$graphEndpointForAppRoleAssignments' --body `"$bodyToAddPermission`" --headers 'Content-Type=application/json'" -principalId $principalId -appRoleId $resourcePermission.appRoleId
+            $null = ExecuteAzCommandRobustly -azCommand "az rest --method post --uri '$graphEndpointForAppRoleAssignments' --body `"$bodyToAddPermission`" --headers 'Content-Type=application/json'" -principalId $principalId -appRoleId $resourcePermission.appRoleId
         }
     }
 }
@@ -432,7 +432,7 @@ function RegisterAzureADApp($name, $manifest, $replyUrls = $null) {
 function AddDelegatedPermissionToCertMasterApp($appId) {
     $certMasterPermissions = ConvertLinesToObject -lines $(az ad app permission list --id $appId --query "[0]")
     if($null -eq ($certMasterPermissions.resourceAccess | ? { $_.id -eq $MSGraphUserReadPermission })) {
-        $dummy = ExecuteAzCommandRobustly -azCommand "az ad app permission add --id $appId --api $MSGraphAppId --api-permissions `"$MSGraphUserReadPermission=Scope`" --only-show-errors"
+        $null = ExecuteAzCommandRobustly -azCommand "az ad app permission add --id $appId --api $MSGraphAppId --api-permissions `"$MSGraphUserReadPermission=Scope`" --only-show-errors"
     }
     $certMasterPermissionsGrantsString = ConvertLinesToObject -lines $(az ad app permission list-grants --id $appId --query "[0].scope")
     $requiresPermissionGrant = $false
@@ -445,7 +445,7 @@ function AddDelegatedPermissionToCertMasterApp($appId) {
         }
     }
     if($true -eq $requiresPermissionGrant) {
-        $dummy = ExecuteAzCommandRobustly -azCommand "az ad app permission grant --id $appId --api $MSGraphAppId --scope `"User.Read`" --expires `"never`""   
+        $null = ExecuteAzCommandRobustly -azCommand "az ad app permission grant --id $appId --api $MSGraphAppId --scope `"User.Read`" --expires `"never`""   
     }
 }
 
@@ -572,7 +572,7 @@ function Complete-SCEPmanInstallation($SCEPmanAppServiceName, $CertMasterAppServ
 
     # Register CertMaster App
     $appregcm = RegisterAzureADApp -name $azureADAppNameForCertMaster -manifest $CertmasterManifest -replyUrls `"$CertMasterBaseURL/signin-oidc`"
-    $dummy = CreateServicePrincipal -appId $($appregcm.appId)
+    $null = CreateServicePrincipal -appId $($appregcm.appId)
 
     # Add Microsoft Graph's User.Read as delegated permission for CertMaster
     AddDelegatedPermissionToCertMasterApp -appId $appregcm.appId
@@ -582,33 +582,33 @@ function Complete-SCEPmanInstallation($SCEPmanAppServiceName, $CertMasterAppServ
 
     # Add ApplicationId and some additional defaults in SCEPman web app settings
     $ScepManAppSettings = "{\`"AppConfig:AuthConfig:ApplicationId\`":\`"$($appregsc.appId)\`",\`"AppConfig:CertMaster:URL\`":\`"$($CertMasterBaseURL)\`",\`"AppConfig:DirectCSRValidation:Enabled\`":\`"true\`",\`"AppConfig:AuthConfig:UseManagedIdentity\`":\`"true\`"}".Replace("`r", [String]::Empty).Replace("`n", [String]::Empty)
-    $dummy = az webapp config appsettings set --name $SCEPmanAppServiceName --resource-group $SCEPmanResourceGroup --settings $ScepManAppSettings
+    $null = az webapp config appsettings set --name $SCEPmanAppServiceName --resource-group $SCEPmanResourceGroup --settings $ScepManAppSettings
 
     if($true -eq $scHasDeploymentSlots) {
         ForEach($tempDeploymentSlot in $deploymentSlotsSc) {
-            $dummy = az webapp config appsettings set --name $SCEPmanAppServiceName --resource-group $SCEPmanResourceGroup --settings $ScepManAppSettings --slot $tempDeploymentSlot   
+            $null = az webapp config appsettings set --name $SCEPmanAppServiceName --resource-group $SCEPmanResourceGroup --settings $ScepManAppSettings --slot $tempDeploymentSlot   
         }
     }
 
     $existingApplicationKeySc = az webapp config appsettings list --name $SCEPmanAppServiceName --resource-group $SCEPmanResourceGroup --query "[?name=='AppConfig:AuthConfig:ApplicationKey'].value | [0]"
     if(![string]::IsNullOrEmpty($existingApplicationKeySc)) {
-        $dummy = az webapp config appsettings set --name $SCEPmanAppServiceName --resource-group $SCEPmanResourceGroup --settings BackUp:AppConfig:AuthConfig:ApplicationKey=$existingApplicationKeySc
-        $dummy = az webapp config appsettings delete --name $SCEPmanAppServiceName --resource-group $SCEPmanResourceGroup --setting-names AppConfig:AuthConfig:ApplicationKey
+        $null = az webapp config appsettings set --name $SCEPmanAppServiceName --resource-group $SCEPmanResourceGroup --settings BackUp:AppConfig:AuthConfig:ApplicationKey=$existingApplicationKeySc
+        $null = az webapp config appsettings delete --name $SCEPmanAppServiceName --resource-group $SCEPmanResourceGroup --setting-names AppConfig:AuthConfig:ApplicationKey
     }
 
     if($true -eq $scHasDeploymentSlots) {
         ForEach($tempDeploymentSlot in $deploymentSlotsSc) {
             $existingApplicationKeySc = az webapp config appsettings list --name $SCEPmanAppServiceName --resource-group $SCEPmanResourceGroup --slot $tempDeploymentSlot --query "[?name=='AppConfig:AuthConfig:ApplicationKey'].value | [0]"
             if(![string]::IsNullOrEmpty($existingApplicationKeySc)) {
-                $dummy = az webapp config appsettings set --name $SCEPmanAppServiceName --resource-group $SCEPmanResourceGroup --slot $tempDeploymentSlot --settings BackUp:AppConfig:AuthConfig:ApplicationKey=$existingApplicationKeySc
-                $dummy = az webapp config appsettings delete --name $SCEPmanAppServiceName --resource-group $SCEPmanResourceGroup --slot $tempDeploymentSlot --setting-names AppConfig:AuthConfig:ApplicationKey
+                $null = az webapp config appsettings set --name $SCEPmanAppServiceName --resource-group $SCEPmanResourceGroup --slot $tempDeploymentSlot --settings BackUp:AppConfig:AuthConfig:ApplicationKey=$existingApplicationKeySc
+                $null = az webapp config appsettings delete --name $SCEPmanAppServiceName --resource-group $SCEPmanResourceGroup --slot $tempDeploymentSlot --setting-names AppConfig:AuthConfig:ApplicationKey
             }
         }
     }
 
     # Add ApplicationId and SCEPman API scope in certmaster web app settings
     $CertmasterAppSettings = "{\`"AppConfig:AuthConfig:ApplicationId\`":\`"$($appregcm.appId)\`",\`"AppConfig:AuthConfig:SCEPmanAPIScope\`":\`"api://$($appregsc.appId)\`",\`"AppConfig:AuthConfig:UseManagedIdentity\`":\`"true\`"}".Replace("`r", [String]::Empty).Replace("`n", [String]::Empty)
-    $dummy = az webapp config appsettings set --name $CertMasterAppServiceName --resource-group $SCEPmanResourceGroup --settings $CertmasterAppSettings
+    $null = az webapp config appsettings set --name $CertMasterAppServiceName --resource-group $SCEPmanResourceGroup --settings $CertmasterAppSettings
 
     Write-Information "SCEPman and CertMaster configuration completed"
 }
