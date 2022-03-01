@@ -24,7 +24,7 @@ $azureADAppNameForSCEPman = 'SCEPman-api' #Azure AD app name for SCEPman
 $azureADAppNameForCertMaster = 'SCEPman-CertMaster' #Azure AD app name for certmaster
 
 # JSON defining App Role that CertMaster uses to authenticate against SCEPman
-$ScepmanManifest = '[{ 
+$ScepmanManifest = '[{
         \"allowedMemberTypes\": [
           \"Application\"
         ],
@@ -35,7 +35,7 @@ $ScepmanManifest = '[{
     }]'.Replace("`r", [String]::Empty).Replace("`n", [String]::Empty)
 
 # JSON defining App Role that User can have to when authenticating against CertMaster
-$CertmasterManifest = '[{ 
+$CertmasterManifest = '[{
     \"allowedMemberTypes\": [
       \"User\"
     ],
@@ -122,7 +122,7 @@ function GetSubscriptionDetails {
         if(0 -eq $selection) {
             $potentialSubscription = GetSubscriptionDetailsUsingSCEPmanAppName -subscriptions $subscriptions
         } else {
-            $potentialSubscription = $subscriptions[$($selection - 1)]   
+            $potentialSubscription = $subscriptions[$($selection - 1)]
         }
         if($null -eq $potentialSubscription) {
             Write-Error "We couldn't find the selected subscription. Please try to re-run the script"
@@ -138,8 +138,8 @@ function GetSubscriptionDetails {
 }
 
 # It is intended to use for az cli add permissions and az cli add permissions admin
-# $azCommand - The command to execute. 
-# 
+# $azCommand - The command to execute.
+#
 function ExecuteAzCommandRobustly($azCommand, $principalId = $null, $appRoleId = $null) {
   $azErrorCode = 1234 # A number not null
   $retryCount = 0
@@ -236,25 +236,25 @@ function CreateCertMasterAppService {
         $CreateCertMasterAppService =  $true
     }
   }
-  
+
   $scwebapp = ConvertLinesToObject -lines $(az graph query -q "Resources | where type == 'microsoft.web/sites' and resourceGroup == '$SCEPmanResourceGroup' and name =~ '$SCEPmanAppServiceName'")
-  
+
   if($null -eq $CertMasterAppServiceName) {
     $CertMasterAppServiceName = $scwebapp.data.name
     if ($CertMasterAppServiceName.Length -gt 57) {
       $CertMasterAppServiceName = $CertMasterAppServiceName.Substring(0,57)
     }
-    
+
     $CertMasterAppServiceName += "-cm"
     $potentialCertMasterAppServiceName = Read-Host "CertMaster web app not found. Please hit enter now if you want to create the app with name $CertMasterAppServiceName or enter the name of your choice, and then hit enter"
-    
+
     if($potentialCertMasterAppServiceName) {
         $CertMasterAppServiceName = $potentialCertMasterAppServiceName
     }
   }
 
   if ($true -eq $CreateCertMasterAppService) {
-    
+
     Write-Information "User selected to create the app with the name $CertMasterAppServiceName"
 
     $null = az webapp create --resource-group $SCEPmanResourceGroup --plan $scwebapp.data.properties.serverFarmId --name $CertMasterAppServiceName --assign-identity [system] --% --runtime "DOTNET|5.0"
@@ -271,7 +271,7 @@ function CreateCertMasterAppService {
     Write-Debug 'Configuring CertMaster web app settings'
     $null = az webapp config set --name $CertMasterAppServiceName --resource-group $SCEPmanResourceGroup --use-32bit-worker-process $false --ftps-state 'Disabled' --always-on $true
     $null = az webapp update --name $CertMasterAppServiceName --resource-group $SCEPmanResourceGroup --https-only $true
-    $null = az webapp config appsettings set --name $CertMasterAppServiceName --resource-group $SCEPmanResourceGroup --settings $CertMasterAppSettings 
+    $null = az webapp config appsettings set --name $CertMasterAppServiceName --resource-group $SCEPmanResourceGroup --settings $CertMasterAppSettings
   }
 
   return $CertMasterAppServiceName
@@ -333,7 +333,7 @@ function CreateScStorageAccount {
 }
 
 function SetTableStorageEndpointsInScAndCmAppSettings {
-    
+
     $existingTableStorageEndpointSettingSc = az webapp config appsettings list --name $SCEPmanAppServiceName --resource-group $SCEPmanResourceGroup --query "[?name=='AppConfig:CertificateStorage:TableStorageEndpoint'].value | [0]"
     $existingTableStorageEndpointSettingCm = az webapp config appsettings list --name $CertMasterAppServiceName --resource-group $SCEPmanResourceGroup --query "[?name=='AppConfig:AzureStorage:TableStorageEndpoint'].value | [0]"
     $storageAccountTableEndpoint = $null
@@ -355,7 +355,7 @@ function SetTableStorageEndpointsInScAndCmAppSettings {
         $ScStorageAccount = CreateScStorageAccount
         $storageAccountTableEndpoint = $($ScStorageAccount.primaryEndpoints.table)
     } else {
-        Write-Debug 'Storage account table endpoint found in app settings'        
+        Write-Debug 'Storage account table endpoint found in app settings'
     }
 
     #TODO: Grant permissions to the existing storage accounts
@@ -390,7 +390,7 @@ function GetAzureResourceAppId($appId) {
 function SetManagedIdentityPermissions($principalId, $resourcePermissions) {
     $graphEndpointForAppRoleAssignments = "https://graph.microsoft.com/v1.0/servicePrincipals/$($principalId)/appRoleAssignments"
     $alreadyAssignedPermissions = ExecuteAzCommandRobustly -azCommand "az rest --method get --uri '$graphEndpointForAppRoleAssignments' --headers 'Content-Type=application/json' --query 'value[].appRoleId' --output tsv"
-    
+
     ForEach($resourcePermission in $resourcePermissions) {
         if(($alreadyAssignedPermissions -contains $resourcePermission.appRoleId) -eq $false) {
             $bodyToAddPermission = "{'principalId': '$($principalId)','resourceId': '$($resourcePermission.resourceId)','appRoleId':'$($resourcePermission.appRoleId)'}"
@@ -425,7 +425,7 @@ function RegisterAzureADApp($name, $manifest, $replyUrls = $null) {
         else {
             $azureAdAppReg = ConvertLinesToObject -lines $(ExecuteAzCommandRobustly -azCommand "az ad app create --display-name '$name' --app-roles '$manifest' --reply-urls '$replyUrls'")
         }
-    }  
+    }
     return $azureAdAppReg
 }
 
@@ -445,7 +445,7 @@ function AddDelegatedPermissionToCertMasterApp($appId) {
         }
     }
     if($true -eq $requiresPermissionGrant) {
-        $null = ExecuteAzCommandRobustly -azCommand "az ad app permission grant --id $appId --api $MSGraphAppId --scope `"User.Read`" --expires `"never`""   
+        $null = ExecuteAzCommandRobustly -azCommand "az ad app permission grant --id $appId --api $MSGraphAppId --scope `"User.Read`" --expires `"never`""
     }
 }
 
@@ -461,7 +461,7 @@ function AddDelegatedPermissionToCertMasterApp($appId) {
 
  .Parameter SCEPmanResourceGroup
   The Azure resource group hosting the SCEPman App Service
-  
+
  .Example
    # Configure SCEPman in your tenant where the app service name is as-scepman
    Configure-SCEPman -SCEPmanAppServiceName as-scepman
@@ -497,7 +497,7 @@ function Complete-SCEPmanInstallation($SCEPmanAppServiceName, $CertMasterAppServ
         $scHasDeploymentSlots = $true
         Write-Debug "$($deploymentSlotsSc.Count) found"
     } else {
-        Write-Debug "No deployment slots found" 
+        Write-Debug "No deployment slots found"
     }
 
 
@@ -535,7 +535,7 @@ function Complete-SCEPmanInstallation($SCEPmanAppServiceName, $CertMasterAppServ
 
 
     ### Set managed identity permissions for SCEPman
-    $resourcePermissionsForSCEPman = 
+    $resourcePermissionsForSCEPman =
         @([pscustomobject]@{'resourceId'=$graphResourceId;'appRoleId'=$MSGraphDirectoryReadAllPermission;},
         [pscustomobject]@{'resourceId'=$graphResourceId;'appRoleId'=$MSGraphDeviceManagementReadPermission;},
         [pscustomobject]@{'resourceId'=$intuneResourceId;'appRoleId'=$IntuneSCEPChallengePermission;}
@@ -546,7 +546,7 @@ function Complete-SCEPmanInstallation($SCEPmanAppServiceName, $CertMasterAppServ
     if($true -eq $scHasDeploymentSlots) {
         Write-Information "Setting up permissions for SCEPman deployment slots"
         ForEach($tempServicePrincipal in $serviceprincipalOfScDeploymentSlots) {
-            SetManagedIdentityPermissions -principalId $tempServicePrincipal.principalId -resourcePermissions $resourcePermissionsForSCEPman        
+            SetManagedIdentityPermissions -principalId $tempServicePrincipal.principalId -resourcePermissions $resourcePermissionsForSCEPman
         }
     }
 
@@ -586,7 +586,7 @@ function Complete-SCEPmanInstallation($SCEPmanAppServiceName, $CertMasterAppServ
 
     if($true -eq $scHasDeploymentSlots) {
         ForEach($tempDeploymentSlot in $deploymentSlotsSc) {
-            $null = az webapp config appsettings set --name $SCEPmanAppServiceName --resource-group $SCEPmanResourceGroup --settings $ScepManAppSettings --slot $tempDeploymentSlot   
+            $null = az webapp config appsettings set --name $SCEPmanAppServiceName --resource-group $SCEPmanResourceGroup --settings $ScepManAppSettings --slot $tempDeploymentSlot
         }
     }
 
