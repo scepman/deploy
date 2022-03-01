@@ -91,7 +91,7 @@ function GetSubscriptionDetailsUsingSCEPmanAppName($subscriptions) {
     Write-Information "Finding correct subscription"
     $scWebAppsAcrossAllAccessibleSubscriptions = ConvertLinesToObject -lines $(az graph query -q "Resources | where type == 'microsoft.web/sites' and name == '$SCEPmanAppServiceName' | project name, subscriptionId" -s $subscriptions.id)
     if($scWebAppsAcrossAllAccessibleSubscriptions.count -eq 1) {
-        $correctSubscription = $subscriptions | ? { $_.id -eq $scWebAppsAcrossAllAccessibleSubscriptions.data[0].subscriptionId }
+        $correctSubscription = $subscriptions | Where-Object { $_.id -eq $scWebAppsAcrossAllAccessibleSubscriptions.data[0].subscriptionId }
     }
     if($null -eq $correctSubscription) {
         $errorMessage = "We are unable to determine the correct subscription. Please start over"
@@ -105,7 +105,7 @@ function GetSubscriptionDetails {
   $potentialSubscription = $null
   $subscriptions = ConvertLinesToObject -lines $(az account list)
   if($false -eq [String]::IsNullOrWhiteSpace($SubscriptionId)) {
-    $potentialSubscription = $subscriptions | ? { $_.id -eq $SubscriptionId }
+    $potentialSubscription = $subscriptions | Where-Object { $_.id -eq $SubscriptionId }
     if($null -eq $potentialSubscription) {
         Write-Warning "We are unable to find the subscription with id $SubscriptionId"
         throw "We are unable to find the subscription with id $SubscriptionId"
@@ -158,7 +158,7 @@ function ExecuteAzCommandRobustly($azCommand, $principalId = $null, $appRoleId =
     } else {
         if($null -ne $appRoleId -and $azErrorCode -eq 0) {
             $appRoleAssignments = ConvertLinesToObject -lines $(az rest --method get --url "https://graph.microsoft.com/v1.0/servicePrincipals/$principalId/appRoleAssignments")
-            $grantedPermission = $appRoleAssignments.value | ? { $_.appRoleId -eq $appRoleId }
+            $grantedPermission = $appRoleAssignments.value | Where-Object { $_.appRoleId -eq $appRoleId }
             if ($null -eq $grantedPermission) {
                 $azErrorCode = 999 # A number not 0
             }
@@ -285,7 +285,7 @@ function GetStorageAccount {
             Write-Information "User selected to create a new storage account"
             return $null
         } else {
-            $potentialStorageAccount = $storageaccounts.data | ? { $_.name -eq $potentialStorageAccountName }
+            $potentialStorageAccount = $storageaccounts.data | Where-Object { $_.name -eq $potentialStorageAccountName }
             if($null -eq $potentialStorageAccount) {
                 Write-Error "We couldn't find a storage account with name $potentialStorageAccountName. Please try to re-run the script"
                 throw "We couldn't find a storage account with name $potentialStorageAccountName. Please try to re-run the script"
@@ -431,7 +431,7 @@ function RegisterAzureADApp($name, $manifest, $replyUrls = $null) {
 
 function AddDelegatedPermissionToCertMasterApp($appId) {
     $certMasterPermissions = ConvertLinesToObject -lines $(az ad app permission list --id $appId --query "[0]")
-    if($null -eq ($certMasterPermissions.resourceAccess | ? { $_.id -eq $MSGraphUserReadPermission })) {
+    if($null -eq ($certMasterPermissions.resourceAccess | Where-Object { $_.id -eq $MSGraphUserReadPermission })) {
         $null = ExecuteAzCommandRobustly -azCommand "az ad app permission add --id $appId --api $MSGraphAppId --api-permissions `"$MSGraphUserReadPermission=Scope`" --only-show-errors"
     }
     $certMasterPermissionsGrantsString = ConvertLinesToObject -lines $(az ad app permission list-grants --id $appId --query "[0].scope")
