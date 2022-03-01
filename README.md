@@ -52,7 +52,7 @@ When the app registration is done use this button to deploy SCEPMan to your Azur
     <img src="http://azuredeploy.net/deploybutton.png"/>
 </a>
 
-Instead, you can also <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fscepman%2Finstall%2Fmaster%2Fazuredeploy-beta.json" target="_blank">Deploy the Beta Channel</a>. For non-production environments, you may [deploy the SCEPman 2.0 pre-release](SCEPman2x-Deployment.md).
+Instead, you can also Deploy the Beta or Internal Channels of SCEPman 2.0 as described in [the official SCEPman documentation](https://docs.scepman.com/scepman-deployment/deployment-options/scepman-2.x-deployment).
 
 When clicking the deploy button you will see this form dialog
 ![Screenshot](./docs/images/8.png)
