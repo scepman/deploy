@@ -9,28 +9,6 @@ jobs:
     - uses: actions/checkout@master
     - uses: gaurav-nelson/github-action-markdown-link-check@v1
 
-  analyze-powershell-script:
-    runs-on: ubuntu-latest
-    steps:
-    - name: Checkout the repo
-      uses: actions/checkout@v2
-
-    - name: Run PSScriptAnalyzer
-      uses: bb-froggy/psscriptanalyzer-action@main
-      with:
-        path: .\
-        recurse: true 
-        output: results.sarif
-
-    - name: Upload PowerShell SARIF file
-      uses: github/codeql-action/upload-sarif@v1
-      with:
-        # Path to SARIF file relative to the root of the repository
-        sarif_file: results.sarif
-        # Optional category for the results
-        # Used to differentiate multiple results for one commit
-        category: PSScriptAnalyzer
-
   check-arm-templates:
     runs-on: ubuntu-latest
     steps:
