@@ -133,7 +133,6 @@ function GetSubscriptionDetails {
       }
   }
   $null = az account set --subscription $($potentialSubscription.id)
-  Write-Output "Subscription is set to $($potentialSubscription.name)"
   return $potentialSubscription
 }
 
@@ -486,6 +485,7 @@ function Complete-SCEPmanInstallation($SCEPmanAppServiceName, $CertMasterAppServ
 
     Write-Output "Getting subscription details"
     $subscription = GetSubscriptionDetails
+    Write-Output "Subscription is set to $($subscription.name)"
 
     Write-Output "Setting resource group"
     $SCEPmanResourceGroup = GetResourceGroup
@@ -527,8 +527,6 @@ function Complete-SCEPmanInstallation($SCEPmanAppServiceName, $CertMasterAppServ
 
     $CertMasterBaseURL = "https://$CertMasterAppServiceName.azurewebsites.net"
     Write-Verbose "CertMaster web app url is $CertMasterBaseURL"
-
-    $SCEPmanBaseURL = "https://$SCEPmanAppServiceName.azurewebsites.net"
 
     $graphResourceId = GetAzureResourceAppId -appId $MSGraphAppId
     $intuneResourceId = GetAzureResourceAppId -appId $IntuneAppId
