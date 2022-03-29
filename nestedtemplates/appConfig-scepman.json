@@ -90,6 +90,14 @@
                             "name": "AppConfig:UseRequestedKeyUsages",
                             "value": "true"
                         },
+                        {
+                            "name": "AppConfig:ValidityPeriodDays",
+                            "value": "730"
+                        },
+                        {
+                            "name": "AppConfig:IntuneValidation:ValidityPeriodDays",
+                            "value": "365"
+                        },                                      
 						{
                             "name": "AppConfig:DirectCSRValidation:Enabled",
                             "value": "true"
