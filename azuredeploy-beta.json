@@ -22,7 +22,8 @@
             "maxLength": 24,
             "metadata": {
                 "description": "Specifies the name of the key vault."
-            }
+            },
+            "defaultValue": "kv-scepman-UNIQUENAME"
         },
         "storageAccountName": {
             "type": "string",
@@ -30,19 +31,23 @@
             "maxLength": 24,
             "metadata": {
                 "description": "Choose a unique name for your storage account. Storage account names must be between 3 and 24 characters in length and may contain numbers and lowercase letters only."
-            }
+            },
+            "defaultValue": "stgscepmanUNIQUENAME"
         },
         "appServicePlanName": {
             "type": "string",
-            "maxLength": 40
+            "maxLength": 40,
+            "defaultValue": "asp-scepman-UNIQUENAME"
         },
         "appServiceName": {
             "type": "string",
-            "maxLength": 60
+            "maxLength": 60,
+            "defaultValue": "as-scepman-UNIQUENAME"
         },
         "appServiceCertMasterName": {
             "type": "string",
-            "maxLength": 60
+            "maxLength": 60,
+            "defaultValue": "as-scepman-UNIQUENAME-cm" 
         }
     },
     "variables": {
