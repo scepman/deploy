@@ -46,6 +46,13 @@
             "maxLength": 40,
             "defaultValue": "[concat('asp-scepman-', uniqueString(resourceGroup().id))]"
         },
+        "existingAppServicePlanID": {
+            "type": "string",
+            "defaultValue": "none",
+            "metadata": {
+                "description": "Provide the AppServicePlan ID of an existing App Service Plan. Keep default value 'none' if you want to create a new one."
+            }
+        },        
         "appServiceName": {
             "type": "string",
             "maxLength": 60,

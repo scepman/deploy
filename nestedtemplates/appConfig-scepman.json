@@ -14,6 +14,13 @@
                 "description": "Name of the App Service Plan"
             }
         },
+        "existingAppServicePlanID": {
+            "type": "string",
+            "metadata": {
+                "description": "Provide the AppServicePlan ID of an existing App Service Plan. Keep default value 'none' if you want to create a new one."
+            },
+            "defaultValue": "none"
+        },        
         "appServiceName": {
             "type": "string",
             "metadata": {
@@ -62,7 +69,7 @@
             "name": "[parameters('appServiceName')]",
             "location": "[parameters('location')]",
             "properties": {
-                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('AppServicePlanName'))]",
+                "serverFarmId": "[if(equals(parameters('existingAppServicePlanID'), 'none'), resourceId('Microsoft.Web/serverfarms', parameters('AppServicePlanName')), parameters('existingAppServicePlanID'))]",
                 "httpsOnly": false,
                 "clientAffinityEnabled": false,
                 "siteConfig": {
