@@ -39,12 +39,19 @@
             "maxLength": 40,
             "defaultValue": "asp-scepman-UNIQUENAME"
         },
+        "existingAppServicePlanID": {
+            "type": "string",
+            "defaultValue": "none",
+            "metadata": {
+                "description": "Provide the AppServicePlan ID of an existing App Service Plan. Keep default value 'none' if you want to create a new one."
+            }
+        },        
         "appServiceName": {
             "type": "string",
             "maxLength": 60,
             "metadata": {
                 "description": "The SCEPman App Service and part of the default FQDN. Therefore, it must be globally unique and contain only DNS-compatible characters."
-            },            
+            },
             "defaultValue": "as-scepman-UNIQUENAME"
         },
         "appServiceCertMasterName": {
@@ -52,7 +59,7 @@
             "maxLength": 60,
             "metadata": {
                 "description": "The App Service for the component SCEPman Certificate Master. As it is part of the default FQDN, it must be globally unique and contain only DNS-compatible characters."
-            },            
+            },
             "defaultValue": "as-scepman-UNIQUENAME-cm" 
         }
     },
@@ -101,6 +108,9 @@
                                 "parameters": {
                                     "AppServicePlanName": {
                                         "value": "[variables('AppServicePlanName')]"
+                                    },
+                                    "existingAppServicePlanID": {
+                                        "value": "[parameters('existingAppServicePlanID')]"
                                     },
                                     "appServiceName": {
                                         "value": "[variables('AppServiceName')]"
@@ -162,6 +172,9 @@
                                     "AppServicePlanName": {
                                         "value": "[variables('AppServicePlanName')]"
                                     },
+                                    "existingAppServicePlanID": {
+                                        "value": "[parameters('existingAppServicePlanID')]"
+                                    },                                    
                                     "appServiceName": {
                                         "value": "[variables('AppServiceName')]"
                                     },
@@ -170,7 +183,7 @@
                                     },
                                     "OrgName": {
                                         "value": "[parameters('OrgName')]"
-                                    },  
+                                    },
                                     "_artifactsLocation": {
                                         "value": "[variables('_artifactsLocation')]"
                                     },
@@ -201,6 +214,9 @@
                                     "AppServicePlanName": {
                                         "value": "[variables('AppServicePlanName')]"
                                     },
+                                    "existingAppServicePlanID": {
+                                        "value": "[parameters('existingAppServicePlanID')]"
+                                    },                                    
                                     "appServiceName": {
                                         "value": "[variables('AppServiceCertMasterName')]"
                                     },
