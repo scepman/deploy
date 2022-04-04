@@ -115,6 +115,9 @@
                                     "AppServicePlanName": {
                                         "value": "[variables('AppServicePlanName')]"
                                     },
+                                    "existingAppServicePlanID": {
+                                        "value": "[parameters('existingAppServicePlanID')]"
+                                    },
                                     "appServiceName": {
                                         "value": "[variables('AppServiceName')]"
                                     },
@@ -175,6 +178,9 @@
                                     "AppServicePlanName": {
                                         "value": "[variables('AppServicePlanName')]"
                                     },
+                                    "existingAppServicePlanID": {
+                                        "value": "[parameters('existingAppServicePlanID')]"
+                                    },                                    
                                     "appServiceName": {
                                         "value": "[variables('AppServiceName')]"
                                     },
@@ -214,6 +220,9 @@
                                     "AppServicePlanName": {
                                         "value": "[variables('AppServicePlanName')]"
                                     },
+                                    "existingAppServicePlanID": {
+                                        "value": "[parameters('existingAppServicePlanID')]"
+                                    },                                    
                                     "appServiceName": {
                                         "value": "[variables('AppServiceCertMasterName')]"
                                     },
