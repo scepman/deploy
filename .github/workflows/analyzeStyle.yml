@@ -30,10 +30,16 @@ jobs:
       uses: aliencube/arm-ttk-actions@v0.3
       with:
         path: ./azuredeploy-prod.json
+    - name: Test Nested ARM Templates
+      id: armtest-nested
+      uses: aliencube/arm-ttk-actions@v0.3
+      with:
+        path: ./nestedtemplates        
 
 
     - name: Test ARM Result
       shell: bash
       continue-on-error: true
       run: |
-        echo "${{ toJSON(fromJSON(steps.armtest-internal.outputs.results)) }}"    
+        echo "${{ toJSON(fromJSON(steps.armtest-internal.outputs.results)) }}"
+        echo "${{ toJSON(fromJSON(steps.armtest-nested.outputs.results)) }}"
