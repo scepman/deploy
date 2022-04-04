@@ -189,7 +189,7 @@
                                     },
                                     "OrgName": {
                                         "value": "[parameters('OrgName')]"
-                                    }, 
+                                    },
                                     "_artifactsLocation": {
                                         "value": "[variables('_artifactsLocation')]"
                                     },
