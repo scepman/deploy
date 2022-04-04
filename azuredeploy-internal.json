@@ -88,7 +88,8 @@
         "deploymentVaultName": "SCEPmanVault",
         "deploymentConfigurationName": "SCEPmanConfiguration",
         "deploymentConfigurationCertMasterName": "CertMasterConfiguration",
-        "deploymentStorageAccount": "CertMasterStorageAccount"
+        "deploymentStorageAccount": "CertMasterStorageAccount",
+        "scepmanUrl": "[uri('https://',concat(variables('AppServiceName'),'.azurewebsites.net'))]"
     },
     "resources": [
         {
@@ -227,7 +228,7 @@
                                         "value": "[variables('AppServiceCertMasterName')]"
                                     },
                                     "scepmanUrl": {
-                                        "value": "[concat('https://',variables('AppServiceName'),'.azurewebsites.net')]"
+                                        "value": "[variables('scepmanUrl')]"
                                     },
                                     "StorageAccountName": {
                                         "value": "[variables('storageAccountName')]"
@@ -274,5 +275,8 @@
                 }
             }
         }
-    ]
+    ],
+    "outputs": { 
+        "scepmanOutput":{ "type": "string", "value": "[variables('scepmanUrl')]"}
+    }
 }
