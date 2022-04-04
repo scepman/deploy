@@ -89,7 +89,7 @@
         "deploymentConfigurationName": "SCEPmanConfiguration",
         "deploymentConfigurationCertMasterName": "CertMasterConfiguration",
         "deploymentStorageAccount": "CertMasterStorageAccount",
-        "scepmanUrl": "[uri(concat('https://',variables('AppServiceName'),'.azurewebsites.net'))]"
+        "scepmanUrl": "[concat('https://',variables('AppServiceName'),'.azurewebsites.net')]"
     },
     "resources": [
         {
