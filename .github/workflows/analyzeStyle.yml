@@ -20,21 +20,18 @@ jobs:
       uses: aliencube/arm-ttk-actions@v0.3
       with:
         path: ./azuredeploy-internal.json
-    - name: Test ARM Template for Beta Channel
+    - name: Test ARM Template for Beta and Production Channel
       id: armtest-beta
       uses: aliencube/arm-ttk-actions@v0.3
       with:
-        path: ./azuredeploy-beta.json
-    - name: Test ARM Template for Production Channel
-      id: armtest-prod
-      uses: aliencube/arm-ttk-actions@v0.3
-      with:
-        path: ./azuredeploy-prod.json
+        path: .
+        files: azuredeploy-beta.json,azuredeploy-prod.json
     - name: Test Nested ARM Templates
       id: armtest-nested
       uses: aliencube/arm-ttk-actions@v0.3
       with:
-        path: ./nestedtemplates        
+        path: ./nestedtemplates
+        files: appSvcDouble.json,appConfig-scepman.json,appConfig-certmaster.json,stgAccount.json,vault.json
 
 
     - name: Test ARM Result
