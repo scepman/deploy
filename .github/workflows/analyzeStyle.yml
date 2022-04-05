@@ -28,7 +28,7 @@ jobs:
       with:
         path: ./azuredeploy-beta.json
     - name: Test ARM Template for Production Channel
-      id: armtest-beta
+      id: armtest-prod
       uses: aliencube/arm-ttk-actions@v0.3
       with:
         path: ./azuredeploy-prod.json
