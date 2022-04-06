@@ -15,27 +15,14 @@ jobs:
     - name: Checkout the repo
       uses: actions/checkout@v2
 
-# The arm-ttk docs (https://docs.microsoft.com/en-us/azure/azure-resource-manager/templates/test-toolkit#test-parameters) say that each folder must contain azuredeploy.json or maintemplate.json;
-# Only then are other files are treated as linked templates. Otherwise, only a single file can be tested.
-    - name: Test ARM Template for Internal Channel
-      id: armtest-internal
+    - name: Test ARM Template
+      id: armtest
       uses: aliencube/arm-ttk-actions@v0.3
       with:
-        path: ./azuredeploy-internal.json
-    - name: Test ARM Template for Beta Channel
-      id: armtest-beta
-      uses: aliencube/arm-ttk-actions@v0.3
-      with:
-        path: ./azuredeploy-beta.json
-    - name: Test ARM Template for Production Channel
-      id: armtest-prod
-      uses: aliencube/arm-ttk-actions@v0.3
-      with:
-        path: ./azuredeploy-prod.json
-
+        path: .
 
     - name: Test ARM Result
       shell: bash
       continue-on-error: true
       run: |
-        echo "${{ toJSON(fromJSON(steps.armtest-internal.outputs.results)) }}"
+        echo "${{ toJSON(fromJSON(steps.armtest.outputs.results)) }}"
