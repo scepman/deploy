@@ -1,89 +1,89 @@
 {
-    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
-    "parameters": {
-        "existingAppServicePlanID": {
-            "type": "string",
-            "metadata": {
-                "description": "Provide the AppServicePlan ID of an existing App Service Plan. Keep default value 'none' if you want to create a new one."
-            },
-            "defaultValue": "none"
-        },
-        "AppServicePlanName": {
-            "type": "string",
-            "metadata": {
-                "description": "Name of the App Service Plan to be created"
-            }
-        },
-        "appServiceName": {
-            "type": "string",
-            "metadata": {
-                "description": "Name of App Service to be created"
-            }
-        },
-        "appServiceName2": {
-            "type": "string",
-            "metadata": {
-                "description": "Name of second App Service to be created"
-            }
-        },        
-        "location": {
-            "type": "string",
-            "metadata": {
-                "description": "Resource Group"
-            }
-        }
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "existingAppServicePlanID": {
+      "type": "string",
+      "metadata": {
+        "description": "Provide the AppServicePlan ID of an existing App Service Plan. Keep default value 'none' if you want to create a new one."
+      },
+      "defaultValue": "none"
     },
+    "AppServicePlanName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the App Service Plan to be created"
+      }
+    },
+    "appServiceName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of App Service to be created"
+      }
+    },
+    "appServiceName2": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of second App Service to be created"
+      }
+    },
+    "location": {
+      "type": "string",
+      "metadata": {
+        "description": "Resource Group"
+      }
+    }
+  },
 
-    "resources": [
-        {
-            "condition": "[equals(parameters('existingAppServicePlanID'), 'none')]",
-            "apiVersion": "2021-02-01",
-            "type": "Microsoft.Web/serverfarms",
-            "name": "[parameters('AppServicePlanName')]",
-            "location": "[parameters('location')]",
-            "sku": {
-                "Tier": "Standard",
-                "Name": "S1"
-            },
-            "properties": {
-                "name": "[parameters('AppServicePlanName')]",
-                "workerSize": 1,
-                "numberOfWorkers": 1
-            }
-        },
-        {
-            "apiVersion": "2021-02-01",
-            "type": "Microsoft.Web/sites",
-            "name": "[parameters('appServiceName')]",
-            "location": "[parameters('location')]",
-            "identity": {
-                "type": "SystemAssigned"
-            },
-            "properties": {
-                "serverFarmId": "[if(equals(parameters('existingAppServicePlanID'), 'none'), resourceId('Microsoft.Web/serverfarms', parameters('AppServicePlanName')), parameters('existingAppServicePlanID'))]",
-                "clientAffinityEnabled": false
-            },
-            "dependsOn": [
-                "[resourceId('Microsoft.Web/serverfarms', parameters('AppServicePlanName'))]"
-            ]
-        },
-        {
-            "apiVersion": "2021-02-01",
-            "type": "Microsoft.Web/sites",
-            "name": "[parameters('appServiceName2')]",
-            "location": "[parameters('location')]",
-            "identity": {
-                "type": "SystemAssigned"
-            },
-            "properties": {
-                "serverFarmId": "[if(equals(parameters('existingAppServicePlanID'), 'none'), resourceId('Microsoft.Web/serverfarms', parameters('AppServicePlanName')), parameters('existingAppServicePlanID'))]",
-                "httpsOnly": true,
-                "clientAffinityEnabled": true
-            },
-            "dependsOn": [
-                "[resourceId('Microsoft.Web/serverfarms', parameters('AppServicePlanName'))]"
-            ]
-        }
-    ]
+  "resources": [
+    {
+      "condition": "[equals(parameters('existingAppServicePlanID'), 'none')]",
+      "apiVersion": "2021-02-01",
+      "type": "Microsoft.Web/serverfarms",
+      "name": "[parameters('AppServicePlanName')]",
+      "location": "[parameters('location')]",
+      "sku": {
+        "Tier": "Standard",
+        "Name": "S1"
+      },
+      "properties": {
+        "name": "[parameters('AppServicePlanName')]",
+        "workerSize": 1,
+        "numberOfWorkers": 1
+      }
+    },
+    {
+      "apiVersion": "2021-02-01",
+      "type": "Microsoft.Web/sites",
+      "name": "[parameters('appServiceName')]",
+      "location": "[parameters('location')]",
+      "identity": {
+        "type": "SystemAssigned"
+      },
+      "properties": {
+        "serverFarmId": "[if(equals(parameters('existingAppServicePlanID'), 'none'), resourceId('Microsoft.Web/serverfarms', parameters('AppServicePlanName')), parameters('existingAppServicePlanID'))]",
+        "clientAffinityEnabled": false
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/serverfarms', parameters('AppServicePlanName'))]"
+      ]
+    },
+    {
+      "apiVersion": "2021-02-01",
+      "type": "Microsoft.Web/sites",
+      "name": "[parameters('appServiceName2')]",
+      "location": "[parameters('location')]",
+      "identity": {
+        "type": "SystemAssigned"
+      },
+      "properties": {
+        "serverFarmId": "[if(equals(parameters('existingAppServicePlanID'), 'none'), resourceId('Microsoft.Web/serverfarms', parameters('AppServicePlanName')), parameters('existingAppServicePlanID'))]",
+        "httpsOnly": true,
+        "clientAffinityEnabled": true
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/serverfarms', parameters('AppServicePlanName'))]"
+      ]
+    }
+  ]
 }
