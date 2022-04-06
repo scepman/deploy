@@ -80,5 +80,11 @@
         "principalId": "[reference(resourceId('Microsoft.Web/sites/', parameters('appServiceName')), '2021-02-01', 'Full').identity.principalId]"
       }
     }
-  ]
+  ],
+  "outputs": {
+    "storageAccountTableUrl": {
+      "type": "string",
+      "value": "[reference(parameters('StorageAccountName')).primaryEndpoints.table]"
+    }
+  }
 }

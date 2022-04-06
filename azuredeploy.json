@@ -227,7 +227,7 @@
                     "value": "[variables('AppServiceCertMasterName')]"
                   },
                   "scepmanUrl": {
-                    "value": "[concat('https://',variables('AppServiceName'),'.azurewebsites.net')]"
+                    "value": "[reference(variables('deploymentAppServiceName')).outputs.scepmanURL]"
                   },
                   "StorageAccountName": {
                     "value": "[variables('storageAccountName')]"

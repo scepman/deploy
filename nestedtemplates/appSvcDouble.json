@@ -85,5 +85,11 @@
         "[resourceId('Microsoft.Web/serverfarms', parameters('AppServicePlanName'))]"
       ]
     }
-  ]
+  ],
+  "outputs": {
+    "scepmanURL": {
+      "type": "string",
+      "value": "[reference(parameters('appServiceName')).defaultHostName]"
+    }
+  }
 }
