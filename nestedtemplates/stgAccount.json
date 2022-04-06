@@ -1,5 +1,5 @@
 {
-    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
         "StorageAccountName": {
@@ -39,18 +39,18 @@
             "kind": "StorageV2",
             "properties": {
                 "accessTier": "Hot",
-                "allowBlobPublicAccess": "true",
-                "allowCrossTenantReplication": "false",
-                "allowSharedKeyAccess": "false",
-                "isHnsEnabled": "false",
-                "isNfsV3Enabled": "false",
+                "allowBlobPublicAccess": true,
+                "allowCrossTenantReplication": false,
+                "allowSharedKeyAccess": false,
+                "isHnsEnabled": false,
+                "isNfsV3Enabled": false,
                 "minimumTlsVersion": "TLS1_2",
                 "routingPreference": {
-                    "publishInternetEndpoints": "false",
-                    "publishMicrosoftEndpoints": "false",
+                    "publishInternetEndpoints": false,
+                    "publishMicrosoftEndpoints": false,
                     "routingChoice": "MicrosoftRouting"
                 },
-                "supportsHttpsTrafficOnly": "true"
+                "supportsHttpsTrafficOnly": true
             }
         },
         {
@@ -63,7 +63,7 @@
             ],
             "properties": {
                 "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', '0a9a7e1f-b9d0-4cc4-a60d-0319b160aaa3')]", //0a9a7e1f-b9d0-4cc4-a60d-0319b160aaa3 is Storage Table Data Contributor
-                "principalId": "[reference(resourceId('Microsoft.Web/sites/', parameters('appServiceName2')), '2019-08-01', 'Full').identity.principalId]"
+                "principalId": "[reference(resourceId('Microsoft.Web/sites/', parameters('appServiceName2')), '2021-02-01', 'Full').identity.principalId]"
             }
         },
         {
@@ -76,7 +76,7 @@
             ],
             "properties": {
                 "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', '0a9a7e1f-b9d0-4cc4-a60d-0319b160aaa3')]", //0a9a7e1f-b9d0-4cc4-a60d-0319b160aaa3 is Storage Table Data Contributor
-                "principalId": "[reference(resourceId('Microsoft.Web/sites/', parameters('appServiceName')), '2019-08-01', 'Full').identity.principalId]"
+                "principalId": "[reference(resourceId('Microsoft.Web/sites/', parameters('appServiceName')), '2021-02-01', 'Full').identity.principalId]"
             }
         }
     ]

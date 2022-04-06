@@ -58,8 +58,6 @@
             "name": "[parameters('appServiceName')]",
             "location": "[parameters('location')]",
             "identity": {
-                "principalId": "",
-                "tenantId": "",
                 "type": "SystemAssigned"
             },
             "properties": {
@@ -76,8 +74,6 @@
             "name": "[parameters('appServiceName2')]",
             "location": "[parameters('location')]",
             "identity": {
-                "principalId": "",
-                "tenantId": "",
                 "type": "SystemAssigned"
             },
             "properties": {
