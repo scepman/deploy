@@ -8,10 +8,10 @@
         "description": "Name of the storage account"
       }
     },
-    "_artifactsLocation": {
+    "WebsiteArtifactsUri": {
         "type": "string",
         "metadata": {
-            "description": "The full URI where artifacts required by this template are located"
+            "description": "The full URI where Certmaster artifacts binaries are stored"
         }
     },
     "AppServicePlanName": {
@@ -46,9 +46,6 @@
       }
     }
   },
-  "variables": {
-    "artifactsLocation": "[parameters('_artifactsLocation')]"
-  },
   "resources": [
     {
       "type": "Microsoft.Web/sites",
@@ -64,15 +61,15 @@
           "appSettings": [
             {
               "name": "WEBSITE_RUN_FROM_PACKAGE",
-              "value": "[variables('artifactsLocation')]"
+              "value": "[parameters('WebsiteArtifactsUri')]"
             },
             {
               "name": "AppConfig:AzureStorage:TableStorageEndpoint",
               "value": "[Concat('https://',parameters('StorageAccountName'),'.table.core.windows.net')]"
             },
             {
-                "name": "AppConfig:SCEPman:URL",
-                "value": "[parameters('scepmanUrl')]"                        
+              "name": "AppConfig:SCEPman:URL",
+              "value": "[parameters('scepmanUrl')]"
             },
             {
               "name": "AppConfig:AuthConfig:TenantId",
