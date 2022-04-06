@@ -65,8 +65,8 @@
     },
     "variables": {
         "repositoryUrl": "https://raw.githubusercontent.com/scepman/install/master/",
-        "_artifactsLocation": "[uri(variables('repositoryUrl'),'dist/Artifacts.zip')]",
-        "_artifactsLocationCertMaster": "[uri(variables('repositoryUrl'),'dist-certmaster/CertMaster-Artifacts.zip')]",
+        "_artifactsLocation": "[uri(variables('repositoryUrl'),'dist/Artifacts-Beta.zip')]",
+        "_artifactsLocationCertMaster": "[uri(variables('repositoryUrl'),'dist-certmaster/CertMaster-Artifacts-Beta.zip')]",
         "appSvcTemplateUri": "[uri(variables('repositoryUrl'), 'nestedtemplates/appSvcDouble.json')]",
         "vaultTemplateUri": "[uri(variables('repositoryUrl'), 'nestedtemplates/vault.json')]",
         "appConfigTemplateUri": "[uri(variables('repositoryUrl'), 'nestedtemplates/appConfig-scepman.json')]",
