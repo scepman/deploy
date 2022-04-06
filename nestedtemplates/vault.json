@@ -70,7 +70,7 @@
             "type": "Microsoft.KeyVault/vaults",
             "name": "[parameters('keyVaultName')]",
             "location": "[parameters('location')]",
-            "apiVersion": "2019-09-01",
+            "apiVersion": "2021-10-01",
             "properties": {
                 "tenantId": "[subscription().tenantId]",
                 "enabledForDeployment": false,
@@ -82,7 +82,7 @@
                 },
                 "accessPolicies": [
                     {
-                        "objectId": "[reference(resourceId('Microsoft.Web/sites/', parameters('appServiceName')), '2019-08-01', 'Full').identity.principalId]",
+                        "objectId": "[reference(resourceId('Microsoft.Web/sites/', parameters('appServiceName')), '2021-02-01', 'Full').identity.principalId]",
                         "tenantId": "[subscription().tenantId]",
                         "permissions": {
                             "keys": "[variables('keys')]",

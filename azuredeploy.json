@@ -191,7 +191,7 @@
                                     "OrgName": {
                                         "value": "[parameters('OrgName')]"
                                     },
-                                    "_artifactsLocation": {
+                                    "WebsiteArtifactsUri": {
                                         "value": "[variables('_artifactsLocation')]"
                                     },
                                     "license": {
@@ -233,7 +233,7 @@
                                     "StorageAccountName": {
                                         "value": "[variables('storageAccountName')]"
                                     },
-                                    "_artifactsLocation": {
+                                    "WebsiteArtifactsUri": {
                                         "value": "[variables('_artifactsLocationCertMaster')]"
                                     },
                                     "location": {

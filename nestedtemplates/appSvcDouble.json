@@ -38,7 +38,7 @@
     "resources": [
         {
             "condition": "[equals(parameters('existingAppServicePlanID'), 'none')]",
-            "apiVersion": "2019-08-01",
+            "apiVersion": "2021-02-01",
             "type": "Microsoft.Web/serverfarms",
             "name": "[parameters('AppServicePlanName')]",
             "location": "[parameters('location')]",
@@ -53,13 +53,11 @@
             }
         },
         {
-            "apiVersion": "2019-08-01",
+            "apiVersion": "2021-02-01",
             "type": "Microsoft.Web/sites",
             "name": "[parameters('appServiceName')]",
             "location": "[parameters('location')]",
             "identity": {
-                "principalId": "",
-                "tenantId": "",
                 "type": "SystemAssigned"
             },
             "properties": {
@@ -71,13 +69,11 @@
             ]
         },
         {
-            "apiVersion": "2019-08-01",
+            "apiVersion": "2021-02-01",
             "type": "Microsoft.Web/sites",
             "name": "[parameters('appServiceName2')]",
             "location": "[parameters('location')]",
             "identity": {
-                "principalId": "",
-                "tenantId": "",
                 "type": "SystemAssigned"
             },
             "properties": {
