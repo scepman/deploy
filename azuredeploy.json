@@ -88,8 +88,7 @@
         "deploymentVaultName": "SCEPmanVault",
         "deploymentConfigurationName": "SCEPmanConfiguration",
         "deploymentConfigurationCertMasterName": "CertMasterConfiguration",
-        "deploymentStorageAccount": "CertMasterStorageAccount",
-
+        "deploymentStorageAccount": "CertMasterStorageAccount"
     },
     "resources": [
         {

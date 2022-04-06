@@ -9,10 +9,10 @@
       }
     },
     "WebsiteArtifactsUri": {
-        "type": "string",
-        "metadata": {
-            "description": "The full URI where Certmaster artifacts binaries are stored"
-        }
+      "type": "string",
+      "metadata": {
+          "description": "The full URI where Certmaster artifacts binaries are stored"
+      }
     },
     "AppServicePlanName": {
       "type": "string",
