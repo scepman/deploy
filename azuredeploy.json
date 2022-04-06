@@ -190,7 +190,7 @@
                                     "OrgName": {
                                         "value": "[parameters('OrgName')]"
                                     },
-                                    "_artifactsLocation": {
+                                    "WebsiteArtifactsUri": {
                                         "value": "[variables('_artifactsLocation')]"
                                     },
                                     "license": {

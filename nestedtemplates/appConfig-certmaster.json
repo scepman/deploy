@@ -11,7 +11,7 @@
     "WebsiteArtifactsUri": {
       "type": "string",
       "metadata": {
-          "description": "The full URI where Certmaster artifacts binaries are stored"
+          "description": "The full URI where CertMaster artifact binaries are stored"
       }
     },
     "AppServicePlanName": {

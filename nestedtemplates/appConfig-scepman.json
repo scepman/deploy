@@ -46,10 +46,10 @@
                 "description": "License Key for SCEPman"
             }
         },
-        "_artifactsLocation": {
+        "WebsiteArtifactsUri": {
             "type": "string",
             "metadata": {
-                "description": "The full URI where artifacts required by this template are located"
+                "description": "The full URI where SCEPman artifact binaries are stored"
             }
         },
         "location": {
@@ -58,9 +58,6 @@
                 "description": "Resource Group"
             }
         }
-    },
-    "variables": {
-        "artifactsLocation": "[parameters('_artifactsLocation')]"
     },
     "resources": [
         {
@@ -79,7 +76,7 @@
                     "appSettings": [
                         {
                             "name": "WEBSITE_RUN_FROM_PACKAGE",
-                            "value": "[variables('artifactsLocation')]"
+                            "value": "[parameters('WebsiteArtifactsUri')]"
                         },
                         {
                             "name": "AppConfig:BaseUrl",
