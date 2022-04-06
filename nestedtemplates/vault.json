@@ -70,7 +70,7 @@
             "type": "Microsoft.KeyVault/vaults",
             "name": "[parameters('keyVaultName')]",
             "location": "[parameters('location')]",
-            "apiVersion": "2019-09-01",
+            "apiVersion": "2021-10-01",
             "properties": {
                 "tenantId": "[subscription().tenantId]",
                 "enabledForDeployment": false,
