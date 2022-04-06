@@ -227,10 +227,10 @@
                     "value": "[variables('AppServiceCertMasterName')]"
                   },
                   "scepmanUrl": {
-                    "value": "[reference(variables('deploymentAppServiceName')).outputs.scepmanURL]"
+                    "value": "[reference(variables('deploymentAppServiceName')).outputs.scepmanURL.value]"
                   },
-                  "StorageAccountName": {
-                    "value": "[variables('storageAccountName')]"
+                  "StorageAccountTableUrl": {
+                    "value": "[reference(variables('deploymentStorageAccount')).outputs.storageAccountTableUrl.value]"
                   },
                   "WebsiteArtifactsUri": {
                     "value": "[variables('_artifactsLocationCertMaster')]"
