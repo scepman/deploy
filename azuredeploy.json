@@ -166,8 +166,8 @@
           "contentVersion": "1.0.0.0"
         },
         "parameters": {
-          "StorageAccountName": {
-            "value": "[parameters('storageAccountName')]"
+          "StorageAccountTableUrl": {
+            "value": "[reference('SCEPmanStorageAccount').outputs.storageAccountTableUrl.value]"
           },
           "AppServicePlanName": {
             "value": "[parameters('AppServicePlanName')]"
