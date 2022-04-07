@@ -79,7 +79,7 @@
     "vaultTemplateUri": "[uri(variables('templateRepositoryUrl'), 'nestedtemplates/vault.json')]",
     "appConfigTemplateUri": "[uri(variables('templateRepositoryUrl'), 'nestedtemplates/appConfig-scepman.json')]",
     "appConfigCertMasterTemplateUri": "[uri(variables('templateRepositoryUrl'), 'nestedtemplates/appConfig-certmaster.json')]",
-    "stgAccountTemplateUri": "[uri(variables('templateRepositoryUrl'), 'nestedtemplates/stgAccount.json')]",
+    "stgAccountTemplateUri": "[uri(variables('templateRepositoryUrl'), 'nestedtemplates/stgAccount.json')]"
   },
   "resources": [
     {
