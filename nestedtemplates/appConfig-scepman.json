@@ -108,7 +108,7 @@
                         },
 						{
                             "name": "AppConfig:IntuneValidation:DeviceDirectory",
-                            "value": "Intune"
+                            "value": "AADAndIntune"
                         },                        
                         {
                             "name": "AppConfig:KeyVaultConfig:KeyVaultURL",
