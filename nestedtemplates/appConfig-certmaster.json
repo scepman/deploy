@@ -2,10 +2,10 @@
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "StorageAccountName": {
+    "StorageAccountTableUrl": {
       "type": "string",
       "metadata": {
-        "description": "Name of the storage account"
+        "description": "URL of the Storage Account's table endpoint to store certificate information"
       }
     },
     "WebsiteArtifactsUri": {
@@ -65,7 +65,7 @@
             },
             {
               "name": "AppConfig:AzureStorage:TableStorageEndpoint",
-              "value": "[Concat('https://',parameters('StorageAccountName'),'.table.core.windows.net')]"
+              "value": "[parameters('StorageAccountTableURL')]"
             },
             {
               "name": "AppConfig:SCEPman:URL",

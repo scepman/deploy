@@ -89,7 +89,7 @@
   "outputs": {
     "scepmanURL": {
       "type": "string",
-      "value": "[reference(parameters('appServiceName')).defaultHostName]"
+      "value": "[concat('https://', reference(parameters('appServiceName')).defaultHostName, '/')]"
     }
   }
 }
