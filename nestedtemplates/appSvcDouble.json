@@ -90,6 +90,14 @@
     "scepmanURL": {
       "type": "string",
       "value": "[concat('https://', reference(parameters('appServiceName')).defaultHostName, '/')]"
+    },
+    "scepmanPrincipalID": {
+      "type": "string",
+      "value": "[reference(parameters('appServiceName')).identity.principalId]"
+    },
+    "certmasterPrincipalID": {
+      "type": "string",
+      "value": "[reference(parameters('appServiceName2')).identity.principalId]"
     }
   }
 }

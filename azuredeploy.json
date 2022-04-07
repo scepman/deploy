@@ -255,11 +255,11 @@
           "location": {
             "value": "[parameters('location')]"
           },
-          "appServiceName": {
-            "value": "[parameters('AppServiceNameSCEPman')]"
-          },
-          "appServiceName2": {
-            "value": "[parameters('AppServiceNameCertMaster')]"
+          "tableContributorPrincipals": {
+            "value": [
+              "[reference('SCEPmanAppServices').outputs.scepmanPrincipalID.value]",
+              "[reference('SCEPmanAppServices').outputs.certmasterPrincipalID.value]"
+            ]
           }
         }
       }
