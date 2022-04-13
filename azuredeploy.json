@@ -4,11 +4,11 @@
   "parameters": {
     "OrgName": {
       "type": "string",
-      "minLength": 2,
-      "metadata": {
-        "description": "Name of company or organization for certificate subject"
-      }
-    },
+        "minLength": 2,
+        "metadata": {
+          "description": "Name of the Company or Organization used for the Certificate Subject"
+        }
+      },
     "license": {
       "type": "string",
       "defaultValue": "trial",
