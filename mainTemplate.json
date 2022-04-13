@@ -205,7 +205,7 @@
                   }
                 }
               }
-            },            
+            },
             {
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2020-06-01",
@@ -234,7 +234,7 @@
                   },
                   "_artifactsLocationSasToken": {
                     "value": "[parameters('_artifactsLocationSasToken')]"
-                  }                  
+                  }
                 }
               }
             }
