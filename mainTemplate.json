@@ -38,11 +38,15 @@
     }
   },
   "variables": {
-    "appSvcTemplateUri": "[uri(parameters('_artifactsLocation'), concat('nestedtemplates/appSvcDouble.json', parameters('_artifactsLocationSasToken')))]",
-    "vaultTemplateUri": "[uri(parameters('_artifactsLocation'), concat('nestedtemplates/vault.json', parameters('_artifactsLocationSasToken')))]",
-    "appConfigTemplateUri": "[uri(parameters('_artifactsLocation'), concat('nestedtemplates/appConfig-scepman.json', parameters('_artifactsLocationSasToken')))]",
-    "appConfigCertMasterTemplateUri": "[uri(parameters('_artifactsLocation'), concat('nestedtemplates/appConfig-certmaster.json', parameters('_artifactsLocationSasToken')))]",
-    "stgAccountTemplateUri": "[uri(parameters('_artifactsLocation'), concat('nestedtemplates/stgAccount.json', parameters('_artifactsLocationSasToken')))]",
+    "artifactsRepositoryUrl": "https://raw.githubusercontent.com/scepman/install/master/",
+    "ArtifactsLocationSCEPman": "[uri(variables('artifactsRepositoryUrl'),'dist/Artifacts.zip')]",
+    "ArtifactsLocationCertMaster":  "[uri(variables('artifactsRepositoryUrl'),'dist-certmaster/CertMaster-Artifacts.zip')]",
+    "templateRepositoryUrl": "[parameters('_artifactsLocation')]",
+    "appSvcTemplateUri": "[uri(variables('templateRepositoryUrl'), concat('nestedtemplates/appSvcDouble.json', parameters('_artifactsLocationSasToken')))]",
+    "vaultTemplateUri": "[uri(variables('templateRepositoryUrl'), concat('nestedtemplates/vault.json', parameters('_artifactsLocationSasToken')))]",
+    "appConfigTemplateUri": "[uri(variables('templateRepositoryUrl'), concat('nestedtemplates/appConfig-scepman.json', parameters('_artifactsLocationSasToken')))]",
+    "appConfigCertMasterTemplateUri": "[uri(variables('templateRepositoryUrl'), concat('nestedtemplates/appConfig-certmaster.json', parameters('_artifactsLocationSasToken')))]",
+    "stgAccountTemplateUri": "[uri(variables('templateRepositoryUrl'), concat('nestedtemplates/stgAccount.json', parameters('_artifactsLocationSasToken')))]",
     "AppServicePlanName": "[concat('scepman-sp-',uniquestring(resourceGroup().id))]",
     "AppServiceName": "[concat('scepman-app-',uniquestring(resourceGroup().id))]",
     "AppServiceCertMasterName": "[concat('scepman-cm-',uniquestring(resourceGroup().id))]",
@@ -146,11 +150,8 @@
           "OrgName": {
             "value": "[parameters('OrgName')]"
           },
-          "_artifactsLocationSasToken": {
-            "value": "[parameters('_artifactsLocationSasToken')]"
-          },
-          "_artifactsLocation": {
-            "value": "[parameters('_artifactsLocation')]"
+          "WebsiteArtifactsUri": {
+            "value": "[variables('ArtifactsLocationSCEPman')]"
           },
           "license": {
             "value": "[parameters('license')]"
@@ -191,14 +192,11 @@
           "StorageAccountTableUrl": {
             "value": "[reference('SCEPmanStorageAccount').outputs.storageAccountTableUrl.value]"
           },
-          "_artifactsLocationSasToken": {
-            "value": "[parameters('_artifactsLocationSasToken')]"
-          },
-          "_artifactsLocation": {
-            "value": "[variables('_artifactsLocationCertMaster')]"
+          "WebsiteArtifactsUri": {
+            "value": "[variables('ArtifactsLocationCertMaster')]"
           },
           "location": {
-            "value": "[variables('resourceGroup')]"
+            "value": "[parameters('location')]"
           }
         }
       }
@@ -221,16 +219,13 @@
             "value": "[variables('storageAccountName')]"
           },
           "location": {
-            "value": "[variables('resourceGroup')]"
+            "value": "[parameters('location')]"
           },
           "tableContributorPrincipals": {
             "value": [
               "[reference('SCEPmanAppServices').outputs.scepmanPrincipalID.value]",
               "[reference('SCEPmanAppServices').outputs.certmasterPrincipalID.value]"
             ]
-          },
-          "_artifactsLocationSasToken": {
-            "value": "[parameters('_artifactsLocationSasToken')]"
           }
         }
       }
