@@ -2,20 +2,13 @@
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "location": {
-      "type": "string",
-      "defaultValue": "[resourceGroup().location]",
-      "metadata": {
-        "description": "Location for all resources."
-      }
-    },
     "OrgName": {
       "type": "string",
-      "minLength": 2,
-      "metadata": {
-        "description": "Name of company or organization for certificate subject"
-      }
-    },
+        "minLength": 2,
+        "metadata": {
+          "description": "Name of the Company or Organization used for the Certificate Subject"
+        }
+      },
     "license": {
       "type": "string",
       "defaultValue": "trial",
@@ -53,7 +46,7 @@
         "description": "Provide the AppServicePlan ID of an existing App Service Plan. Keep default value 'none' if you want to create a new one."
       }
     },
-    "appServiceNameSCEPman": {
+    "primaryAppServiceName": {
       "type": "string",
       "maxLength": 60,
       "metadata": {
@@ -61,13 +54,20 @@
       },
       "defaultValue": "as-scepman-UNIQUENAME"
     },
-    "appServiceNameCertMaster": {
+    "certificateMasterAppServiceName": {
       "type": "string",
       "maxLength": 60,
       "metadata": {
         "description": "The App Service for the component SCEPman Certificate Master. As it is part of the default FQDN, it must be globally unique and contain only DNS-compatible characters."
       },
       "defaultValue": "as-scepman-UNIQUENAME-cm"
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Location for all resources. For a manual deployment, we recommend the default value."
+      }
     }
   },
   "variables": {
@@ -113,10 +113,10 @@
             "value": "[parameters('existingAppServicePlanID')]"
           },
           "appServiceName": {
-            "value": "[parameters('AppServiceNameSCEPman')]"
+            "value": "[parameters('primaryAppServiceName')]"
           },
           "appServiceName2": {
-            "value": "[parameters('AppServiceNameCertMaster')]"
+            "value": "[parameters('certificateMasterAppServiceName')]"
           },
           "location": {
             "value": "[parameters('location')]"
@@ -142,7 +142,7 @@
             "value": "[parameters('keyVaultName')]"
           },
           "appServiceName": {
-            "value": "[parameters('AppServiceNameSCEPman')]"
+            "value": "[parameters('primaryAppServiceName')]"
           },
           "location": {
             "value": "[parameters('location')]"
@@ -176,7 +176,7 @@
             "value": "[parameters('existingAppServicePlanID')]"
           },
           "appServiceName": {
-            "value": "[parameters('AppServiceNameSCEPman')]"
+            "value": "[parameters('primaryAppServiceName')]"
           },
           "keyVaultName": {
             "value": "[parameters('keyVaultName')]"
@@ -218,7 +218,7 @@
             "value": "[parameters('existingAppServicePlanID')]"
           },
           "appServiceName": {
-            "value": "[parameters('AppServiceNameCertMaster')]"
+            "value": "[parameters('certificateMasterAppServiceName')]"
           },
           "scepmanUrl": {
             "value": "[reference('SCEPmanAppServices').outputs.scepmanURL.value]"
@@ -255,11 +255,11 @@
           "location": {
             "value": "[parameters('location')]"
           },
-          "appServiceName": {
-            "value": "[parameters('AppServiceNameSCEPman')]"
-          },
-          "appServiceName2": {
-            "value": "[parameters('AppServiceNameCertMaster')]"
+          "tableContributorPrincipals": {
+            "value": [
+              "[reference('SCEPmanAppServices').outputs.scepmanPrincipalID.value]",
+              "[reference('SCEPmanAppServices').outputs.certmasterPrincipalID.value]"
+            ]
           }
         }
       }
