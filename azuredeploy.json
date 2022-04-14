@@ -46,7 +46,7 @@
         "description": "Provide the AppServicePlan ID of an existing App Service Plan. Keep default value 'none' if you want to create a new one."
       }
     },
-    "appServiceNameSCEPman": {
+    "primaryAppServiceName": {
       "type": "string",
       "maxLength": 60,
       "metadata": {
@@ -54,7 +54,7 @@
       },
       "defaultValue": "as-scepman-UNIQUENAME"
     },
-    "appServiceNameCertMaster": {
+    "certificateMasterAppServiceName": {
       "type": "string",
       "maxLength": 60,
       "metadata": {
@@ -113,10 +113,10 @@
             "value": "[parameters('existingAppServicePlanID')]"
           },
           "appServiceName": {
-            "value": "[parameters('AppServiceNameSCEPman')]"
+            "value": "[parameters('primaryAppServiceName')]"
           },
           "appServiceName2": {
-            "value": "[parameters('AppServiceNameCertMaster')]"
+            "value": "[parameters('certificateMasterAppServiceName')]"
           },
           "location": {
             "value": "[parameters('location')]"
@@ -142,7 +142,7 @@
             "value": "[parameters('keyVaultName')]"
           },
           "appServiceName": {
-            "value": "[parameters('AppServiceNameSCEPman')]"
+            "value": "[parameters('primaryAppServiceName')]"
           },
           "location": {
             "value": "[parameters('location')]"
@@ -176,7 +176,7 @@
             "value": "[parameters('existingAppServicePlanID')]"
           },
           "appServiceName": {
-            "value": "[parameters('AppServiceNameSCEPman')]"
+            "value": "[parameters('primaryAppServiceName')]"
           },
           "keyVaultName": {
             "value": "[parameters('keyVaultName')]"
@@ -218,7 +218,7 @@
             "value": "[parameters('existingAppServicePlanID')]"
           },
           "appServiceName": {
-            "value": "[parameters('AppServiceNameCertMaster')]"
+            "value": "[parameters('certificateMasterAppServiceName')]"
           },
           "scepmanUrl": {
             "value": "[reference('SCEPmanAppServices').outputs.scepmanURL.value]"
