@@ -38,44 +38,10 @@
             }
         ],
         "steps": [
-            {
-                "name": "AadAppRegistration",
-                "label": "Azure AD App Registration",
-                "subLabel": {
-                    "preValidation": "Provide properties of the Azure AD App Registrations",
-                    "postValidation": "Done"
-                },
-                "bladeTitle": "Azure AD App Registration",
-                "bladeSubtitle": "Please configure an App Registration in Azure AD before deploying.",
-                "elements": [
-                    {
-                        "name": "ServicePrincipal",
-                        "type": "Microsoft.Common.ServicePrincipalSelector",
-                        "label": {
-                            "password": "App Registration Secret",
-                            "sectionHeader": "Azure AD Application"
-                        },
-                        "toolTip": {
-                            "password": "Please paste the application secret of the selected service principal"                        },
-                        "defaultValue": {
-                            "principalId": "<default guid>",
-                            "name": "(New) glueckkanja-gab | SCEPman"
-                        },
-                        "constraints": {
-                            "required": true
-                        },
-                        "options": {
-                            "hideCertificate": true
-                        }
-                    }
-                ]
-            }
         ],
         "outputs": {
             "OrgName": "[basics('orgName')]",
             "license": "[basics('license')]",
-            "appRegistrationGuid": "[steps('AadAppRegistration').ServicePrincipal.appId]",
-            "appRegistrationKey": "[steps('AadAppRegistration').ServicePrincipal.password]",
             "location": "[location()]"
         }
     }
