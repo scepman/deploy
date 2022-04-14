@@ -15,16 +15,10 @@
         "description": "Location where the resources will be deployed"
       }
     },
-    "appServiceName": {
-      "type": "string",
+    "tableContributorPrincipals": {
+      "type": "array",
       "metadata": {
-        "description": "Name of SCEPman app service, whom will be assigned permissions to the vault"
-      }
-    },
-    "appServiceName2": {
-      "type": "string",
-      "metadata": {
-        "description": "Name of CertMaster app service, whom will be assigned permissions to the KV"
+        "description": "IDs of Principals that shall receive table contributor rights on the storage account"
       }
     }
   },
@@ -57,27 +51,18 @@
     {
       "type": "Microsoft.Authorization/roleAssignments",
       "apiVersion": "2021-04-01-preview",
-      "name": "[guid(concat('roleAssignment-cm-sa-',parameters('StorageAccountName')))]",
+      "name": "[guid(concat('roleAssignment-sa-',parameters('tableContributorPrincipals')[copyIndex()]))]",
       "scope": "[concat('Microsoft.Storage/storageAccounts', '/', parameters('StorageAccountName'))]",
       "dependsOn": [
         "[parameters('StorageAccountName')]"
       ],
       "properties": {
         "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', '0a9a7e1f-b9d0-4cc4-a60d-0319b160aaa3')]", //0a9a7e1f-b9d0-4cc4-a60d-0319b160aaa3 is Storage Table Data Contributor
-        "principalId": "[reference(resourceId('Microsoft.Web/sites/', parameters('appServiceName2')), '2021-02-01', 'Full').identity.principalId]"
-      }
-    },
-    {
-      "type": "Microsoft.Authorization/roleAssignments",
-      "apiVersion": "2021-04-01-preview",
-      "name": "[guid(concat('roleAssignment-sc-sa-',parameters('StorageAccountName')))]",
-      "scope": "[concat('Microsoft.Storage/storageAccounts', '/', parameters('StorageAccountName'))]",
-      "dependsOn": [
-        "[parameters('StorageAccountName')]"
-      ],
-      "properties": {
-        "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', '0a9a7e1f-b9d0-4cc4-a60d-0319b160aaa3')]", //0a9a7e1f-b9d0-4cc4-a60d-0319b160aaa3 is Storage Table Data Contributor
-        "principalId": "[reference(resourceId('Microsoft.Web/sites/', parameters('appServiceName')), '2021-02-01', 'Full').identity.principalId]"
+        "principalId": "[parameters('tableContributorPrincipals')[copyIndex()]]"
+      },
+      "copy": {
+        "name": "copy-storage-role-assignments",
+        "count": "[length(parameters('tableContributorPrincipals'))]"
       }
     }
   ],
