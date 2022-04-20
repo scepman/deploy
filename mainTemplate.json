@@ -38,9 +38,9 @@
     }
   },
   "variables": {
-    "artifactsRepositoryUrl": "https://raw.githubusercontent.com/scepman/install/master/",
-    "ArtifactsLocationSCEPman": "[uri(variables('artifactsRepositoryUrl'),'dist/Artifacts.zip')]",
-    "ArtifactsLocationCertMaster":  "[uri(variables('artifactsRepositoryUrl'),'dist-certmaster/CertMaster-Artifacts.zip')]",
+    "artifactsRepositoryUrl": "[parameters('_artifactsLocation')]",
+    "ArtifactsLocationSCEPman": "[uri(variables('artifactsRepositoryUrl'),concat('dist/Artifacts.zip', parameters('_artifactsLocationSasToken')))]",
+    "ArtifactsLocationCertMaster":  "[uri(variables('artifactsRepositoryUrl'),concat('dist-certmaster/CertMaster-Artifacts.zip', parameters('_artifactsLocationSasToken')))]",
     "templateRepositoryUrl": "[parameters('_artifactsLocation')]",
     "appSvcTemplateUri": "[uri(variables('templateRepositoryUrl'), concat('nestedtemplates/appSvcDouble.json', parameters('_artifactsLocationSasToken')))]",
     "vaultTemplateUri": "[uri(variables('templateRepositoryUrl'), concat('nestedtemplates/vault.json', parameters('_artifactsLocationSasToken')))]",
@@ -179,9 +179,6 @@
         "parameters": {
           "AppServicePlanName": {
             "value": "[variables('AppServicePlanName')]"
-          },
-          "existingAppServicePlanID": {
-            "value": "[parameters('existingAppServicePlanID')]"
           },
           "appServiceName": {
             "value": "[variables('AppServiceCertMasterName')]"
