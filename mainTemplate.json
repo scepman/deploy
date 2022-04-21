@@ -97,9 +97,6 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-06-01",
       "name": "SCEPmanVault",
-      "dependsOn": [
-        "SCEPmanAppServices"
-      ],
       "properties": {
         "mode": "Incremental",
         "templateLink": {
@@ -110,8 +107,8 @@
           "keyVaultName": {
             "value": "[variables('keyVaultName')]"
           },
-          "appServiceName": {
-            "value": "[variables('appServiceName')]"
+          "permittedPrincipalId": {
+            "value": "[reference('SCEPmanAppServices').outputs.scepmanPrincipalID.value]"
           },
           "location": {
             "value": "[parameters('location')]"
@@ -123,11 +120,6 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-06-01",
       "name": "DeploymentSCEPmanConfig",
-      "dependsOn": [
-        "SCEPmanAppServices",
-        "SCEPmanVault",
-        "SCEPmanStorageAccount"
-      ],
       "properties": {
         "mode": "Incremental",
         "templateLink": {
@@ -138,14 +130,17 @@
           "StorageAccountTableUrl": {
             "value": "[reference('SCEPmanStorageAccount').outputs.storageAccountTableUrl.value]"
           },
-          "AppServicePlanName": {
-            "value": "[variables('AppServicePlanName')]"
+          "appServicePlanID": {
+            "value": "[reference('SCEPmanAppServices').outputs.appServicePlanID.value]"
           },
           "appServiceName": {
             "value": "[variables('AppServiceName')]"
           },
-          "keyVaultName": {
-            "value": "[variables('keyVaultName')]"
+          "scepManBaseURL": {
+            "value": "[reference('SCEPmanAppServices').outputs.scepmanURL.value]"
+          },          
+          "keyVaultURL": {
+            "value": "[reference('SCEPmanVault').outputs.keyVaultURL.value]"
           },
           "OrgName": {
             "value": "[parameters('OrgName')]"
@@ -166,10 +161,6 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-06-01",
       "name": "DeploymentCertMasterConfig",
-      "dependsOn": [
-        "SCEPmanAppServices",
-        "SCEPmanStorageAccount"
-      ],
       "properties": {
         "mode": "Incremental",
         "templateLink": {
@@ -177,8 +168,8 @@
           "contentVersion": "1.0.0.0"
         },
         "parameters": {
-          "AppServicePlanName": {
-            "value": "[variables('AppServicePlanName')]"
+          "appServicePlanID": {
+            "value": "[reference('SCEPmanAppServices').outputs.appServicePlanID.value]"
           },
           "appServiceName": {
             "value": "[variables('AppServiceCertMasterName')]"
@@ -202,9 +193,6 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-06-01",
       "name": "SCEPmanStorageAccount",
-      "dependsOn": [
-        "SCEPmanAppServices"
-      ],
       "properties": {
         "mode": "Incremental",
         "templateLink": {
