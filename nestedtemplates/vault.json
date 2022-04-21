@@ -97,7 +97,7 @@
   "outputs": {
     "keyVaultURL": {
       "type": "string",
-      "value": "[reference(parameters('keyVaultName')).properties.vaultUri]"
+      "value": "[reference(parameters('keyVaultName')).vaultUri]"
     }
   }
 }
