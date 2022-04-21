@@ -98,6 +98,10 @@
     "certmasterPrincipalID": {
       "type": "string",
       "value": "[reference(parameters('appServiceName2'), '2021-02-01', 'Full').identity.principalId]"
+    },
+    "appServicePlanID": {
+      "type": "string",
+      "value": "[if(equals(parameters('existingAppServicePlanID'), 'none'), reference(parameters('AppServicePlanName'),'2021-02-01','Full').resourceId, parameters('existingAppServicePlanID'))]"
     }
   }
 }
