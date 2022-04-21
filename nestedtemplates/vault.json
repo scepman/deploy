@@ -10,10 +10,10 @@
                 "description": "Specifies the name of the key vault."
             }
         },
-        "appServiceName": {
+        "permittedPrincipalId": {
             "type": "string",
             "metadata": {
-                "description": "Name of SCEPman app service, whom will be assigned permissions to the KV"
+                "description": "IDs of SCEPman app service principal, whom will be assigned permissions to the KV"
             }
         },
         "location": {
@@ -82,7 +82,7 @@
                 },
                 "accessPolicies": [
                     {
-                        "objectId": "[reference(resourceId('Microsoft.Web/sites/', parameters('appServiceName')), '2021-02-01', 'Full').identity.principalId]",
+                        "objectId": "[parameters('permittedPrincipalId')]",
                         "tenantId": "[subscription().tenantId]",
                         "permissions": {
                             "keys": "[variables('keys')]",

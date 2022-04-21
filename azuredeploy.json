@@ -141,8 +141,8 @@
           "keyVaultName": {
             "value": "[parameters('keyVaultName')]"
           },
-          "appServiceName": {
-            "value": "[parameters('primaryAppServiceName')]"
+          "permittedPrincipalId": {
+            "value": "[reference('SCEPmanAppServices').outputs.scepmanPrincipalID.value]"
           },
           "location": {
             "value": "[parameters('location')]"
