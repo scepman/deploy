@@ -128,9 +128,6 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-06-01",
       "name": "SCEPmanVault",
-      "dependsOn": [
-        "SCEPmanAppServices"
-      ],
       "properties": {
         "mode": "Incremental",
         "templateLink": {
@@ -154,9 +151,6 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-06-01",
       "name": "DeploymentSCEPmanConfig",
-      "dependsOn": [
-        "SCEPmanVault"
-      ],
       "properties": {
         "mode": "Incremental",
         "templateLink": {
@@ -173,8 +167,11 @@
           "appServiceName": {
             "value": "[parameters('primaryAppServiceName')]"
           },
-          "keyVaultName": {
-            "value": "[parameters('keyVaultName')]"
+          "scepManBaseURL": {
+            "value": "[reference('SCEPmanAppServices').outputs.scepmanURL.value]"
+          },          
+          "keyVaultURL": {
+            "value": "[reference('SCEPmanVault').outputs.keyVaultURL.value]"
           },
           "OrgName": {
             "value": "[parameters('OrgName')]"

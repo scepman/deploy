@@ -93,5 +93,11 @@
                 ]
             }
         }
-    ]
+    ],
+  "outputs": {
+    "keyVaultURL": {
+      "type": "string",
+      "value": "[reference(parameters('keyVaultName')).properties.vaultUri]"
+    }
+  }
 }
