@@ -8,18 +8,11 @@
                 "description": "URL of the Storage Account's table endpoint to retrieve certificate information from"
             }
         },
-        "AppServicePlanName": {
+        "appServicePlanID": {
             "type": "string",
             "metadata": {
-                "description": "Name of the App Service Plan"
+                "description": "The ID of an App Service Plan"
             }
-        },
-        "existingAppServicePlanID": {
-            "type": "string",
-            "metadata": {
-                "description": "Provide the AppServicePlan ID of an existing App Service Plan. Keep default value 'none' if you want to create a new one."
-            },
-            "defaultValue": "none"
         },        
         "appServiceName": {
             "type": "string",
@@ -27,10 +20,16 @@
                 "description": "Name of SCEPman's app service"
             }
         },
-        "keyVaultName": {
+        "scepManBaseURL": {
             "type": "string",
             "metadata": {
-                "description": "Name of the key vault"
+                "description": "Base URL of SCEPman"
+            }
+        },
+        "keyVaultURL": {
+            "type": "string",
+            "metadata": {
+                "description": "URL of the key vault"
             }
         },
         "OrgName": {
@@ -66,7 +65,7 @@
             "name": "[parameters('appServiceName')]",
             "location": "[parameters('location')]",
             "properties": {
-                "serverFarmId": "[if(equals(parameters('existingAppServicePlanID'), 'none'), resourceId('Microsoft.Web/serverfarms', parameters('AppServicePlanName')), parameters('existingAppServicePlanID'))]",
+                "serverFarmId": "[parameters('appServicePlanID')]",
                 "httpsOnly": false,
                 "clientAffinityEnabled": false,
                 "siteConfig": {
@@ -80,7 +79,7 @@
                         },
                         {
                             "name": "AppConfig:BaseUrl",
-                            "value": "[concat('https://',parameters('appServiceName'),'.azurewebsites.net')]"
+                            "value": "[parameters('scepManBaseURL')]"
                         },
                         {
                             "name": "AppConfig:LicenseKey",
@@ -112,7 +111,7 @@
                         },                        
                         {
                             "name": "AppConfig:KeyVaultConfig:KeyVaultURL",
-                            "value": "[reference(resourceid('Microsoft.KeyVault/vaults/', parameters('keyVaultName')), '2021-10-01', 'Full').properties.vaultUri]"
+                            "value": "[parameters('keyVaultURL')]"
                         },
                         {
                             "name": "AppConfig:AzureStorage:TableStorageEndpoint",
