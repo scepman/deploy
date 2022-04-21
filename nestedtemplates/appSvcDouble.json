@@ -101,7 +101,7 @@
     },
     "appServicePlanID": {
       "type": "string",
-      "value": "[if(equals(parameters('existingAppServicePlanID'), 'none'), reference(parameters('AppServicePlanName'),'2021-02-01','Full').resourceId, parameters('existingAppServicePlanID'))]"
+      "value": "[if(equals(parameters('existingAppServicePlanID'), 'none'), resourceId('Microsoft.Web/serverfarms', parameters('AppServicePlanName')), parameters('existingAppServicePlanID'))]"
     }
   }
 }
