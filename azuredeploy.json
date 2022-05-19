@@ -60,7 +60,7 @@
       "metadata": {
         "description": "The App Service for the component SCEPman Certificate Master. As it is part of the default FQDN, it must be globally unique and contain only DNS-compatible characters."
       },
-      "defaultValue": "[concat('asp-scepman-', uniqueString(resourceGroup().id), '-cm')]"
+      "defaultValue": "[concat('as-scepman-', uniqueString(resourceGroup().id), '-cm')]"
     },
     "location": {
       "type": "string",
