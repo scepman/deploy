@@ -77,7 +77,7 @@
                 "enabledForTemplateDeployment": false,
                 "enabledForDiskEncryption": false,
                 "sku": {
-                    "name": "standard",
+                    "name": "premium",
                     "family": "A"
                 },
                 "accessPolicies": [
