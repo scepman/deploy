@@ -51,6 +51,13 @@
                 "description": "The full URI where SCEPman artifact binaries are stored"
             }
         },
+        "updateChannel": {
+            "type": "string",
+            "defaultValue": null,
+            "metadata": {
+                "description": "Which Update Channel shall SCEPman use?"
+            }
+        },
         "location": {
             "type": "string",
             "metadata": {
@@ -77,6 +84,10 @@
                             "name": "WEBSITE_RUN_FROM_PACKAGE",
                             "value": "[parameters('WebsiteArtifactsUri')]"
                         },
+                        {
+                            "name": "Update_Channel",
+                            "value": "[parameters('updateChannel')]"
+                        },                        
                         {
                             "name": "AppConfig:BaseUrl",
                             "value": "[parameters('scepManBaseURL')]"

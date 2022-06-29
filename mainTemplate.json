@@ -16,6 +16,13 @@
         "description": "License Key for SCEPman"
       }
     },
+    "updateChannel": {
+      "type": "string",
+      "defaultValue": "prod",
+      "metadata": {
+        "description": "Which Update Channel shall SCEPman use?"
+      }
+    },    
     "_artifactsLocationSasToken": {
       "type": "securestring",
       "metadata": {
@@ -151,6 +158,9 @@
           "license": {
             "value": "[parameters('license')]"
           },
+          "UpdateChannel": {
+            "value": "[parameters('updateChannel')]"
+          },          
           "location": {
             "value": "[parameters('location')]"
           }
@@ -182,6 +192,9 @@
           },
           "WebsiteArtifactsUri": {
             "value": "[variables('ArtifactsLocationCertMaster')]"
+          },
+          "UpdateChannel": {
+            "value": "[parameters('updateChannel')]"
           },
           "location": {
             "value": "[parameters('location')]"

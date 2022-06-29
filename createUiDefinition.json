@@ -35,13 +35,45 @@
                     "text": "If you have purchased a license key for SCEPman Enterprise Edition, please enter it in the \"License Key\" field above. In case no license key is provided, SCEPman Community Edition will be deployed.\nYou can upgrade an existing SCEPman Community Edition deployment to the Enterprise Edition anytime by updating your license key. No re-deployment is required.",
                     "uri": "https://docs.scepman.com/editions"
                 }
-            }
+            },
+            {
+                "name": "updateChannel",
+                "type": "Microsoft.Common.DropDown",
+                "visible": true,
+                "label": "Update Channel",
+                "defaultValue": "prod",
+                "constraints": {
+                    "allowedValues": [
+                        {
+                            "label": "Production Channel",
+                            "description": "Use the latest stable version of SCEPman (recommended)",
+                            "value": "prod"
+                        },
+                        {
+                            "label": "Beta Channel",
+                            "description": "Use the upcoming production release of SCEPman",
+                            "value": "beta"
+                        },
+                        {
+                            "label": "Internal Channel",
+                            "description": "Use the SCEPman version currently under development (most features, but expect bugs)",
+                            "value": "internal"
+                        },
+                        {
+                            "label": "Fixed Version",
+                            "description": "Use the current production version of SCEPman, but do not auto-update",
+                            "value": "none"
+                        }                        
+                    ]
+                }
+            }            
         ],
         "steps": [
         ],
         "outputs": {
             "OrgName": "[basics('orgName')]",
             "license": "[basics('license')]",
+            "updateChannel": "[basics('updateChannel')]",
             "location": "[location()]"
         }
     }
