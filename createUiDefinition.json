@@ -41,7 +41,8 @@
                 "type": "Microsoft.Common.DropDown",
                 "visible": true,
                 "label": "Update Channel",
-                "defaultValue": "prod",
+                "defaultValue": "Production Channel",
+                "toolTip": "Select an update channel for an evergreen approach or Fixed Version to take care of updating SCEPman yourself. You can switch between channels and manual updates of SCEPman instances after installation as well.",
                 "constraints": {
                     "allowedValues": [
                         {
@@ -64,7 +65,8 @@
                             "description": "Use the current production version of SCEPman, but do not auto-update",
                             "value": "none"
                         }                        
-                    ]
+                    ],
+                    "required": true
                 }
             }            
         ],
