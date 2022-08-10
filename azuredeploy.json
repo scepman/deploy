@@ -25,6 +25,14 @@
       },
       "defaultValue": "[concat('kv-scepman-', uniqueString(resourceGroup().id))]"
     },
+    "caKeyType": {
+      "type": "string",
+      "allowedValues": [ "RSA", "RSA-HSM" ],
+      "metadata": {
+        "description": "When generating the SCEPman CA certificate, which kind of key pair shall be created? RSA is a software-protected RSA key; RSA-HSM is HSM-protected."
+      },
+      "defaultValue": "RSA-HSM"
+    },
     "storageAccountName": {
       "type": "string",
       "minLength": 3,
@@ -172,6 +180,9 @@
           },          
           "keyVaultURL": {
             "value": "[reference('SCEPmanVault').outputs.keyVaultURL.value]"
+          },
+          "caKeyType": {
+            "value": "[parameters('caKeyType')]"
           },
           "OrgName": {
             "value": "[parameters('OrgName')]"
