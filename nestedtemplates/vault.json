@@ -75,6 +75,7 @@
                 "tenantId": "[subscription().tenantId]",
                 "enabledForDeployment": false,
                 "enabledForTemplateDeployment": false,
+                "enablePurgeProtection": true,
                 "enabledForDiskEncryption": false,
                 "sku": {
                     "name": "premium",
