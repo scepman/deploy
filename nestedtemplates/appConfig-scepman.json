@@ -64,93 +64,31 @@
             "metadata": {
                 "description": "Resource Group"
             }
-        },
-        "resourceTags": {
-            "type": "object",
-            "metadata": {
-                "description": "Tags to be assigned to the created resources"
-            }
         }
     },
     "resources": [
         {
-            "apiVersion": "2021-02-01",
-            "type": "Microsoft.Web/sites",
-            "name": "[parameters('appServiceName')]",
+            "apiVersion": "2022-03-01",
+            "type": "Microsoft.Web/sites/config",
+            "name": "[concat(parameters('appServiceName'),'/appsettings')]",
             "location": "[parameters('location')]",
-            "tags": "[parameters('resourceTags')]",
             "properties": {
-                "serverFarmId": "[parameters('appServicePlanID')]",
-                "httpsOnly": false,
-                "clientAffinityEnabled": false,
-                "siteConfig": {
-                    "alwaysOn": true,
-                    "use32BitWorkerProcess": false,
-                    "ftpsState": "Disabled",
-                    "appSettings": [
-                        {
-                            "name": "WEBSITE_RUN_FROM_PACKAGE",
-                            "value": "[parameters('WebsiteArtifactsUri')]"
-                        },
-                        {
-                            "name": "AppConfig:BaseUrl",
-                            "value": "[parameters('scepManBaseURL')]"
-                        },
-                        {
-                            "name": "AppConfig:LicenseKey",
-                            "value": "[parameters('license')]"
-                        },
-                        {
-                            "name": "AppConfig:AuthConfig:TenantId",
-                            "value": "[subscription().tenantId]"
-                        },
-                        {
-                            "name": "AppConfig:UseRequestedKeyUsages",
-                            "value": "true"
-                        },
-                        {
-                            "name": "AppConfig:ValidityPeriodDays",
-                            "value": "730"
-                        },
-                        {
-                            "name": "AppConfig:IntuneValidation:ValidityPeriodDays",
-                            "value": "365"
-                        },                                      
-						{
-                            "name": "AppConfig:DirectCSRValidation:Enabled",
-                            "value": "true"
-                        },
-						{
-                            "name": "AppConfig:IntuneValidation:DeviceDirectory",
-                            "value": "AADAndIntune"
-                        },                        
-                        {
-                            "name": "AppConfig:KeyVaultConfig:KeyVaultURL",
-                            "value": "[parameters('keyVaultURL')]"
-                        },
-                        {
-                            "name": "AppConfig:AzureStorage:TableStorageEndpoint",
-                            "value": "[parameters('StorageAccountTableURL')]"
-                        },
-                        {
-                            "name": "AppConfig:KeyVaultConfig:RootCertificateConfig:CertificateName",
-                            "value": "SCEPman-Root-CA-V1"
-                        },
-                        {
-                            "name": "AppConfig:KeyVaultConfig:RootCertificateConfig:KeyType",
-                            "value": "[parameters('caKeyType')]"
-                        },                        
-                        {
-                            "name": "AppConfig:ValidityClockSkewMinutes",
-                            "value": "1440"
-                        },
-                        {
-                            "name": "AppConfig:KeyVaultConfig:RootCertificateConfig:Subject",
-                            "value": "[concat('CN=SCEPman-Root-CA-V1, ', 'OU=',subscription().tenantId, ', ', 'O=\"', parameters('OrgName'), '\"')]"
-                        }
-                    ]
-                }
+                "WEBSITE_RUN_FROM_PACKAGE": "[parameters('WebsiteArtifactsUri')]",
+                "AppConfig:BaseUrl": "[parameters('scepManBaseURL')]",
+                "AppConfig:LicenseKey": "[parameters('license')]",
+                "AppConfig:AuthConfig:TenantId": "[subscription().tenantId]",
+                "AppConfig:UseRequestedKeyUsages": "true",
+                "AppConfig:ValidityPeriodDays": "730",
+                "AppConfig:IntuneValidation:ValidityPeriodDays": "365",
+                "AppConfig:DirectCSRValidation:Enabled": "true",
+                "AppConfig:IntuneValidation:DeviceDirectory": "AADAndIntune",
+                "AppConfig:KeyVaultConfig:KeyVaultURL": "[parameters('keyVaultURL')]",
+                "AppConfig:AzureStorage:TableStorageEndpoint": "[parameters('StorageAccountTableURL')]",
+                "AppConfig:KeyVaultConfig:RootCertificateConfig:CertificateName": "SCEPman-Root-CA-V1",
+                "AppConfig:KeyVaultConfig:RootCertificateConfig:KeyType": "[parameters('caKeyType')]",
+                "AppConfig:ValidityClockSkewMinutes": "1440",
+                "AppConfig:KeyVaultConfig:RootCertificateConfig:Subject": "[concat('CN=SCEPman-Root-CA-V1, ', 'OU=',subscription().tenantId, ', ', 'O=\",', parameters('OrgName'), '\"')]"
             }
         }
-    ]
+     ]
 }
