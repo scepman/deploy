@@ -76,6 +76,9 @@
       "metadata": {
         "description": "Location for all resources. For a manual deployment, we recommend the default value."
       }
+    },
+    "resourceTags": {
+      "type": "object"
     }
   },
   "variables": {
@@ -128,6 +131,9 @@
           },
           "location": {
             "value": "[parameters('location')]"
+          },
+          "resourceTags": {
+            "value": "[parameters('resourceTags')]"
           }
         }
       }
