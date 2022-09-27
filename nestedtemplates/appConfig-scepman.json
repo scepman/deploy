@@ -64,6 +64,12 @@
             "metadata": {
                 "description": "Resource Group"
             }
+        },
+        "resourceTags": {
+            "type": "object",
+            "metadata": {
+                "description": "Tags to be assigned to the created resources"
+            }
         }
     },
     "resources": [
@@ -72,6 +78,7 @@
             "type": "Microsoft.Web/sites",
             "name": "[parameters('appServiceName')]",
             "location": "[parameters('location')]",
+            "tags": "[parameters('resourceTags')]",
             "properties": {
                 "serverFarmId": "[parameters('appServicePlanID')]",
                 "httpsOnly": false,

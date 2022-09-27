@@ -208,6 +208,9 @@
           },
           "location": {
             "value": "[parameters('location')]"
+          },
+          "resourceTags": {
+            "value": "[parameters('resourceTags')]"
           }
         }
       }
@@ -240,6 +243,9 @@
           },
           "location": {
             "value": "[parameters('location')]"
+          },
+          "resourceTags": {
+            "value": "[parameters('resourceTags')]"
           }
         }
       }
