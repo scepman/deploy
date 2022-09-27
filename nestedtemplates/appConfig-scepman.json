@@ -8,12 +8,6 @@
                 "description": "URL of the Storage Account's table endpoint to retrieve certificate information from"
             }
         },
-        "appServicePlanID": {
-            "type": "string",
-            "metadata": {
-                "description": "The ID of an App Service Plan"
-            }
-        },        
         "appServiceName": {
             "type": "string",
             "metadata": {
