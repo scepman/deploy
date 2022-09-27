@@ -34,7 +34,10 @@
       }
     },
     "resourceTags": {
-      "type": "object"
+      "type": "object",
+      "metadata": {
+        "description": "Tags to be assigned to the created resources"
+      }
     }
   },
 
@@ -49,7 +52,7 @@
         "Tier": "Standard",
         "Name": "S1"
       },
-      "tags": "[parameters('resourceTags')]",      
+      "tags": "[parameters('resourceTags')]",
       "properties": {
         "name": "[parameters('AppServicePlanName')]",
         "workerSize": 1,
@@ -57,14 +60,14 @@
       }
     },
     {
-      "apiVersion": "2021-02-01",
+      "apiVersion": "2022-03-01",
       "type": "Microsoft.Web/sites",
       "name": "[parameters('appServiceName')]",
       "location": "[parameters('location')]",
       "identity": {
         "type": "SystemAssigned"
       },
-      "tags": "[parameters('resourceTags')]",      
+      "tags": "[parameters('resourceTags')]",
       "properties": {
         "serverFarmId": "[if(equals(parameters('existingAppServicePlanID'), 'none'), resourceId('Microsoft.Web/serverfarms', parameters('AppServicePlanName')), parameters('existingAppServicePlanID'))]",
         "clientAffinityEnabled": false
@@ -74,14 +77,14 @@
       ]
     },
     {
-      "apiVersion": "2021-02-01",
+      "apiVersion": "2022-03-01",
       "type": "Microsoft.Web/sites",
       "name": "[parameters('appServiceName2')]",
       "location": "[parameters('location')]",
       "identity": {
         "type": "SystemAssigned"
       },
-      "tags": "[parameters('resourceTags')]",      
+      "tags": "[parameters('resourceTags')]",
       "properties": {
         "serverFarmId": "[if(equals(parameters('existingAppServicePlanID'), 'none'), resourceId('Microsoft.Web/serverfarms', parameters('AppServicePlanName')), parameters('existingAppServicePlanID'))]",
         "httpsOnly": true,
