@@ -1,111 +1,111 @@
 {
-    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
-    "parameters": {
-        "keyVaultName": {
-            "type": "string",
-            "minLength": 3,
-            "maxLength": 24,
-            "metadata": {
-                "description": "Specifies the name of the key vault."
-            }
-        },
-        "permittedPrincipalId": {
-            "type": "string",
-            "metadata": {
-                "description": "IDs of SCEPman app service principal, whom will be assigned permissions to the KV"
-            }
-        },
-        "location": {
-            "type": "string",
-            "metadata": {
-                "description": "Resource Group"
-            }
-        },
-        "resourceTags": {
-            "type": "object",
-            "metadata": {
-                "description": "Tags to be assigned to the created resources"
-            }
-        }
-    },
-    "variables": {
-        "keys": [
-            "Get",
-            "List",
-            "Update",
-            "Create",
-            "Import",
-            "Delete",
-            "Recover",
-            "Backup",
-            "Restore",
-            "UnwrapKey",
-            "Verify",
-            "Sign"
-        ],
-        "secrets": [
-            "Get",
-            "List",
-            "Set",
-            "Delete",
-            "Recover",
-            "Backup",
-            "Restore"
-        ],
-        "certificates": [
-            "Get",
-            "List",
-            "Update",
-            "Create",
-            "Import",
-            "Delete",
-            "Recover",
-            "Backup",
-            "Restore",
-            "ManageContacts",
-            "ManageIssuers",
-            "GetIssuers",
-            "ListIssuers",
-            "SetIssuers",
-            "DeleteIssuers"
-        ]
-    },
-    "resources": [
-        {
-            "apiVersion": "2021-10-01",
-            "type": "Microsoft.KeyVault/vaults",
-            "name": "[parameters('keyVaultName')]",
-            "location": "[parameters('location')]",
-            "tags": "[parameters('resourceTags')]",
-            "properties": {
-                "tenantId": "[subscription().tenantId]",
-                "enabledForDeployment": false,
-                "enabledForTemplateDeployment": false,
-                "enablePurgeProtection": true,
-                "enabledForDiskEncryption": false,
-                "sku": {
-                    "name": "premium",
-                    "family": "A"
-                },
-                "accessPolicies": [
-                    {
-                        "objectId": "[parameters('permittedPrincipalId')]",
-                        "tenantId": "[subscription().tenantId]",
-                        "permissions": {
-                            "keys": "[variables('keys')]",
-                            "secrets": "[variables('secrets')]",
-                            "certificates": "[variables('certificates')]"
-                        }
-                    }
-                ]
-            }
-        }
-    ],
-  "outputs": {
-    "keyVaultURL": {
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "keyVaultName": {
       "type": "string",
-      "value": "[reference(parameters('keyVaultName')).vaultUri]"
+      "minLength": 3,
+      "maxLength": 24,
+      "metadata": {
+        "description": "Specifies the name of the key vault."
+      }
+    },
+    "permittedPrincipalId": {
+      "type": "string",
+      "metadata": {
+        "description": "IDs of SCEPman app service principal, whom will be assigned permissions to the KV"
+      }
+    },
+    "location": {
+      "type": "string",
+      "metadata": {
+        "description": "Resource Group"
+      }
+    },
+    "resourceTags": {
+      "type": "object",
+      "metadata": {
+        "description": "Tags to be assigned to the created resources"
+      }
     }
+  },
+  "variables": {
+    "keys": [
+      "Get",
+      "List",
+      "Update",
+      "Create",
+      "Import",
+      "Delete",
+      "Recover",
+      "Backup",
+      "Restore",
+      "UnwrapKey",
+      "Verify",
+      "Sign"
+    ],
+    "secrets": [
+      "Get",
+      "List",
+      "Set",
+      "Delete",
+      "Recover",
+      "Backup",
+      "Restore"
+    ],
+    "certificates": [
+      "Get",
+      "List",
+      "Update",
+      "Create",
+      "Import",
+      "Delete",
+      "Recover",
+      "Backup",
+      "Restore",
+      "ManageContacts",
+      "ManageIssuers",
+      "GetIssuers",
+      "ListIssuers",
+      "SetIssuers",
+      "DeleteIssuers"
+    ]
+  },
+  "resources": [
+    {
+      "apiVersion": "2021-10-01",
+      "type": "Microsoft.KeyVault/vaults",
+      "name": "[parameters('keyVaultName')]",
+      "location": "[parameters('location')]",
+      "tags": "[parameters('resourceTags')]",
+      "properties": {
+        "tenantId": "[subscription().tenantId]",
+        "enabledForDeployment": false,
+        "enabledForTemplateDeployment": false,
+        "enablePurgeProtection": true,
+        "enabledForDiskEncryption": false,
+        "sku": {
+          "name": "premium",
+          "family": "A"
+        },
+        "accessPolicies": [
+          {
+            "objectId": "[parameters('permittedPrincipalId')]",
+            "tenantId": "[subscription().tenantId]",
+            "permissions": {
+              "keys": "[variables('keys')]",
+              "secrets": "[variables('secrets')]",
+              "certificates": "[variables('certificates')]"
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "outputs": {
+  "keyVaultURL": {
+    "type": "string",
+    "value": "[reference(parameters('keyVaultName')).vaultUri]"
+  }
   }
 }
