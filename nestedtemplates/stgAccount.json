@@ -57,7 +57,7 @@
     },
     {
       "type": "Microsoft.Authorization/roleAssignments",
-      "apiVersion": "2021-04-01-preview",
+      "apiVersion": "2022-04-01",
       "name": "[guid(concat('roleAssignment-sa-',parameters('tableContributorPrincipals')[copyIndex()]))]",
       "scope": "[concat('Microsoft.Storage/storageAccounts', '/', parameters('StorageAccountName'))]",
       "dependsOn": [

@@ -70,7 +70,13 @@
       "tags": "[parameters('resourceTags')]",
       "properties": {
         "serverFarmId": "[if(equals(parameters('existingAppServicePlanID'), 'none'), resourceId('Microsoft.Web/serverfarms', parameters('AppServicePlanName')), parameters('existingAppServicePlanID'))]",
-        "clientAffinityEnabled": false
+        "clientAffinityEnabled": false,
+        "httpsOnly": false,
+        "siteConfig": {
+          "alwaysOn": true,
+          "use32BitWorkerProcess": false,
+          "ftpsState": "Disabled"
+        }
       },
       "dependsOn": [
         "[resourceId('Microsoft.Web/serverfarms', parameters('AppServicePlanName'))]"
@@ -88,6 +94,9 @@
       "properties": {
         "serverFarmId": "[if(equals(parameters('existingAppServicePlanID'), 'none'), resourceId('Microsoft.Web/serverfarms', parameters('AppServicePlanName')), parameters('existingAppServicePlanID'))]",
         "httpsOnly": true,
+        "alwaysOn": true,
+        "use32BitWorkerProcess": false,
+        "ftpsState": "Disabled",
         "clientAffinityEnabled": true
       },
       "dependsOn": [

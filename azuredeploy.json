@@ -182,9 +182,6 @@
           "StorageAccountTableUrl": {
             "value": "[reference('SCEPmanStorageAccount').outputs.storageAccountTableUrl.value]"
           },
-          "appServicePlanID": {
-            "value": "[reference('SCEPmanAppServices').outputs.appServicePlanID.value]"
-          },
           "appServiceName": {
             "value": "[parameters('primaryAppServiceName')]"
           },
@@ -208,9 +205,6 @@
           },
           "location": {
             "value": "[parameters('location')]"
-          },
-          "resourceTags": {
-            "value": "[parameters('resourceTags')]"
           }
         }
       }
@@ -226,9 +220,6 @@
           "contentVersion": "1.0.0.0"
         },
         "parameters": {
-          "appServicePlanID": {
-            "value": "[reference('SCEPmanAppServices').outputs.appServicePlanID.value]"
-          },
           "appServiceName": {
             "value": "[parameters('certificateMasterAppServiceName')]"
           },
@@ -243,9 +234,6 @@
           },
           "location": {
             "value": "[parameters('location')]"
-          },
-          "resourceTags": {
-            "value": "[parameters('resourceTags')]"
           }
         }
       }
