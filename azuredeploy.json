@@ -25,6 +25,14 @@
       },
       "defaultValue": "kv-scepman-UNIQUENAME"
     },
+    "caKeyType": {
+      "type": "string",
+      "allowedValues": [ "RSA", "RSA-HSM" ],
+      "metadata": {
+        "description": "When generating the SCEPman CA certificate, which kind of key pair shall be created? RSA is a software-protected RSA key; RSA-HSM is HSM-protected."
+      },
+      "defaultValue": "RSA-HSM"
+    },
     "storageAccountName": {
       "type": "string",
       "minLength": 3,
@@ -68,6 +76,13 @@
       "metadata": {
         "description": "Location for all resources. For a manual deployment, we recommend the default value."
       }
+    },
+    "resourceTags": {
+      "type": "object",
+      "defaultValue": {},
+      "metadata": {
+        "description": "Tags to be assigned to all created resources. Use JSON syntax, e.g. if you want to add tags env with value dev and project with value scepman, then write { \"env\":\"dev\", \"project\":\"scepman\"}."
+      }
     }
   },
   "variables": {
@@ -84,7 +99,7 @@
   "resources": [
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2021-04-01",
       "name": "pid-a262352f-52a9-4ed9-a9ba-6a2b2478d19b-partnercenter",
       "properties": {
         "mode": "Incremental",
@@ -97,7 +112,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2021-04-01",
       "name": "SCEPmanAppServices",
       "properties": {
         "mode": "Incremental",
@@ -120,13 +135,16 @@
           },
           "location": {
             "value": "[parameters('location')]"
+          },
+          "resourceTags": {
+            "value": "[parameters('resourceTags')]"
           }
         }
       }
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2021-04-01",
       "name": "SCEPmanVault",
       "properties": {
         "mode": "Incremental",
@@ -143,13 +161,16 @@
           },
           "location": {
             "value": "[parameters('location')]"
+          },
+          "resourceTags": {
+            "value": "[parameters('resourceTags')]"
           }
         }
       }
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2021-04-01",
       "name": "DeploymentSCEPmanConfig",
       "properties": {
         "mode": "Incremental",
@@ -161,9 +182,6 @@
           "StorageAccountTableUrl": {
             "value": "[reference('SCEPmanStorageAccount').outputs.storageAccountTableUrl.value]"
           },
-          "appServicePlanID": {
-            "value": "[reference('SCEPmanAppServices').outputs.appServicePlanID.value]"
-          },
           "appServiceName": {
             "value": "[parameters('primaryAppServiceName')]"
           },
@@ -172,6 +190,9 @@
           },          
           "keyVaultURL": {
             "value": "[reference('SCEPmanVault').outputs.keyVaultURL.value]"
+          },
+          "caKeyType": {
+            "value": "[parameters('caKeyType')]"
           },
           "OrgName": {
             "value": "[parameters('OrgName')]"
@@ -190,7 +211,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2021-04-01",
       "name": "DeploymentCertMasterConfig",
       "properties": {
         "mode": "Incremental",
@@ -199,9 +220,6 @@
           "contentVersion": "1.0.0.0"
         },
         "parameters": {
-          "appServicePlanID": {
-            "value": "[reference('SCEPmanAppServices').outputs.appServicePlanID.value]"
-          },
           "appServiceName": {
             "value": "[parameters('certificateMasterAppServiceName')]"
           },
@@ -222,7 +240,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2021-04-01",
       "name": "SCEPmanStorageAccount",
       "properties": {
         "mode": "Incremental",
@@ -236,6 +254,9 @@
           },
           "location": {
             "value": "[parameters('location')]"
+          },
+          "resourceTags": {
+            "value": "[parameters('resourceTags')]"
           },
           "tableContributorPrincipals": {
             "value": [
