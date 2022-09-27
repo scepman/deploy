@@ -21,6 +21,12 @@
             "metadata": {
                 "description": "Resource Group"
             }
+        },
+        "resourceTags": {
+            "type": "object",
+            "metadata": {
+                "description": "Tags to be assigned to the created resources"
+            }
         }
     },
     "variables": {
@@ -67,14 +73,16 @@
     },
     "resources": [
         {
+            "apiVersion": "2021-10-01",
             "type": "Microsoft.KeyVault/vaults",
             "name": "[parameters('keyVaultName')]",
             "location": "[parameters('location')]",
-            "apiVersion": "2021-10-01",
+            "tags": "[parameters('resourceTags')]",
             "properties": {
                 "tenantId": "[subscription().tenantId]",
                 "enabledForDeployment": false,
                 "enabledForTemplateDeployment": false,
+                "enablePurgeProtection": true,
                 "enabledForDiskEncryption": false,
                 "sku": {
                     "name": "premium",

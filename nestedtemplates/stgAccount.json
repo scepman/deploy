@@ -15,6 +15,12 @@
         "description": "Location where the resources will be deployed"
       }
     },
+    "resourceTags": {
+      "type": "object",
+      "metadata": {
+        "description": "Tags to be assigned to the created resources"
+      }
+    },
     "tableContributorPrincipals": {
       "type": "array",
       "metadata": {
@@ -28,13 +34,14 @@
       "apiVersion": "2021-04-01",
       "name": "[parameters('StorageAccountName')]",
       "location": "[parameters('location')]",
+      "tags": "[parameters('resourceTags')]",
       "sku": {
         "name": "Standard_LRS"
       },
       "kind": "StorageV2",
       "properties": {
         "accessTier": "Hot",
-        "allowBlobPublicAccess": true,
+        "allowBlobPublicAccess": false,
         "allowCrossTenantReplication": false,
         "allowSharedKeyAccess": false,
         "isHnsEnabled": false,

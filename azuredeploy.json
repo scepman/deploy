@@ -76,6 +76,13 @@
       "metadata": {
         "description": "Location for all resources. For a manual deployment, we recommend the default value."
       }
+    },
+    "resourceTags": {
+      "type": "object",
+      "defaultValue": {},
+      "metadata": {
+        "description": "Tags to be assigned to all created resources. Use JSON syntax, e.g. if you want to add tags env with value dev and project with value scepman, then write { \"env\":\"dev\", \"project\":\"scepman\"}."
+      }
     }
   },
   "variables": {
@@ -92,7 +99,7 @@
   "resources": [
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2021-04-01",
       "name": "pid-a262352f-52a9-4ed9-a9ba-6a2b2478d19b-partnercenter",
       "properties": {
         "mode": "Incremental",
@@ -105,7 +112,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2021-04-01",
       "name": "SCEPmanAppServices",
       "properties": {
         "mode": "Incremental",
@@ -128,13 +135,16 @@
           },
           "location": {
             "value": "[parameters('location')]"
+          },
+          "resourceTags": {
+            "value": "[parameters('resourceTags')]"
           }
         }
       }
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2021-04-01",
       "name": "SCEPmanVault",
       "properties": {
         "mode": "Incremental",
@@ -151,13 +161,16 @@
           },
           "location": {
             "value": "[parameters('location')]"
+          },
+          "resourceTags": {
+            "value": "[parameters('resourceTags')]"
           }
         }
       }
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2021-04-01",
       "name": "DeploymentSCEPmanConfig",
       "properties": {
         "mode": "Incremental",
@@ -195,13 +208,16 @@
           },
           "location": {
             "value": "[parameters('location')]"
+          },
+          "resourceTags": {
+            "value": "[parameters('resourceTags')]"
           }
         }
       }
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2021-04-01",
       "name": "DeploymentCertMasterConfig",
       "properties": {
         "mode": "Incremental",
@@ -227,13 +243,16 @@
           },
           "location": {
             "value": "[parameters('location')]"
+          },
+          "resourceTags": {
+            "value": "[parameters('resourceTags')]"
           }
         }
       }
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2021-04-01",
       "name": "SCEPmanStorageAccount",
       "properties": {
         "mode": "Incremental",
@@ -247,6 +266,9 @@
           },
           "location": {
             "value": "[parameters('location')]"
+          },
+          "resourceTags": {
+            "value": "[parameters('resourceTags')]"
           },
           "tableContributorPrincipals": {
             "value": [

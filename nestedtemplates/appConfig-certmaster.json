@@ -37,6 +37,12 @@
       "metadata": {
         "description": "Location where the resources will be deployed"
       }
+    },
+    "resourceTags": {
+        "type": "object",
+        "metadata": {
+            "description": "Tags to be assigned to the created resources"
+        }
     }
   },
   "resources": [
@@ -45,6 +51,7 @@
       "apiVersion": "2021-02-01",
       "name": "[parameters('appServiceName')]",
       "location": "[parameters('location')]",
+      "tags": "[parameters('resourceTags')]",
       "properties": {
         "serverFarmId": "[parameters('appServicePlanID')]",
         "siteConfig": {
