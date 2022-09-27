@@ -78,7 +78,11 @@
       }
     },
     "resourceTags": {
-      "type": "object"
+      "type": "object",
+      "defaultValue": {},
+      "metadata": {
+        "description": "Tags to be assigned to all created resources. Use JSON syntax, e.g. if you want to add tags env with value dev and project with value scepman, then write { \"env\":\"dev\", \"project\":\"scepman\"}."
+      }
     }
   },
   "variables": {
