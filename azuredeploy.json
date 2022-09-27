@@ -208,9 +208,6 @@
           },
           "location": {
             "value": "[parameters('location')]"
-          },
-          "resourceTags": {
-            "value": "[parameters('resourceTags')]"
           }
         }
       }
