@@ -81,7 +81,7 @@
         "AppConfig:KeyVaultConfig:RootCertificateConfig:CertificateName": "SCEPman-Root-CA-V1",
         "AppConfig:KeyVaultConfig:RootCertificateConfig:KeyType": "[parameters('caKeyType')]",
         "AppConfig:ValidityClockSkewMinutes": "1440",
-        "AppConfig:KeyVaultConfig:RootCertificateConfig:Subject": "[concat('CN=SCEPman-Root-CA-V1, ', 'OU=',subscription().tenantId, ', ', 'O=\",', parameters('OrgName'), '\"')]"
+        "AppConfig:KeyVaultConfig:RootCertificateConfig:Subject": "[concat('CN=SCEPman-Root-CA-V1, ', 'OU=',subscription().tenantId, ', ', 'O=\"', parameters('OrgName'), '\"')]"
       }
     }
    ]
