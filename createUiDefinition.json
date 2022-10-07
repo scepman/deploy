@@ -42,7 +42,7 @@
                 "visible": true,
                 "label": "Update Channel",
                 "defaultValue": "Production Channel",
-                "toolTip": "Select an update channel for an evergreen approach or Fixed Version to take care of updating SCEPman yourself. You can switch between channels and manual updates of SCEPman instances after installation as well.",
+                "toolTip": "Select the update channel for your SCEPman instance. You can switch between channels and manual updates of SCEPman instances after installation as well.",
                 "constraints": {
                     "allowedValues": [
                         {
@@ -59,12 +59,7 @@
                             "label": "Internal Channel",
                             "description": "Use the SCEPman version currently under development (most features, but expect bugs)",
                             "value": "internal"
-                        },
-                        {
-                            "label": "Fixed Version",
-                            "description": "Use the current production version of SCEPman, but do not auto-update",
-                            "value": "none"
-                        }                        
+                        }
                     ],
                     "required": true
                 }
