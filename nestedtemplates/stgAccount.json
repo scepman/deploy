@@ -47,11 +47,6 @@
         "isHnsEnabled": false,
         "isNfsV3Enabled": false,
         "minimumTlsVersion": "TLS1_2",
-        "routingPreference": {
-          "publishInternetEndpoints": false,
-          "publishMicrosoftEndpoints": false,
-          "routingChoice": "MicrosoftRouting"
-        },
         "supportsHttpsTrafficOnly": true
       }
     },
