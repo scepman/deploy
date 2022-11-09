@@ -44,6 +44,10 @@
         "AppConfig:AzureStorage:TableStorageEndpoint": "[parameters('StorageAccountTableURL')]",
         "AppConfig:SCEPman:URL": "[parameters('scepmanUrl')]",
         "AppConfig:AuthConfig:TenantId": "[subscription().tenantId]",
+        "AppConfig:AzureCloudConfig:AzureADEndpoint": "https://login.microsoftonline.us",
+        "AppConfig:AzureCloudConfig:MSGraphEndpoint": "https://graph.microsoft.us",
+        "AppConfig:AzureCloudConfig:KeyVaultEndpoint": "https://vault.usgovcloudapi.net",
+        "AppConfig:AzureCloudConfig:ManagementEndpoint": "https://api.manage.microsoft.us"
       }
     }
   ]
