@@ -32,6 +32,12 @@
       "metadata": {
         "description": "Resource Group"
       }
+    },
+    "resourceTags": {
+      "type": "object",
+      "metadata": {
+        "description": "Tags to be assigned to the created resources"
+      }
     }
   },
 
@@ -46,6 +52,7 @@
         "Tier": "Standard",
         "Name": "S1"
       },
+      "tags": "[parameters('resourceTags')]",
       "properties": {
         "name": "[parameters('AppServicePlanName')]",
         "workerSize": 1,
@@ -53,32 +60,43 @@
       }
     },
     {
-      "apiVersion": "2021-02-01",
+      "apiVersion": "2022-03-01",
       "type": "Microsoft.Web/sites",
       "name": "[parameters('appServiceName')]",
       "location": "[parameters('location')]",
       "identity": {
         "type": "SystemAssigned"
       },
+      "tags": "[parameters('resourceTags')]",
       "properties": {
         "serverFarmId": "[if(equals(parameters('existingAppServicePlanID'), 'none'), resourceId('Microsoft.Web/serverfarms', parameters('AppServicePlanName')), parameters('existingAppServicePlanID'))]",
-        "clientAffinityEnabled": false
+        "clientAffinityEnabled": false,
+        "httpsOnly": false,
+        "siteConfig": {
+          "alwaysOn": true,
+          "use32BitWorkerProcess": false,
+          "ftpsState": "Disabled"
+        }
       },
       "dependsOn": [
         "[resourceId('Microsoft.Web/serverfarms', parameters('AppServicePlanName'))]"
       ]
     },
     {
-      "apiVersion": "2021-02-01",
+      "apiVersion": "2022-03-01",
       "type": "Microsoft.Web/sites",
       "name": "[parameters('appServiceName2')]",
       "location": "[parameters('location')]",
       "identity": {
         "type": "SystemAssigned"
       },
+      "tags": "[parameters('resourceTags')]",
       "properties": {
         "serverFarmId": "[if(equals(parameters('existingAppServicePlanID'), 'none'), resourceId('Microsoft.Web/serverfarms', parameters('AppServicePlanName')), parameters('existingAppServicePlanID'))]",
         "httpsOnly": true,
+        "alwaysOn": true,
+        "use32BitWorkerProcess": false,
+        "ftpsState": "Disabled",
         "clientAffinityEnabled": true
       },
       "dependsOn": [

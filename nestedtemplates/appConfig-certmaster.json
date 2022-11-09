@@ -21,12 +21,6 @@
             "description": "Which Update Channel shall SCEPman use?"
         }
     },    
-    "appServicePlanID": {
-        "type": "string",
-        "metadata": {
-            "description": "The ID of an App Service Plan"
-        }
-    },          
     "appServiceName": {
       "type": "string",
       "metadata": {
@@ -48,40 +42,17 @@
   },
   "resources": [
     {
-      "type": "Microsoft.Web/sites",
-      "apiVersion": "2021-02-01",
-      "name": "[parameters('appServiceName')]",
+      "apiVersion": "2022-03-01",
+      "type": "Microsoft.Web/sites/config",
+      "name": "[concat(parameters('appServiceName'),'/appsettings')]",
       "location": "[parameters('location')]",
       "properties": {
-        "serverFarmId": "[parameters('appServicePlanID')]",
-        "siteConfig": {
-          "alwaysOn": true,
-          "use32BitWorkerProcess": false,
-          "ftpsState": "Disabled",
-          "appSettings": [
-            {
-              "name": "WEBSITE_RUN_FROM_PACKAGE",
-              "value": "[parameters('WebsiteArtifactsUri')]"
-            },
-            {
-                "name": "Update_Channel",
-                "value": "[parameters('updateChannel')]"
-            },
-            {
-              "name": "AppConfig:AzureStorage:TableStorageEndpoint",
-              "value": "[parameters('StorageAccountTableURL')]"
-            },
-            {
-              "name": "AppConfig:SCEPman:URL",
-              "value": "[parameters('scepmanUrl')]"
-            },
-            {
-              "name": "AppConfig:AuthConfig:TenantId",
-              "value": "[subscription().tenantId]"
+        "WEBSITE_RUN_FROM_PACKAGE": "[parameters('WebsiteArtifactsUri')]",
+        "Update_Channel": "[parameters('updateChannel')]",
+        "AppConfig:AzureStorage:TableStorageEndpoint": "[parameters('StorageAccountTableURL')]",
+        "AppConfig:SCEPman:URL": "[parameters('scepmanUrl')]",
+        "AppConfig:AuthConfig:TenantId": "[subscription().tenantId]",
             }
-          ]
         }
-      }
-    }
   ]
 }
