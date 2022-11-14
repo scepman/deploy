@@ -54,11 +54,11 @@
     "appConfigTemplateUri": "[uri(variables('templateRepositoryUrl'), concat('nestedtemplates/appConfig-scepman.json', parameters('_artifactsLocationSasToken')))]",
     "appConfigCertMasterTemplateUri": "[uri(variables('templateRepositoryUrl'), concat('nestedtemplates/appConfig-certmaster.json', parameters('_artifactsLocationSasToken')))]",
     "stgAccountTemplateUri": "[uri(variables('templateRepositoryUrl'), concat('nestedtemplates/stgAccount.json', parameters('_artifactsLocationSasToken')))]",
-    "AppServicePlanName": "[concat('scepman-sp-',uniquestring(resourceGroup().id))]",
-    "AppServiceName": "[concat('scepman-app-',uniquestring(resourceGroup().id))]",
-    "AppServiceCertMasterName": "[concat('scepman-cm-',uniquestring(resourceGroup().id))]",
-    "keyVaultName": "[concat('scepmanvlt-',uniquestring(resourceGroup().id))]",
-    "storageAccountName": "[concat('stgsm',uniquestring(resourceGroup().id))]" 
+    "AppServicePlanName": "[concat('asp-scepman-',uniquestring(resourceGroup().id))]",
+    "AppServiceName": "[concat('app-scepman-',uniquestring(resourceGroup().id))]",
+    "AppServiceCertMasterName": "[concat('app-scepman-cm-',uniquestring(resourceGroup().id))]",
+    "keyVaultName": "[concat('kv-scepman-',uniquestring(resourceGroup().id))]",
+    "storageAccountName": "[concat('stscepman',uniquestring(resourceGroup().id))]" 
   },
   "resources": [
     {
