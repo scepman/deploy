@@ -40,7 +40,7 @@
       "metadata": {
         "description": "Choose a globally unique name for your storage account. Storage account names must be between 3 and 24 characters in length and may contain numbers and lowercase letters only."
       },
-      "defaultValue": "stgscepmanUNIQUENAME"
+      "defaultValue": "stscepmanUNIQUENAME"
     },
     "appServicePlanName": {
       "type": "string",
@@ -60,7 +60,7 @@
       "metadata": {
         "description": "The SCEPman App Service and part of the default FQDN. Therefore, it must be globally unique and contain only DNS-compatible characters."
       },
-      "defaultValue": "as-scepman-UNIQUENAME"
+      "defaultValue": "app-scepman-UNIQUENAME"
     },
     "certificateMasterAppServiceName": {
       "type": "string",
@@ -68,7 +68,7 @@
       "metadata": {
         "description": "The App Service for the component SCEPman Certificate Master. As it is part of the default FQDN, it must be globally unique and contain only DNS-compatible characters."
       },
-      "defaultValue": "as-scepman-UNIQUENAME-cm"
+      "defaultValue": "app-scepman-UNIQUENAME-cm"
     },
     "location": {
       "type": "string",
