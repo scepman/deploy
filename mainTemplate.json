@@ -42,6 +42,13 @@
       "metadata": {
         "description": "Location where the resources will be deployed"
       }
+    },
+    "resourceTags": {
+      "type": "object",
+      "defaultValue": {},
+      "metadata": {
+        "description": "Tags to be assigned to all created resources. Use JSON syntax, e.g. if you want to add tags env with value dev and project with value scepman, then write { \"env\":\"dev\", \"project\":\"scepman\"}."
+      }
     }
   },
   "variables": {
@@ -96,6 +103,9 @@
           },
           "location": {
             "value": "[parameters('location')]"
+          },
+          "resourceTags": {
+            "value": "[parameters('resourceTags')]"
           }
         }
       }
@@ -119,6 +129,9 @@
           },
           "location": {
             "value": "[parameters('location')]"
+          },
+          "resourceTags": {
+            "value": "[parameters('resourceTags')]"
           }
         }
       }
@@ -136,9 +149,6 @@
         "parameters": {
           "StorageAccountTableUrl": {
             "value": "[reference('SCEPmanStorageAccount').outputs.storageAccountTableUrl.value]"
-          },
-          "appServicePlanID": {
-            "value": "[reference('SCEPmanAppServices').outputs.appServicePlanID.value]"
           },
           "appServiceName": {
             "value": "[variables('AppServiceName')]"
@@ -178,9 +188,6 @@
           "contentVersion": "1.0.0.0"
         },
         "parameters": {
-          "appServicePlanID": {
-            "value": "[reference('SCEPmanAppServices').outputs.appServicePlanID.value]"
-          },
           "appServiceName": {
             "value": "[variables('AppServiceCertMasterName')]"
           },
@@ -219,6 +226,9 @@
           "location": {
             "value": "[parameters('location')]"
           },
+          "resourceTags": {
+            "value": "[parameters('resourceTags')]"
+          },          
           "tableContributorPrincipals": {
             "value": [
               "[reference('SCEPmanAppServices').outputs.scepmanPrincipalID.value]",
