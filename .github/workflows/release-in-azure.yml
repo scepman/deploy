@@ -25,7 +25,7 @@ on:
           - dist-certmaster
 
 jobs:
-  release-production:
+  release-in-azure:
     runs-on: ubuntu-latest
     steps:
       - name: Find file name of Artifact to Publish
@@ -67,7 +67,7 @@ jobs:
         with:
           creds: '${{ secrets.AZURE_CREDENTIALS }}'
 
-    - name: Copy file to Blob Storage
+      - name: Copy file to Blob Storage
         uses: azure/CLI@v1
         inlineScript: |
             az storage upload -f $INPUT_PUBLICATIONDIRECTORY/$PUBLICATIONFILE --account-name scepmanartifactsinstall --container-name $INPUT_PUBLICATIONDIRECTORY --blob-name $PUBLICATIONFILE
