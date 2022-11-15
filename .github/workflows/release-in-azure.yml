@@ -9,7 +9,7 @@ on:
       channel:
         description: 'Release Channel'
         required: true
-        default: 'intern'
+        default: 'internal'
         type: choice
         options:
           - production
@@ -69,5 +69,6 @@ jobs:
 
       - name: Copy file to Blob Storage
         uses: azure/CLI@v1
-        inlineScript: |
+        with:
+          inlineScript: |
             az storage upload -f $INPUT_PUBLICATIONDIRECTORY/$PUBLICATIONFILE --account-name scepmanartifactsinstall --container-name $INPUT_PUBLICATIONDIRECTORY --blob-name $PUBLICATIONFILE
