@@ -30,6 +30,7 @@ permissions:
 
 jobs:
   release-in-azure:
+    environment: AzureC4A8
     runs-on: ubuntu-latest
     steps:
       - name: Find file name of Artifact to Publish
