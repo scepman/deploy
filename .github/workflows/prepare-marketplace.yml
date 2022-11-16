@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  release-production:
+  prepare-marketplace:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
