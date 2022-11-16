@@ -79,4 +79,4 @@ jobs:
         uses: azure/CLI@v1
         with:
           inlineScript: |
-            az storage upload -f ${{ inputs.publicationdirectory }}/${{ env.publicationfile }} --account-name scepmanartifactsinstall --container-name ${{ inputs.publicationdirectory }} --blob-name ${{ env.publicationfile }}
+            az storage blob upload -f ${{ inputs.publicationdirectory }}/${{ env.publicationfile }} --account-name scepmanartifactsinstall --container-name ${{ inputs.publicationdirectory }} --blob-name ${{ env.publicationfile }}
