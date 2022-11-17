@@ -55,7 +55,7 @@ jobs:
               "dist-beta": {
                 "publicationfile": "Artifacts-Beta.zip"
               },
-              "dist-internal": {
+              "dist-intern(al)?": {
                 "publicationfile": "Artifacts-Intern.zip"
               },
               "dist-certmaster-prod": {
@@ -64,7 +64,7 @@ jobs:
               "dist-certmaster-beta": {
                 "publicationfile": "CertMaster-Artifacts-Beta.zip"
               },
-              "dist-certmaster-internal": {
+              "dist-certmaster-intern(al)?": {
                 "publicationfile": "CertMaster-Artifacts-Intern.zip"
               }
             }
