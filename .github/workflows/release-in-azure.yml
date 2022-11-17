@@ -12,7 +12,7 @@ on:
         default: 'internal'
         type: choice
         options:
-          - production
+          - prod
           - beta
           - internal
       publicationdirectory:
@@ -23,6 +23,16 @@ on:
         options:
           - dist
           - dist-certmaster
+  workflow_call:
+    inputs:
+      channel:
+        description: 'Release Channel'
+        required: true
+        type: string
+      publicationdirectory:
+        description: 'Publication Directory'
+        required: true
+        type: string
 
 permissions:
       id-token: write
@@ -39,7 +49,7 @@ jobs:
           key: "${{ inputs.publicationdirectory }}-${{ inputs.channel }}"
           map: |
             {
-              "dist-production": {
+              "dist-prod": {
                 "publicationfile": "Artifacts.zip"
               },
               "dist-beta": {
@@ -48,7 +58,7 @@ jobs:
               "dist-internal": {
                 "publicationfile": "Artifacts-Intern.zip"
               },
-              "dist-certmaster-production": {
+              "dist-certmaster-prod": {
                 "publicationfile": "CertMaster-Artifacts.zip"
               },
               "dist-certmaster-beta": {
@@ -64,6 +74,10 @@ jobs:
           echo "Selected directory ${{ inputs.publicationdirectory }} in channel ${{ inputs.channel }}"
           echo "File to publish is ${{ env.publicationfile }}"
 
+      - name: Check Input
+        if: ${{ env.publicationfile == '' }}
+        run: exit 1
+
       - name: Checkout
         uses: actions/checkout@v3
 
@@ -72,7 +86,6 @@ jobs:
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          #subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }} 
           allow-no-subscriptions: true
 
       - name: Copy file to Blob Storage

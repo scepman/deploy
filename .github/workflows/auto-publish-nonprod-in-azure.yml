@@ -1,0 +1,39 @@
+
+name: Auto-publish Artifacts in Azure
+
+# Controls when the action will run. Workflow runs when manually triggered using the UI
+# or API.
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'dist*/*Artifacts-Beta.zip'
+      - 'dist*/*Artifacts-Intern.zip'
+
+jobs:
+  find-publicationdir-and-channel:
+    runs-on: ubuntu-latest
+    outputs:
+      channel: ${{ steps.regexparsing.outputs.channel }}
+      publicationdirectory: ${{ steps.regexparsing.outputs.publicationdirectory }}
+    steps:
+      - id: files
+        uses: jitterbit/get-changed-files@v1
+      - id: regexparsing
+        run: |
+          [[ ${{ steps.files.outputs.added_modified }} =~ ([a-z]+)\/[a-zA-Z-]+-([a-zA-Z]+)\.zip ]]
+          # echo "publicationdirectory=${BASH_REMATCH[1]}" >> $GITHUB_OUTPUT
+          echo "::set-output name=publicationdirectory::${BASH_REMATCH[1]}"
+          echo "::set-output name=channel::${BASH_REMATCH[2]}" | tr 'A-Z' 'a-z'
+
+  release-in-azure:
+    permissions:
+      id-token: write
+      contents: read
+    needs: find-publicationdir-and-channel
+    environment: AzureC4A8
+    uses: ./.github/workflows/release-in-azure.yml
+    with:
+      channel: ${{needs.find-publicationdir-and-channel.outputs.channel}}
+      publicationdirectory: ${{needs.find-publicationdir-and-channel.outputs.publicationdirectory}}
