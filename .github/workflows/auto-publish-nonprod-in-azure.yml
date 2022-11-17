@@ -36,3 +36,4 @@ jobs:
       id-token: write
       contents: read
     needs: find-publicationdir-and-channel
+    secrets: inherit
