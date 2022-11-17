@@ -36,4 +36,6 @@ jobs:
       id-token: write
       contents: read
     needs: find-publicationdir-and-channel
-    secrets: inherit
+    secrets:
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
