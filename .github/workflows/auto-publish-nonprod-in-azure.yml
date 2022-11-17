@@ -28,12 +28,11 @@ jobs:
           echo "::set-output name=channel::${BASH_REMATCH[2]}" | tr 'A-Z' 'a-z'
 
   release-in-azure:
-    permissions:
-      id-token: write
-      contents: read
-    needs: find-publicationdir-and-channel
-    environment: AzureC4A8
     uses: ./.github/workflows/release-in-azure.yml
     with:
       channel: ${{needs.find-publicationdir-and-channel.outputs.channel}}
       publicationdirectory: ${{needs.find-publicationdir-and-channel.outputs.publicationdirectory}}
+    permissions:
+      id-token: write
+      contents: read
+    needs: find-publicationdir-and-channel
