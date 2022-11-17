@@ -33,7 +33,8 @@ on:
         description: 'Publication Directory'
         required: true
         type: string
-      secrets: # environment secrets are not available if not passed explitely: https://github.com/actions/runner/issues/1490
+# environment secrets are not available if not passed explicitly: https://github.com/actions/runner/issues/1490
+      secrets:
         AZURE_CLIENT_ID:
           required: true
         AZURE_TENANT_ID:
