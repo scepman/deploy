@@ -8,8 +8,7 @@ on:
     branches:
       - master
     paths:
-      - 'dist*/*Artifacts-Beta.zip'
-      - 'dist*/*Artifacts-Intern.zip'
+      - 'dist*/*Artifacts*.zip'
 
 jobs:
   find-publicationdir-and-channel:
@@ -22,10 +21,14 @@ jobs:
         uses: jitterbit/get-changed-files@v1
       - id: regexparsing
         run: |
-          [[ ${{ steps.files.outputs.added_modified }} =~ ([a-z]+)\/[a-zA-Z-]+-([a-zA-Z]+)\.zip ]]
+          [[ ${{ steps.files.outputs.added_modified }} =~ ([a-z-]+)\/[a-zA-Z-]*Artifacts-?([a-zA-Z]*)\.zip ]]
           # echo "publicationdirectory=${BASH_REMATCH[1]}" >> $GITHUB_OUTPUT
           echo "::set-output name=publicationdirectory::${BASH_REMATCH[1]}"
-          echo "::set-output name=channel::${BASH_REMATCH[2]}" | tr 'A-Z' 'a-z'
+          if [ "${BASH_REMATCH[2]}" == "" ]; then
+            echo "::set-output name=channel::prod"
+          else
+            echo "::set-output name=channel::${BASH_REMATCH[2]}" | tr 'A-Z' 'a-z'
+          fi
 
   # release-in-azure:
   #   uses: ./.github/workflows/release-in-azure.yml
