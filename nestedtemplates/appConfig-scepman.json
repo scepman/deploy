@@ -77,7 +77,7 @@
         "AppConfig:DirectCSRValidation:Enabled": "true",
         "AppConfig:IntuneValidation:DeviceDirectory": "AADAndIntune",
         "AppConfig:KeyVaultConfig:KeyVaultURL": "[parameters('keyVaultURL')]",
-        "AppConfig:AzureStorage:TableStorageEndpoint": "[parameters('StorageAccountTableURL')]",
+        "AppConfig:CertificateStorage:TableStorageEndpoint": "[parameters('StorageAccountTableURL')]",
         "AppConfig:KeyVaultConfig:RootCertificateConfig:CertificateName": "SCEPman-Root-CA-V1",
         "AppConfig:KeyVaultConfig:RootCertificateConfig:KeyType": "[parameters('caKeyType')]",
         "AppConfig:ValidityClockSkewMinutes": "1440",
