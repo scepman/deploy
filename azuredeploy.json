@@ -205,9 +205,6 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2021-04-01",
       "name": "DeploymentSCEPmanConfig",
-      "dependsOn": [
-        "AzureMonitor"
-      ],
       "properties": {
         "mode": "Incremental",
         "templateLink": {
@@ -233,8 +230,8 @@
           "logAnalyticsWorkspaceId": {
             "value": "[reference('AzureMonitor').outputs.workspaceId.value]"
           },
-          "logAnalyticsWorkspaceKey": {
-            "value": "[listKeys(parameters('logAnalyticsWorkspaceName'), '2021-12-01-preview').primarySharedKey]"
+          "logAnalyticsWorkspaceName": {
+            "value": "[parameters('logAnalyticsWorkspaceName')]"
           },
           "OrgName": {
             "value": "[parameters('OrgName')]"
@@ -277,8 +274,8 @@
           "logAnalyticsWorkspaceId": {
             "value": "[reference('AzureMonitor').outputs.workspaceId.value]"
           },
-          "logAnalyticsWorkspaceKey": {
-            "value": "[listKeys(parameters('logAnalyticsWorkspaceName'), '2021-12-01-preview').primarySharedKey]"
+          "logAnalyticsWorkspaceName": {
+            "value": "[parameters('logAnalyticsWorkspaceName')]"
           },
           "WebsiteArtifactsUri": {
             "value": "[variables('ArtifactsLocationCertMaster')]"

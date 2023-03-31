@@ -46,10 +46,10 @@
         "description": "Log Analytics Workspace ID"
       }
     },
-    "logAnalyticsWorkspaceKey": {
-      "type": "securestring",
+    "logAnalyticsWorkspaceName": {
+      "type": "string",
       "metadata": {
-        "description": "Log Analytics Workspace Shared Key"
+        "description": "Log Analytics Workspace name"
       }
     },
     "license": {
@@ -89,7 +89,7 @@
         "AppConfig:DirectCSRValidation:Enabled": "true",
         "AppConfig:IntuneValidation:DeviceDirectory": "AADAndIntune",
         "AppConfig:LoggingConfig:WorkspaceId": "[parameters('logAnalyticsWorkspaceId')]",
-        "AppConfig:LoggingConfig:SharedKey": "[parameters('logAnalyticsWorkspaceKey')]",
+        "AppConfig:LoggingConfig:SharedKey": "[listKeys(parameters('logAnalyticsWorkspaceName'), '2021-12-01-preview').primarySharedKey]",
         "AppConfig:KeyVaultConfig:KeyVaultURL": "[parameters('keyVaultURL')]",
         "AppConfig:CertificateStorage:TableStorageEndpoint": "[parameters('StorageAccountTableURL')]",
         "AppConfig:KeyVaultConfig:RootCertificateConfig:CertificateName": "SCEPman-Root-CA-V1",
