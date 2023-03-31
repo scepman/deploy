@@ -230,8 +230,8 @@
           "logAnalyticsWorkspaceId": {
             "value": "[reference('AzureMonitor').outputs.workspaceId.value]"
           },
-          "logAnalyticsWorkspaceKey": {
-            "value": "[reference('AzureMonitor').outputs.sharedKey.value]"
+          "logAnalyticsWorkspaceName": {
+            "value": "[parameters('logAnalyticsWorkspaceName')]"
           },
           "OrgName": {
             "value": "[parameters('OrgName')]"
@@ -252,6 +252,9 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2021-04-01",
       "name": "DeploymentCertMasterConfig",
+      "dependsOn": [
+        "AzureMonitor"
+      ],      
       "properties": {
         "mode": "Incremental",
         "templateLink": {
@@ -271,8 +274,8 @@
           "logAnalyticsWorkspaceId": {
             "value": "[reference('AzureMonitor').outputs.workspaceId.value]"
           },
-          "logAnalyticsWorkspaceKey": {
-            "value": "[reference('AzureMonitor').outputs.sharedKey.value]"
+          "logAnalyticsWorkspaceName": {
+            "value": "[parameters('logAnalyticsWorkspaceName')]"
           },
           "WebsiteArtifactsUri": {
             "value": "[variables('ArtifactsLocationCertMaster')]"

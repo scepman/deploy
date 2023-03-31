@@ -32,12 +32,12 @@
         "description": "Log Analytics Workspace ID"
       }
     },
-    "logAnalyticsWorkspaceKey": {
+    "logAnalyticsWorkspaceName": {
       "type": "string",
       "metadata": {
-        "description": "Log Analytics Workspace Shared Key"
+        "description": "Log Analytics Workspace name"
       }
-    },    
+    },
     "location": {
       "type": "string",
       "metadata": {
@@ -57,7 +57,7 @@
         "AppConfig:SCEPman:URL": "[parameters('scepmanUrl')]",
         "AppConfig:AuthConfig:TenantId": "[subscription().tenantId]",
         "AppConfig:LoggingConfig:WorkspaceId": "[parameters('logAnalyticsWorkspaceId')]",
-        "AppConfig:LoggingConfig:SharedKey": "[parameters('logAnalyticsWorkspaceKey')]"
+        "AppConfig:LoggingConfig:SharedKey": "[listKeys(resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName')), '2021-12-01-preview').primarySharedKey]",
       }
     }
   ]
