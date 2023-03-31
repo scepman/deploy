@@ -205,6 +205,9 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2021-04-01",
       "name": "DeploymentSCEPmanConfig",
+      "dependsOn": [
+        "AzureMonitor"
+      ],
       "properties": {
         "mode": "Incremental",
         "templateLink": {
@@ -231,7 +234,7 @@
             "value": "[reference('AzureMonitor').outputs.workspaceId.value]"
           },
           "logAnalyticsWorkspaceKey": {
-            "value": "[reference('AzureMonitor').outputs.sharedKey.value]"
+            "value": "[listKeys(parameters('logAnalyticsWorkspaceName'), '2021-12-01-preview').primarySharedKey]"
           },
           "OrgName": {
             "value": "[parameters('OrgName')]"
@@ -252,6 +255,9 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2021-04-01",
       "name": "DeploymentCertMasterConfig",
+      "dependsOn": [
+        "AzureMonitor"
+      ],      
       "properties": {
         "mode": "Incremental",
         "templateLink": {
@@ -272,7 +278,7 @@
             "value": "[reference('AzureMonitor').outputs.workspaceId.value]"
           },
           "logAnalyticsWorkspaceKey": {
-            "value": "[reference('AzureMonitor').outputs.sharedKey.value]"
+            "value": "[listKeys(parameters('logAnalyticsWorkspaceName'), '2021-12-01-preview').primarySharedKey]"
           },
           "WebsiteArtifactsUri": {
             "value": "[variables('ArtifactsLocationCertMaster')]"
