@@ -29,8 +29,6 @@
       "location": "[parameters('location')]",
       "tags": "[parameters('resourceTags')]",
       "properties": {
-        "publicNetworkAccessForIngestion": "Disabled",
-        "publicNetworkAccessForQuery": "Disabled",
         "retentionInDays": 30,
         "sku": {
           "name": "PerGB2018"

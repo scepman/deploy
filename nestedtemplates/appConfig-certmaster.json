@@ -26,6 +26,18 @@
         "description": "The URL of the SCEPman App Service"
       }
     },
+    "logAnalyticsWorkspaceId": {
+      "type": "string",
+      "metadata": {
+        "description": "Log Analytics Workspace ID"
+      }
+    },
+    "logAnalyticsWorkspaceKey": {
+      "type": "string",
+      "metadata": {
+        "description": "Log Analytics Workspace Shared Key"
+      }
+    },    
     "location": {
       "type": "string",
       "metadata": {
@@ -44,6 +56,8 @@
         "AppConfig:AzureStorage:TableStorageEndpoint": "[parameters('StorageAccountTableURL')]",
         "AppConfig:SCEPman:URL": "[parameters('scepmanUrl')]",
         "AppConfig:AuthConfig:TenantId": "[subscription().tenantId]",
+        "AppConfig:LoggingConfig:WorkspaceId": "[parameters('logAnalyticsWorkspaceId')]",
+        "AppConfig:LoggingConfig:SharedKey": "[parameters('logAnalyticsWorkspaceKey')]"
       }
     }
   ]
