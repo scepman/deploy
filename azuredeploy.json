@@ -227,6 +227,12 @@
           "caKeyType": {
             "value": "[parameters('caKeyType')]"
           },
+          "logAnalyticsWorkspaceId": {
+            "value": "[reference('AzureMonitor').outputs.workspaceId.value]"
+          },
+          "logAnalyticsWorkspaceKey": {
+            "value": "[reference('AzureMonitor').outputs.sharedKey.value]"
+          },
           "OrgName": {
             "value": "[parameters('OrgName')]"
           },
