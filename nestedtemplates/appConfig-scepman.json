@@ -39,7 +39,19 @@
         "description": "When generating the SCEPman CA certificate, which kind of key pair shall be created? RSA is a software-protected RSA key; RSA-HSM is HSM-protected."
       },
       "defaultValue": "RSA-HSM"
-    },    
+    },
+    "logAnalyticsWorkspaceId": {
+      "type": "string",
+      "metadata": {
+        "description": "Log Analytics Workspace ID"
+      }
+    },
+    "logAnalyticsWorkspaceKey": {
+      "type": "string",
+      "metadata": {
+        "description": "Log Analytics Workspace Shared Key"
+      }
+    },
     "license": {
       "type": "string",
       "defaultValue": "trial",
@@ -76,8 +88,10 @@
         "AppConfig:IntuneValidation:ValidityPeriodDays": "365",
         "AppConfig:DirectCSRValidation:Enabled": "true",
         "AppConfig:IntuneValidation:DeviceDirectory": "AADAndIntune",
+        "AppConfig:LoggingConfig:WorkspaceId": "[parameters('logAnalyticsWorkspaceId')]",
+        "AppConfig:LoggingConfig:SharedKey": "[parameters('logAnalyticsWorkspaceKey')]",
         "AppConfig:KeyVaultConfig:KeyVaultURL": "[parameters('keyVaultURL')]",
-        "AppConfig:AzureStorage:TableStorageEndpoint": "[parameters('StorageAccountTableURL')]",
+        "AppConfig:CertificateStorage:TableStorageEndpoint": "[parameters('StorageAccountTableURL')]",
         "AppConfig:KeyVaultConfig:RootCertificateConfig:CertificateName": "SCEPman-Root-CA-V1",
         "AppConfig:KeyVaultConfig:RootCertificateConfig:KeyType": "[parameters('caKeyType')]",
         "AppConfig:ValidityClockSkewMinutes": "1440",

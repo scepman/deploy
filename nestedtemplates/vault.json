@@ -31,44 +31,21 @@
   },
   "variables": {
     "keys": [
-      "Get",
-      "List",
-      "Update",
       "Create",
-      "Import",
-      "Delete",
-      "Recover",
-      "Backup",
-      "Restore",
       "UnwrapKey",
-      "Verify",
       "Sign"
     ],
     "secrets": [
       "Get",
       "List",
       "Set",
-      "Delete",
-      "Recover",
-      "Backup",
-      "Restore"
+      "Delete"
     ],
     "certificates": [
       "Get",
       "List",
-      "Update",
       "Create",
-      "Import",
-      "Delete",
-      "Recover",
-      "Backup",
-      "Restore",
-      "ManageContacts",
-      "ManageIssuers",
-      "GetIssuers",
-      "ListIssuers",
-      "SetIssuers",
-      "DeleteIssuers"
+      "ManageContacts"
     ]
   },
   "resources": [
