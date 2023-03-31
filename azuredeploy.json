@@ -69,7 +69,7 @@
       "metadata": {
         "description": "Alphanumerics and hyphens are allowed."
       },
-      "defaultValue": "law-scepman-UNIQUENAME"
+      "defaultValue": "[concat('law-scepman-', uniqueString(resourceGroup().id))]"
     },
     "certificateMasterAppServiceName": {
       "type": "string",
