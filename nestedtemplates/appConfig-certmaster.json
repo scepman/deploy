@@ -33,7 +33,7 @@
       }
     },
     "logAnalyticsWorkspaceKey": {
-      "type": "string",
+      "type": "securestring",
       "metadata": {
         "description": "Log Analytics Workspace Shared Key"
       }

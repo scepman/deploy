@@ -43,7 +43,7 @@
     },
     "sharedKey": {
       "value": "[listKeys(parameters('logAnalyticsAccountName'), '2021-12-01-preview').primarySharedKey]",
-      "type": "string"
+      "type": "securestring"
     }
   }
 }
