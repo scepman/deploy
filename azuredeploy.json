@@ -62,6 +62,15 @@
       },
       "defaultValue": "app-scepman-UNIQUENAME"
     },
+    "logAnalyticsWorkspaceName": {
+      "type": "string",
+      "minLength": 4,
+      "maxLength": 63,
+      "metadata": {
+        "description": "The Log Analytics Workspace with log data. Alphanumerics and hyphens are allowed."
+      },
+      "defaultValue": "law-scepman-UNIQUENAME"
+    },
     "certificateMasterAppServiceName": {
       "type": "string",
       "maxLength": 60,
@@ -91,6 +100,7 @@
     "ArtifactsLocationCertMaster":  "[uri(variables('artifactsRepositoryUrl'),'dist-certmaster/CertMaster-Artifacts-Beta.zip')]",
     "templateRepositoryUrl": "https://raw.githubusercontent.com/scepman/install/beta/",
     "appSvcTemplateUri": "[uri(variables('templateRepositoryUrl'), 'nestedtemplates/appSvcDouble.json')]",
+    "logAnalyticsTemplateUri": "[uri(variables('templateRepositoryUrl'), 'nestedtemplates/loganalytics.json')]",
     "vaultTemplateUri": "[uri(variables('templateRepositoryUrl'), 'nestedtemplates/vault.json')]",
     "appConfigTemplateUri": "[uri(variables('templateRepositoryUrl'), 'nestedtemplates/appConfig-scepman.json')]",
     "appConfigCertMasterTemplateUri": "[uri(variables('templateRepositoryUrl'), 'nestedtemplates/appConfig-certmaster.json')]",
@@ -132,6 +142,29 @@
           },
           "appServiceName2": {
             "value": "[parameters('certificateMasterAppServiceName')]"
+          },
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "resourceTags": {
+            "value": "[parameters('resourceTags')]"
+          }
+        }
+      }
+    },
+        {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2021-04-01",
+      "name": "AzureMonitor",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[variables('logAnalyticsTemplateUri')]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "logAnalyticsAccountName": {
+            "value": "[parameters('logAnalyticsWorkspaceName')]"
           },
           "location": {
             "value": "[parameters('location')]"
@@ -194,6 +227,12 @@
           "caKeyType": {
             "value": "[parameters('caKeyType')]"
           },
+          "logAnalyticsWorkspaceId": {
+            "value": "[reference('AzureMonitor').outputs.workspaceId.value]"
+          },
+          "logAnalyticsWorkspaceName": {
+            "value": "[parameters('logAnalyticsWorkspaceName')]"
+          },
           "OrgName": {
             "value": "[parameters('OrgName')]"
           },
@@ -213,6 +252,9 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2021-04-01",
       "name": "DeploymentCertMasterConfig",
+      "dependsOn": [
+        "AzureMonitor"
+      ],      
       "properties": {
         "mode": "Incremental",
         "templateLink": {
@@ -228,6 +270,12 @@
           },
           "StorageAccountTableUrl": {
             "value": "[reference('SCEPmanStorageAccount').outputs.storageAccountTableUrl.value]"
+          },
+          "logAnalyticsWorkspaceId": {
+            "value": "[reference('AzureMonitor').outputs.workspaceId.value]"
+          },
+          "logAnalyticsWorkspaceName": {
+            "value": "[parameters('logAnalyticsWorkspaceName')]"
           },
           "WebsiteArtifactsUri": {
             "value": "[variables('ArtifactsLocationCertMaster')]"

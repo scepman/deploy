@@ -1,0 +1,33 @@
+
+name: Create Artifacts for Marketplace
+
+# Controls when the action will run. Workflow runs when manually triggered using the UI
+# or API.
+on:
+  workflow_dispatch:
+
+jobs:
+  prepare-marketplace:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          ref: 'marketplace'
+
+      - name: Assemble files to publish
+        run: |
+          mkdir publish
+          cp mainTemplate.json publish
+          cp createUiDefinition.json publish
+          cp -r nestedtemplates publish
+          mkdir publish/dist
+          cp dist/Artifacts.zip publish/dist
+          mkdir publish/dist-certmaster
+          cp dist-certmaster/CertMaster-Artifacts.zip publish/dist-certmaster
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: Release
+          path: publish/*
