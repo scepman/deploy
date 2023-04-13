@@ -26,6 +26,18 @@
         "description": "The URL of the SCEPman App Service"
       }
     },
+    "logAnalyticsWorkspaceId": {
+      "type": "string",
+      "metadata": {
+        "description": "Log Analytics Workspace ID"
+      }
+    },
+    "logAnalyticsWorkspaceName": {
+      "type": "string",
+      "metadata": {
+        "description": "Log Analytics Workspace name"
+      }
+    },
     "location": {
       "type": "string",
       "metadata": {
@@ -44,6 +56,8 @@
         "AppConfig:AzureStorage:TableStorageEndpoint": "[parameters('StorageAccountTableURL')]",
         "AppConfig:SCEPman:URL": "[parameters('scepmanUrl')]",
         "AppConfig:AuthConfig:TenantId": "[subscription().tenantId]",
+        "AppConfig:LoggingConfig:WorkspaceId": "[parameters('logAnalyticsWorkspaceId')]",
+        "AppConfig:LoggingConfig:SharedKey": "[listKeys(resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName')), '2021-12-01-preview').primarySharedKey]",
         "AppConfig:AzureCloudConfig:AzureADEndpoint": "https://login.microsoftonline.us",
         "AppConfig:AzureCloudConfig:MSGraphEndpoint": "https://graph.microsoft.us",
         "AppConfig:AzureCloudConfig:KeyVaultEndpoint": "https://vault.usgovcloudapi.net",
