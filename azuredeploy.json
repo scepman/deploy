@@ -98,7 +98,7 @@
     "artifactsRepositoryUrl": "https://raw.githubusercontent.com/scepman/install/master/",
     "ArtifactsLocationSCEPman": "[uri(variables('artifactsRepositoryUrl'),'dist/Artifacts.zip')]",
     "ArtifactsLocationCertMaster":  "[uri(variables('artifactsRepositoryUrl'),'dist-certmaster/CertMaster-Artifacts.zip')]",
-    "templateRepositoryUrl": "https://raw.githubusercontent.com/scepman/install/master/",
+    "templateRepositoryUrl": "https://raw.githubusercontent.com/scepman/install/gcchigh/",
     "appSvcTemplateUri": "[uri(variables('templateRepositoryUrl'), 'nestedtemplates/appSvcDouble.json')]",
     "logAnalyticsTemplateUri": "[uri(variables('templateRepositoryUrl'), 'nestedtemplates/loganalytics.json')]",
     "vaultTemplateUri": "[uri(variables('templateRepositoryUrl'), 'nestedtemplates/vault.json')]",
