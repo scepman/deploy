@@ -32,48 +32,26 @@
   "variables": {
     "keys": [
       "Get",
-      "List",
-      "Update",
       "Create",
-      "Import",
-      "Delete",
-      "Recover",
-      "Backup",
-      "Restore",
       "UnwrapKey",
-      "Verify",
       "Sign"
     ],
     "secrets": [
       "Get",
       "List",
       "Set",
-      "Delete",
-      "Recover",
-      "Backup",
-      "Restore"
+      "Delete"
     ],
     "certificates": [
       "Get",
       "List",
-      "Update",
       "Create",
-      "Import",
-      "Delete",
-      "Recover",
-      "Backup",
-      "Restore",
-      "ManageContacts",
-      "ManageIssuers",
-      "GetIssuers",
-      "ListIssuers",
-      "SetIssuers",
-      "DeleteIssuers"
+      "ManageContacts"
     ]
   },
   "resources": [
     {
-      "apiVersion": "2021-10-01",
+      "apiVersion": "2022-07-01",
       "type": "Microsoft.KeyVault/vaults",
       "name": "[parameters('keyVaultName')]",
       "location": "[parameters('location')]",
@@ -83,6 +61,7 @@
         "enabledForDeployment": false,
         "enabledForTemplateDeployment": false,
         "enablePurgeProtection": true,
+        "enableSoftDelete": true,
         "enabledForDiskEncryption": false,
         "sku": {
           "name": "premium",
