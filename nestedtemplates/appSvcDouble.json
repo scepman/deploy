@@ -44,7 +44,7 @@
   "resources": [
     {
       "condition": "[equals(parameters('existingAppServicePlanID'), 'none')]",
-      "apiVersion": "2021-02-01",
+      "apiVersion": "2022-03-01",
       "type": "Microsoft.Web/serverfarms",
       "name": "[parameters('AppServicePlanName')]",
       "location": "[parameters('location')]",
@@ -111,11 +111,11 @@
     },
     "scepmanPrincipalID": {
       "type": "string",
-      "value": "[reference(parameters('appServiceName'), '2021-02-01', 'Full').identity.principalId]"
+      "value": "[reference(parameters('appServiceName'), '2022-03-01', 'Full').identity.principalId]"
     },
     "certmasterPrincipalID": {
       "type": "string",
-      "value": "[reference(parameters('appServiceName2'), '2021-02-01', 'Full').identity.principalId]"
+      "value": "[reference(parameters('appServiceName2'), '2022-03-01', 'Full').identity.principalId]"
     },
     "appServicePlanID": {
       "type": "string",
