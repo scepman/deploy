@@ -40,6 +40,13 @@
       },
       "defaultValue": "RSA-HSM"
     },
+    "caKeySize": {
+      "type": "int",
+      "metadata": {
+        "description": "When generating the SCEPman CA certificate, what length in bits shall the key have? Plausible values for RSA are 2048 or 4096. The size also has an impact on the Azure Key Vault pricing."
+      },
+      "defaultValue": 4096
+    },
     "logAnalyticsWorkspaceId": {
       "type": "string",
       "metadata": {
@@ -94,6 +101,7 @@
         "AppConfig:CertificateStorage:TableStorageEndpoint": "[parameters('StorageAccountTableURL')]",
         "AppConfig:KeyVaultConfig:RootCertificateConfig:CertificateName": "SCEPman-Root-CA-V1",
         "AppConfig:KeyVaultConfig:RootCertificateConfig:KeyType": "[parameters('caKeyType')]",
+        "AppConfig:KeyVaultConfig:RootCertificateConfig:KeySize": "[parameters('caKeySize')]",
         "AppConfig:ValidityClockSkewMinutes": "1440",
         "AppConfig:KeyVaultConfig:RootCertificateConfig:Subject": "[concat('CN=SCEPman-Root-CA-V1, ', 'OU=',subscription().tenantId, ', ', 'O=\"', parameters('OrgName'), '\"')]"
       }
