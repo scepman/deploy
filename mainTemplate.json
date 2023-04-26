@@ -57,6 +57,7 @@
     "ArtifactsLocationCertMaster":  "[uri(variables('artifactsRepositoryUrl'),concat('dist-certmaster/CertMaster-Artifacts.zip', parameters('_artifactsLocationSasToken')))]",
     "templateRepositoryUrl": "[parameters('_artifactsLocation')]",
     "appSvcTemplateUri": "[uri(variables('templateRepositoryUrl'), concat('nestedtemplates/appSvcDouble.json', parameters('_artifactsLocationSasToken')))]",
+    "logAnalyticsTemplateUri": "[uri(variables('templateRepositoryUrl'), concat('nestedtemplates/loganalytics.json', parameters('_artifactsLocationSasToken')))]",
     "vaultTemplateUri": "[uri(variables('templateRepositoryUrl'), concat('nestedtemplates/vault.json', parameters('_artifactsLocationSasToken')))]",
     "appConfigTemplateUri": "[uri(variables('templateRepositoryUrl'), concat('nestedtemplates/appConfig-scepman.json', parameters('_artifactsLocationSasToken')))]",
     "appConfigCertMasterTemplateUri": "[uri(variables('templateRepositoryUrl'), concat('nestedtemplates/appConfig-certmaster.json', parameters('_artifactsLocationSasToken')))]",
@@ -65,12 +66,13 @@
     "AppServiceName": "[concat('app-scepman-',uniquestring(resourceGroup().id))]",
     "AppServiceCertMasterName": "[concat('app-scepman-cm-',uniquestring(resourceGroup().id))]",
     "keyVaultName": "[concat('kv-scepman-',uniquestring(resourceGroup().id))]",
+    "logAnalyticsWorkspaceName": "[concat('law-scepman-',uniquestring(resourceGroup().id))]",
     "storageAccountName": "[concat('stscepman',uniquestring(resourceGroup().id))]" 
   },
   "resources": [
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2021-04-01",
       "name": "pid-a262352f-52a9-4ed9-a9ba-6a2b2478d19b-partnercenter",
       "properties": {
         "mode": "Incremental",
@@ -83,7 +85,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2021-04-01",
       "name": "SCEPmanAppServices",
       "properties": {
         "mode": "Incremental",
@@ -110,9 +112,32 @@
         }
       }
     },
+        {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2021-04-01",
+      "name": "AzureMonitor",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[variables('logAnalyticsTemplateUri')]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "logAnalyticsAccountName": {
+            "value": "[variables('logAnalyticsWorkspaceName')]"
+          },
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "resourceTags": {
+            "value": "[parameters('resourceTags')]"
+          }
+        }
+      }
+    },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2021-04-01",
       "name": "SCEPmanVault",
       "properties": {
         "mode": "Incremental",
@@ -138,7 +163,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2021-04-01",
       "name": "DeploymentSCEPmanConfig",
       "properties": {
         "mode": "Incremental",
@@ -159,6 +184,12 @@
           "keyVaultURL": {
             "value": "[reference('SCEPmanVault').outputs.keyVaultURL.value]"
           },
+          "logAnalyticsWorkspaceId": {
+            "value": "[reference('AzureMonitor').outputs.workspaceId.value]"
+          },
+          "logAnalyticsWorkspaceName": {
+            "value": "[variables('logAnalyticsWorkspaceName')]"
+          },          
           "OrgName": {
             "value": "[parameters('OrgName')]"
           },
@@ -179,7 +210,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2021-04-01",
       "name": "DeploymentCertMasterConfig",
       "properties": {
         "mode": "Incremental",
@@ -197,6 +228,12 @@
           "StorageAccountTableUrl": {
             "value": "[reference('SCEPmanStorageAccount').outputs.storageAccountTableUrl.value]"
           },
+          "logAnalyticsWorkspaceId": {
+            "value": "[reference('AzureMonitor').outputs.workspaceId.value]"
+          },
+          "logAnalyticsWorkspaceName": {
+            "value": "[variables('logAnalyticsWorkspaceName')]"
+          },
           "WebsiteArtifactsUri": {
             "value": "[variables('ArtifactsLocationCertMaster')]"
           },
@@ -211,7 +248,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2021-04-01",
       "name": "SCEPmanStorageAccount",
       "properties": {
         "mode": "Incremental",
