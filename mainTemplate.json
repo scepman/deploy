@@ -16,74 +16,31 @@
         "description": "License Key for SCEPman"
       }
     },
-    "keyVaultName": {
+    "updateChannel": {
       "type": "string",
-      "minLength": 3,
-      "maxLength": 24,
+      "defaultValue": "prod",
       "metadata": {
-        "description": "Specifies the name of the Azure Key Vault. The name of a Key Vault must be globally unique and contain only DNS-compatible characters (letters, numbers, and hyphens)."
-      },
-      "defaultValue": "kv-scepman-UNIQUENAME"
-    },
-    "caKeyType": {
-      "type": "string",
-      "allowedValues": [ "RSA", "RSA-HSM" ],
-      "metadata": {
-        "description": "When generating the SCEPman CA certificate, which kind of key pair shall be created? RSA is a software-protected RSA key; RSA-HSM is HSM-protected."
-      },
-      "defaultValue": "RSA-HSM"
-    },
-    "storageAccountName": {
-      "type": "string",
-      "minLength": 3,
-      "maxLength": 24,
-      "metadata": {
-        "description": "Choose a globally unique name for your storage account. Storage account names must be between 3 and 24 characters in length and may contain numbers and lowercase letters only."
-      },
-      "defaultValue": "stscepmanUNIQUENAME"
-    },
-    "appServicePlanName": {
-      "type": "string",
-      "maxLength": 40,
-      "defaultValue": "asp-scepman-UNIQUENAME"
-    },
-    "existingAppServicePlanID": {
-      "type": "string",
-      "defaultValue": "none",
-      "metadata": {
-        "description": "Provide the AppServicePlan ID of an existing App Service Plan. Keep default value 'none' if you want to create a new one."
+        "description": "Which Update Channel shall SCEPman use?"
       }
-    },
-    "primaryAppServiceName": {
-      "type": "string",
-      "maxLength": 60,
+    },    
+    "_artifactsLocationSasToken": {
+      "type": "securestring",
       "metadata": {
-        "description": "The SCEPman App Service and part of the default FQDN. Therefore, it must be globally unique and contain only DNS-compatible characters."
+        "description": "The sasToken required to access _artifactsLocation.  When the template is deployed using the accompanying scripts, a sasToken will be automatically generated. Use the defaultValue if the staging location is not secured."
       },
-      "defaultValue": "app-scepman-UNIQUENAME"
+      "defaultValue": ""
     },
-    "logAnalyticsWorkspaceName": {
+    "_artifactsLocation": {
       "type": "string",
-      "minLength": 4,
-      "maxLength": 63,
       "metadata": {
-        "description": "The Log Analytics Workspace with log data. Alphanumerics and hyphens are allowed."
+        "description": "The base URI where artifacts required by this template are located including a trailing '/'"
       },
-      "defaultValue": "law-scepman-UNIQUENAME"
-    },
-    "certificateMasterAppServiceName": {
-      "type": "string",
-      "maxLength": 60,
-      "metadata": {
-        "description": "The App Service for the component SCEPman Certificate Master. As it is part of the default FQDN, it must be globally unique and contain only DNS-compatible characters."
-      },
-      "defaultValue": "app-scepman-UNIQUENAME-cm"
+      "defaultValue": "[deployment().properties.templateLink.uri]"
     },
     "location": {
       "type": "string",
-      "defaultValue": "[resourceGroup().location]",
       "metadata": {
-        "description": "Location for all resources. For a manual deployment, we recommend the default value."
+        "description": "Location where the resources will be deployed"
       }
     },
     "resourceTags": {
@@ -95,16 +52,22 @@
     }
   },
   "variables": {
-    "artifactsRepositoryUrl": "https://raw.githubusercontent.com/scepman/install/master/",
-    "ArtifactsLocationSCEPman": "[uri(variables('artifactsRepositoryUrl'),'dist/Artifacts.zip')]",
-    "ArtifactsLocationCertMaster":  "[uri(variables('artifactsRepositoryUrl'),'dist-certmaster/CertMaster-Artifacts.zip')]",
-    "templateRepositoryUrl": "https://raw.githubusercontent.com/scepman/install/master/",
-    "appSvcTemplateUri": "[uri(variables('templateRepositoryUrl'), 'nestedtemplates/appSvcDouble.json')]",
-    "logAnalyticsTemplateUri": "[uri(variables('templateRepositoryUrl'), 'nestedtemplates/loganalytics.json')]",
-    "vaultTemplateUri": "[uri(variables('templateRepositoryUrl'), 'nestedtemplates/vault.json')]",
-    "appConfigTemplateUri": "[uri(variables('templateRepositoryUrl'), 'nestedtemplates/appConfig-scepman.json')]",
-    "appConfigCertMasterTemplateUri": "[uri(variables('templateRepositoryUrl'), 'nestedtemplates/appConfig-certmaster.json')]",
-    "stgAccountTemplateUri": "[uri(variables('templateRepositoryUrl'), 'nestedtemplates/stgAccount.json')]"
+    "artifactsRepositoryUrl": "[parameters('_artifactsLocation')]",
+    "ArtifactsLocationSCEPman": "[uri(variables('artifactsRepositoryUrl'),concat('dist/Artifacts.zip', parameters('_artifactsLocationSasToken')))]",
+    "ArtifactsLocationCertMaster":  "[uri(variables('artifactsRepositoryUrl'),concat('dist-certmaster/CertMaster-Artifacts.zip', parameters('_artifactsLocationSasToken')))]",
+    "templateRepositoryUrl": "[parameters('_artifactsLocation')]",
+    "appSvcTemplateUri": "[uri(variables('templateRepositoryUrl'), concat('nestedtemplates/appSvcDouble.json', parameters('_artifactsLocationSasToken')))]",
+    "logAnalyticsTemplateUri": "[uri(variables('templateRepositoryUrl'), concat('nestedtemplates/loganalytics.json', parameters('_artifactsLocationSasToken')))]",
+    "vaultTemplateUri": "[uri(variables('templateRepositoryUrl'), concat('nestedtemplates/vault.json', parameters('_artifactsLocationSasToken')))]",
+    "appConfigTemplateUri": "[uri(variables('templateRepositoryUrl'), concat('nestedtemplates/appConfig-scepman.json', parameters('_artifactsLocationSasToken')))]",
+    "appConfigCertMasterTemplateUri": "[uri(variables('templateRepositoryUrl'), concat('nestedtemplates/appConfig-certmaster.json', parameters('_artifactsLocationSasToken')))]",
+    "stgAccountTemplateUri": "[uri(variables('templateRepositoryUrl'), concat('nestedtemplates/stgAccount.json', parameters('_artifactsLocationSasToken')))]",
+    "AppServicePlanName": "[concat('asp-scepman-',uniquestring(resourceGroup().id))]",
+    "AppServiceName": "[concat('app-scepman-',uniquestring(resourceGroup().id))]",
+    "AppServiceCertMasterName": "[concat('app-scepman-cm-',uniquestring(resourceGroup().id))]",
+    "keyVaultName": "[concat('kv-scepman-',uniquestring(resourceGroup().id))]",
+    "logAnalyticsWorkspaceName": "[concat('law-scepman-',uniquestring(resourceGroup().id))]",
+    "storageAccountName": "[concat('stscepman',uniquestring(resourceGroup().id))]" 
   },
   "resources": [
     {
@@ -132,16 +95,13 @@
         },
         "parameters": {
           "AppServicePlanName": {
-            "value": "[parameters('AppServicePlanName')]"
-          },
-          "existingAppServicePlanID": {
-            "value": "[parameters('existingAppServicePlanID')]"
+            "value": "[variables('AppServicePlanName')]"
           },
           "appServiceName": {
-            "value": "[parameters('primaryAppServiceName')]"
+            "value": "[variables('AppServiceName')]"
           },
           "appServiceName2": {
-            "value": "[parameters('certificateMasterAppServiceName')]"
+            "value": "[variables('AppServiceCertMasterName')]"
           },
           "location": {
             "value": "[parameters('location')]"
@@ -164,7 +124,7 @@
         },
         "parameters": {
           "logAnalyticsAccountName": {
-            "value": "[parameters('logAnalyticsWorkspaceName')]"
+            "value": "[variables('logAnalyticsWorkspaceName')]"
           },
           "location": {
             "value": "[parameters('location')]"
@@ -187,7 +147,7 @@
         },
         "parameters": {
           "keyVaultName": {
-            "value": "[parameters('keyVaultName')]"
+            "value": "[variables('keyVaultName')]"
           },
           "permittedPrincipalId": {
             "value": "[reference('SCEPmanAppServices').outputs.scepmanPrincipalID.value]"
@@ -216,7 +176,7 @@
             "value": "[reference('SCEPmanStorageAccount').outputs.storageAccountTableUrl.value]"
           },
           "appServiceName": {
-            "value": "[parameters('primaryAppServiceName')]"
+            "value": "[variables('AppServiceName')]"
           },
           "scepManBaseURL": {
             "value": "[reference('SCEPmanAppServices').outputs.scepmanURL.value]"
@@ -224,14 +184,11 @@
           "keyVaultURL": {
             "value": "[reference('SCEPmanVault').outputs.keyVaultURL.value]"
           },
-          "caKeyType": {
-            "value": "[parameters('caKeyType')]"
-          },
           "logAnalyticsWorkspaceId": {
             "value": "[reference('AzureMonitor').outputs.workspaceId.value]"
           },
           "logAnalyticsWorkspaceName": {
-            "value": "[parameters('logAnalyticsWorkspaceName')]"
+            "value": "[variables('logAnalyticsWorkspaceName')]"
           },
           "OrgName": {
             "value": "[parameters('OrgName')]"
@@ -241,6 +198,9 @@
           },
           "license": {
             "value": "[parameters('license')]"
+          },
+          "UpdateChannel": {
+            "value": "[parameters('updateChannel')]"
           },
           "location": {
             "value": "[parameters('location')]"
@@ -260,7 +220,7 @@
         },
         "parameters": {
           "appServiceName": {
-            "value": "[parameters('certificateMasterAppServiceName')]"
+            "value": "[variables('AppServiceCertMasterName')]"
           },
           "scepmanUrl": {
             "value": "[reference('SCEPmanAppServices').outputs.scepmanURL.value]"
@@ -272,10 +232,13 @@
             "value": "[reference('AzureMonitor').outputs.workspaceId.value]"
           },
           "logAnalyticsWorkspaceName": {
-            "value": "[parameters('logAnalyticsWorkspaceName')]"
+            "value": "[variables('logAnalyticsWorkspaceName')]"
           },
           "WebsiteArtifactsUri": {
             "value": "[variables('ArtifactsLocationCertMaster')]"
+          },
+          "UpdateChannel": {
+            "value": "[parameters('updateChannel')]"
           },
           "location": {
             "value": "[parameters('location')]"
@@ -295,7 +258,7 @@
         },
         "parameters": {
           "StorageAccountName": {
-            "value": "[parameters('storageAccountName')]"
+            "value": "[variables('storageAccountName')]"
           },
           "location": {
             "value": "[parameters('location')]"
