@@ -93,7 +93,7 @@
         "AppConfig:DirectCSRValidation:Enabled": "true",
         "AppConfig:IntuneValidation:DeviceDirectory": "AADAndIntune",
         "AppConfig:LoggingConfig:WorkspaceId": "[parameters('logAnalyticsWorkspaceId')]",
-        "AppConfig:LoggingConfig:SharedKey": "[listKeys(resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName')), '2021-12-01-preview').primarySharedKey]",
+        "AppConfig:LoggingConfig:SharedKey": "[listKeys(resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName')), '2022-10-01').primarySharedKey]",
         "AppConfig:KeyVaultConfig:KeyVaultURL": "[parameters('keyVaultURL')]",
         "AppConfig:CertificateStorage:TableStorageEndpoint": "[parameters('StorageAccountTableURL')]",
         "AppConfig:KeyVaultConfig:RootCertificateConfig:CertificateName": "SCEPman-Root-CA-V1",
