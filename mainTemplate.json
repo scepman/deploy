@@ -180,7 +180,7 @@
           },
           "scepManBaseURL": {
             "value": "[reference('SCEPmanAppServices').outputs.scepmanURL.value]"
-          },          
+          },
           "keyVaultURL": {
             "value": "[reference('SCEPmanVault').outputs.keyVaultURL.value]"
           },
