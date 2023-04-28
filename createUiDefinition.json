@@ -22,7 +22,7 @@
                 "toolTip": "If you have purchased a license key for SCEPman Enterprise Edition, you can paste it here. In case no license key is provided, SCEPman Community Edition will be deployed.",
                 "constraints": {
                     "required": false,
-                    "regex": "^$|(\\{){0,1}[0-9a-fA-F]{8}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{12}(\\}){0,1}",
+                    "regex": "^(|{?[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}}?|([a-zA-Z0-9+/]{4}){14,}(|[a-zA-Z0-9+/]{2}==|[a-zA-Z0-9+/]{3}=))$",
                     "validationMessage": "If you have purchased a license key for SCEPman Enterprise Edition, you can paste it here. In case no license key is provided, SCEPman Community Edition will be deployed."
                 }
             },
