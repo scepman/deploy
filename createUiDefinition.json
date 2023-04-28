@@ -23,7 +23,7 @@
                 "constraints": {
                     "required": false,
                     "regex": "^(|{?[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}}?|([a-zA-Z0-9+/]{4}){14,}(|[a-zA-Z0-9+/]{2}==|[a-zA-Z0-9+/]{3}=))$",
-                    "validationMessage": "If you have purchased a license key for SCEPman Enterprise Edition, you can paste it here. In case no license key is provided, SCEPman Community Edition will be deployed."
+                    "validationMessage": "The value provided does not have the format of a license key. If you do not have a license key, leave this field empty to deploy SCEPman Community Edition. You can provide a license key after installation to upgrade to SCEPman Enterprise Edition."
                 }
             },
             {
