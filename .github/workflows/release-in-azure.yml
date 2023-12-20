@@ -99,3 +99,9 @@ jobs:
         with:
           inlineScript: |
             az storage blob upload --auth-mode login --overwrite -f ${{ inputs.publicationdirectory }}/${{ env.publicationfile }} --account-name scepmanartifactsinstall --container-name ${{ inputs.publicationdirectory }} --name ${{ env.publicationfile }}
+
+      - name: Azure CLI logout
+        run: |
+          az logout
+          az cache purge
+          az account clear
