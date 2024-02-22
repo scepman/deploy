@@ -103,6 +103,7 @@
         "AppConfig:IntuneValidation:ValidityPeriodDays": "365",
         "AppConfig:DirectCSRValidation:Enabled": "true",
         "AppConfig:IntuneValidation:DeviceDirectory": "AADAndIntune",
+        "AppConfig:CRL:Source": "Storage",
         "AppConfig:LoggingConfig:WorkspaceId": "[parameters('logAnalyticsWorkspaceId')]",
         "AppConfig:LoggingConfig:SharedKey": "[listKeys(resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName')), '2022-10-01').primarySharedKey]",
         "AppConfig:KeyVaultConfig:KeyVaultURL": "[parameters('keyVaultURL')]",
