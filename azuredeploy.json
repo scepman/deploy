@@ -92,7 +92,7 @@
       "metadata": {
         "description": "The name of the Virtual Network. This is only applicable if deployPrivateNetwork is chosen."
       },
-      "defaultValue": "vnet-scepman-UNIQUENAME"
+      "defaultValue": "[concat('vnet-scepman-', uniqueString(resourceGroup().id))]"
     },
     "privateEndpointForKeyVaultName": {
       "type": "string",
@@ -101,7 +101,7 @@
       "metadata": {
         "description": "Name of the Private Endpoint for the Key Vault. This is only applicable if deployPrivateNetwork is chosen."
       },
-      "defaultValue": "pep-kv-scepman-UNIQUENAME"
+      "defaultValue": "[concat('pep-kv-scepman-', uniqueString(resourceGroup().id))]"
     },
     "privateEndpointForTableStorage": {
       "type": "string",
@@ -110,7 +110,7 @@
       "metadata": {
         "description": "Name of the Private Endpoint for the Azure Table Storage Service. This is only applicable if deployPrivateNetwork is chosen."
       },
-      "defaultValue": "pep-sts-scepman-UNIQUENAME"
+      "defaultValue": "[concat('pep-sts-scepman-', uniqueString(resourceGroup().id))]"
     },
     "location": {
       "type": "string",
