@@ -48,7 +48,7 @@
       "location": "[parameters('location')]",
       "tags": "[parameters('resourceTags')]",
       "sku": {
-        "name": "Standard_LRS"
+        "name": "Standard_GZRS"
       },
       "kind": "StorageV2",
       "properties": {
