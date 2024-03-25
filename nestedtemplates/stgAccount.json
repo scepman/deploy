@@ -86,8 +86,9 @@
     {
       "type": "Microsoft.Network/privateDnsZones",
       "apiVersion": "2020-06-01",
-      "name": "privatelink.table.core.windows.net",  // The A record is only created if you use this magic name
-                                                  // See: https://learn.microsoft.com/en-us/azure/private-link/private-endpoint-dns#storage
+      "name": "[concat('privatelink.table.', environment()['suffixes']['storage'])]",
+                          // The A record is only created if you use the magic name privatelink.table.core.windows.net
+                          // See: https://learn.microsoft.com/en-us/azure/private-link/private-endpoint-dns#storage
       "location": "Global",
       "condition": "[not(equals(parameters('privateEndpointName'), 'None'))]",
       "tags": "[parameters('resourceTags')]",
