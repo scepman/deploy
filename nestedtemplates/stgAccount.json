@@ -40,7 +40,7 @@
       }
     }
   },
-                          // The A record is only created if you use the magic name privatelink.table.core.windows.net
+                          // The A record is only created if you use a magic name
                           // See: https://learn.microsoft.com/en-us/azure/private-link/private-endpoint-dns#storage
   "variables": {
     "privateDnsZoneName": "[concat('privatelink.table.', environment()['suffixes']['storage'])]"
