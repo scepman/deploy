@@ -69,7 +69,7 @@
       "metadata": {
         "description": "The Log Analytics Workspace with log data. Alphanumerics and hyphens are allowed."
       },
-      "defaultValue": "[concat('law-scepman-', uniqueString(resourceGroup().id))]"
+      "defaultValue": "[concat('log-scepman-', uniqueString(resourceGroup().id))]"
     },
     "certificateMasterAppServiceName": {
       "type": "string",

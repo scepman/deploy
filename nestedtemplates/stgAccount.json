@@ -40,6 +40,11 @@
       }
     }
   },
+                          // The A record is only created if you use a magic name
+                          // See: https://learn.microsoft.com/en-us/azure/private-link/private-endpoint-dns#storage
+  "variables": {
+    "privateDnsZoneName": "[concat('privatelink.table.', environment()['suffixes']['storage'])]"
+  },
   "resources": [
     {
       "type": "Microsoft.Storage/storageAccounts",
@@ -48,7 +53,7 @@
       "location": "[parameters('location')]",
       "tags": "[parameters('resourceTags')]",
       "sku": {
-        "name": "Standard_LRS"
+        "name": "Standard_GZRS"
       },
       "kind": "StorageV2",
       "properties": {
@@ -86,8 +91,7 @@
     {
       "type": "Microsoft.Network/privateDnsZones",
       "apiVersion": "2020-06-01",
-      "name": "privatelink.table.core.windows.net",  // The A record is only created if you use this magic name
-                                                  // See: https://learn.microsoft.com/en-us/azure/private-link/private-endpoint-dns#storage
+      "name": "[variables('privateDnsZoneName')]",
       "location": "Global",
       "condition": "[not(equals(parameters('privateEndpointName'), 'None'))]",
       "tags": "[parameters('resourceTags')]",
@@ -131,14 +135,14 @@
       "name": "[concat(parameters('privateEndpointName'), '/default')]",
       "condition": "[not(equals(parameters('privateEndpointName'), 'None'))]",
       "dependsOn": [
-          "[parameters('privateEndpointName')]", "privatelink.table.core.windows.net"
+          "[parameters('privateEndpointName')]", "[variables('privateDnsZoneName')]"
       ],
       "properties": {
         "privateDnsZoneConfigs": [
           {
-            "name": "privatelink.table.core.windows.net",
+            "name": "[variables('privateDnsZoneName')]",
             "properties": {
-              "privateDnsZoneId": "[resourceId('Microsoft.Network/privateDnsZones', 'privatelink.table.core.windows.net')]"
+              "privateDnsZoneId": "[resourceId('Microsoft.Network/privateDnsZones', variables('privateDnsZoneName'))]"
             }
           }
         ]
@@ -147,7 +151,7 @@
     {
       "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
       "apiVersion": "2020-06-01",
-      "name": "[concat('privatelink.table.core.windows.net/', parameters('StorageAccountName'), '-link')]",
+      "name": "[concat(variables('privateDnsZoneName'), '/', parameters('StorageAccountName'), '-link')]",
       "location": "global",
       "condition": "[not(equals(parameters('privateEndpointName'), 'None'))]",
       "properties": {
@@ -157,7 +161,7 @@
         }
       },
       "dependsOn": [
-        "privatelink.table.core.windows.net"
+        "[variables('privateDnsZoneName')]"
       ]
     }
   ],
