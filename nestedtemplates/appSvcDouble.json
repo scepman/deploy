@@ -73,7 +73,7 @@
         "clientAffinityEnabled": false,
         "httpsOnly": false,
         "clientCertEnabled": true,
-        "clientCertMode": "Optional",
+        "clientCertMode": "OptionalInteractiveUser",
         "siteConfig": {
           "alwaysOn": true,
           "use32BitWorkerProcess": false,
