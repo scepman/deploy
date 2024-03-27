@@ -57,7 +57,12 @@
         "AppConfig:SCEPman:URL": "[parameters('scepmanUrl')]",
         "AppConfig:AuthConfig:TenantId": "[subscription().tenantId]",
         "AppConfig:LoggingConfig:WorkspaceId": "[parameters('logAnalyticsWorkspaceId')]",
-        "AppConfig:LoggingConfig:SharedKey": "[listKeys(resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName')), '2022-10-01').primarySharedKey]"
+        "AppConfig:LoggingConfig:SharedKey": "[listKeys(resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName')), '2022-10-01').primarySharedKey]",
+        "AppConfig:LoggingConfig:AzureOfferingDomain": "azure.cn",
+        "AppConfig:AzureCloudConfig:AzureADEndpoint": "[environment()['authentication']['loginEndpoint']]",
+        "AppConfig:AzureCloudConfig:MSGraphEndpoint": "https://microsoftgraph.chinacloudapi.cn",
+        "AppConfig:AzureCloudConfig:KeyVaultEndpoint": "[concat('https://', environment()['suffixes']['keyvaultDns'])]",
+        "AppConfig:AzureCloudConfig:ManagementEndpoint": "https://api.manage.microsoft.cn"
       }
     }
   ]

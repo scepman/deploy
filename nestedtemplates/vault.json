@@ -76,7 +76,7 @@
         "enableSoftDelete": true,
         "enabledForDiskEncryption": false,
         "sku": {
-          "name": "premium",
+          "name": "standard",
           "family": "A"
         },
         "networkAcls": {

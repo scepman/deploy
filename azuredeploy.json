@@ -25,14 +25,6 @@
       },
       "defaultValue": "kv-scepman-UNIQUENAME"
     },
-    "caKeyType": {
-      "type": "string",
-      "allowedValues": [ "RSA", "RSA-HSM" ],
-      "metadata": {
-        "description": "When generating the SCEPman CA certificate, which kind of key pair shall be created? RSA is a software-protected RSA key; RSA-HSM is HSM-protected."
-      },
-      "defaultValue": "RSA-HSM"
-    },
     "storageAccountName": {
       "type": "string",
       "minLength": 3,
@@ -131,7 +123,7 @@
     "artifactsRepositoryUrl": "https://raw.githubusercontent.com/scepman/install/master/",
     "ArtifactsLocationSCEPman": "[uri(variables('artifactsRepositoryUrl'),'dist/Artifacts.zip')]",
     "ArtifactsLocationCertMaster":  "[uri(variables('artifactsRepositoryUrl'),'dist-certmaster/CertMaster-Artifacts.zip')]",
-    "templateRepositoryUrl": "https://raw.githubusercontent.com/scepman/install/master/",
+    "templateRepositoryUrl": "https://raw.githubusercontent.com/scepman/install/vianet/",
     "vnetTemplateUri": "[uri(variables('templateRepositoryUrl'), 'nestedtemplates/vnet.json')]",
     "vnet2AppServicesTemplateUri": "[uri(variables('templateRepositoryUrl'), 'nestedtemplates/vnet-to-appservices.json')]",
     "appSvcTemplateUri": "[uri(variables('templateRepositoryUrl'), 'nestedtemplates/appSvcDouble.json')]",
@@ -337,7 +329,7 @@
             "value": "[reference('SCEPmanVault').outputs.keyVaultURL.value]"
           },
           "caKeyType": {
-            "value": "[parameters('caKeyType')]"
+            "value": "RSA"
           },
           "logAnalyticsWorkspaceId": {
             "value": "[reference('AzureMonitor').outputs.workspaceId.value]"
