@@ -72,6 +72,8 @@
         "serverFarmId": "[if(equals(parameters('existingAppServicePlanID'), 'none'), resourceId('Microsoft.Web/serverfarms', parameters('AppServicePlanName')), parameters('existingAppServicePlanID'))]",
         "clientAffinityEnabled": false,
         "httpsOnly": false,
+        "clientCertEnabled": true,
+        "clientCertMode": "OptionalInteractiveUser",
         "siteConfig": {
           "alwaysOn": true,
           "use32BitWorkerProcess": false,
