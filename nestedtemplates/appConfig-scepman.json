@@ -112,5 +112,5 @@
         "AppConfig:KeyVaultConfig:RootCertificateConfig:Subject": "[concat('CN=SCEPman-Root-CA-V1, ', 'OU=',subscription().tenantId, ', ', 'O=\"', parameters('OrgName'), '\"')]"
       }
     }
-   ]
+  ]
 }
