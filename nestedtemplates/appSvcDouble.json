@@ -40,7 +40,6 @@
       }
     }
   },
-
   "resources": [
     {
       "condition": "[equals(parameters('existingAppServicePlanID'), 'none')]",
@@ -76,8 +75,8 @@
         "clientCertMode": "OptionalInteractiveUser",
         "siteConfig": {
           "alwaysOn": true,
-          "use32BitWorkerProcess": false,
-          "ftpsState": "Disabled"
+          "ftpsState": "Disabled",
+          "use32BitWorkerProcess": false
         }
       },
       "dependsOn": [
@@ -95,11 +94,13 @@
       "tags": "[parameters('resourceTags')]",
       "properties": {
         "serverFarmId": "[if(equals(parameters('existingAppServicePlanID'), 'none'), resourceId('Microsoft.Web/serverfarms', parameters('AppServicePlanName')), parameters('existingAppServicePlanID'))]",
+        "clientAffinityEnabled": true,
         "httpsOnly": true,
-        "alwaysOn": true,
-        "use32BitWorkerProcess": false,
-        "ftpsState": "Disabled",
-        "clientAffinityEnabled": true
+        "siteConfig": {
+          "alwaysOn": true,
+          "ftpsState": "Disabled",
+          "use32BitWorkerProcess": false
+        }
       },
       "dependsOn": [
         "[resourceId('Microsoft.Web/serverfarms', parameters('AppServicePlanName'))]"
