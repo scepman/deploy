@@ -75,6 +75,7 @@
         "clientCertMode": "OptionalInteractiveUser",
         "siteConfig": {
           "alwaysOn": true,
+          "http20Enabled": false,
           "ftpsState": "Disabled",
           "use32BitWorkerProcess": false
         }
@@ -98,6 +99,7 @@
         "httpsOnly": true,
         "siteConfig": {
           "alwaysOn": true,
+          "http20Enabled": true,
           "ftpsState": "Disabled",
           "use32BitWorkerProcess": false
         }
