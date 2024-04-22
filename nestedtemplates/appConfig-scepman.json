@@ -94,7 +94,7 @@
         "AppConfig:AzureCloudConfig:AzureADEndpoint": "[environment()['authentication']['loginEndpoint']]",
         "AppConfig:AzureCloudConfig:MSGraphEndpoint": "https://microsoftgraph.chinacloudapi.cn",
         "AppConfig:AzureCloudConfig:KeyVaultEndpoint": "[concat('https://', skip(environment()['suffixes']['keyvaultDns'],1))]",  // skip is used to remove the leading dot
-        "AppConfig:AzureCloudConfig:ManagementEndpoint": "https://api.manage.microsoft.cn",
+        "AppConfig:AzureCloudConfig:ManagementEndpoint": "https://api.manage.microsoftonline.cn",
         "AppConfig:ValidityPeriodDays": "730",
         "AppConfig:IntuneValidation:ValidityPeriodDays": "365",
         "AppConfig:DirectCSRValidation:Enabled": "true",
