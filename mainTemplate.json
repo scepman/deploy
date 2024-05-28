@@ -37,39 +37,6 @@
       },
       "defaultValue": "[deployment().properties.templateLink.uri]"
     },
-    "deployPrivateNetwork": {
-      "type": "bool",
-      "metadata": {
-        "description": "Choose 'true' to deploy SCEPman with a Virtual Network. In this case, you must also provide names for the parameters virtualNetworkName, privateEndpointForTableStorage, and privateEndpointForKeyVaultName."
-      },
-      "defaultValue": true
-    },
-    "virtualNetworkName": {
-      "type": "string",
-      "maxLength": 80,
-      "metadata": {
-        "description": "The name of the Virtual Network. This is only applicable if deployPrivateNetwork is chosen."
-      },
-      "defaultValue": "vnet-scepman-UNIQUENAME"
-    },
-    "privateEndpointForKeyVaultName": {
-      "type": "string",
-      "minLength": 4,
-      "maxLength": 64,
-      "metadata": {
-        "description": "Name of the Private Endpoint for the Key Vault. This is only applicable if deployPrivateNetwork is chosen."
-      },
-      "defaultValue": "pep-kv-scepman-UNIQUENAME"
-    },
-    "privateEndpointForTableStorage": {
-      "type": "string",
-      "minLength": 4,
-      "maxLength": 64,
-      "metadata": {
-        "description": "Name of the Private Endpoint for the Azure Table Storage Service. This is only applicable if deployPrivateNetwork is chosen."
-      },
-      "defaultValue": "pep-sts-scepman-UNIQUENAME"
-    },
     "location": {
       "type": "string",
       "metadata": {
@@ -89,8 +56,8 @@
     "ArtifactsLocationSCEPman": "[uri(variables('artifactsRepositoryUrl'),concat('dist/Artifacts.zip', parameters('_artifactsLocationSasToken')))]",
     "ArtifactsLocationCertMaster":  "[uri(variables('artifactsRepositoryUrl'),concat('dist-certmaster/CertMaster-Artifacts.zip', parameters('_artifactsLocationSasToken')))]",
     "templateRepositoryUrl": "[parameters('_artifactsLocation')]",
-    "vnetTemplateUri": "[uri(variables('templateRepositoryUrl'), 'nestedtemplates/vnet.json')]",
-    "vnet2AppServicesTemplateUri": "[uri(variables('templateRepositoryUrl'), 'nestedtemplates/vnet-to-appservices.json')]",
+    "vnetTemplateUri": "[uri(variables('templateRepositoryUrl'), concat('nestedtemplates/vnet.json', parameters('_artifactsLocationSasToken')))]",
+    "vnet2AppServicesTemplateUri": "[uri(variables('templateRepositoryUrl'), concat('nestedtemplates/vnet-to-appservices.json', parameters('_artifactsLocationSasToken')))]",
     "appSvcTemplateUri": "[uri(variables('templateRepositoryUrl'), concat('nestedtemplates/appSvcDouble.json', parameters('_artifactsLocationSasToken')))]",
     "logAnalyticsTemplateUri": "[uri(variables('templateRepositoryUrl'), concat('nestedtemplates/loganalytics.json', parameters('_artifactsLocationSasToken')))]",
     "vaultTemplateUri": "[uri(variables('templateRepositoryUrl'), concat('nestedtemplates/vault.json', parameters('_artifactsLocationSasToken')))]",
@@ -101,8 +68,11 @@
     "AppServiceName": "[concat('app-scepman-',uniquestring(resourceGroup().id))]",
     "AppServiceCertMasterName": "[concat('app-scepman-cm-',uniquestring(resourceGroup().id))]",
     "keyVaultName": "[concat('kv-scepman-',uniquestring(resourceGroup().id))]",
-    "logAnalyticsWorkspaceName": "[concat('law-scepman-',uniquestring(resourceGroup().id))]",
-    "storageAccountName": "[concat('stscepman',uniquestring(resourceGroup().id))]" 
+    "logAnalyticsWorkspaceName": "[concat('log-scepman-',uniquestring(resourceGroup().id))]",
+    "storageAccountName": "[concat('stscepman',uniquestring(resourceGroup().id))]",
+    "virtualNetworkName": "[concat('vnet-scepman-',uniquestring(resourceGroup().id))]",
+    "privateEndpointForKeyVaultName": "[concat('pep-kv-scepman-',uniquestring(resourceGroup().id))]",
+    "privateEndpointForTableStorage": "[concat('pep-sts-scepman-',uniquestring(resourceGroup().id))]",
     "appServiceNames": [
         "[parameters('primaryAppServiceName')]",
         "[parameters('certificateMasterAppServiceName')]"
@@ -126,7 +96,6 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2021-04-01",
       "name": "VirtualNetwork",
-      "condition": "[parameters('deployPrivateNetwork')]",
       "properties": {
         "mode": "Incremental",
         "templateLink": {
@@ -135,7 +104,7 @@
         },
         "parameters": {
           "virtualNetworkName": {
-            "value": "[parameters('virtualNetworkName')]"
+            "value": "[variables('virtualNetworkName')]"
           },
           "location": {
             "value": "[parameters('location')]"
@@ -150,7 +119,6 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2021-04-01",
       "name": "[concat('AppService-', copyIndex(), '-ConnectionToVirtualNetwork')]",
-      "condition": "[parameters('deployPrivateNetwork')]",
       "properties": {
         "mode": "Incremental",
         "templateLink": {
@@ -159,7 +127,7 @@
         },
         "parameters": {
           "virtualNetworkName": {
-            "value": "[parameters('virtualNetworkName')]"
+            "value": "[variables('virtualNetworkName')]"
           },
           "location": {
             "value": "[parameters('location')]"
@@ -258,10 +226,10 @@
             "value": "[parameters('resourceTags')]"
           },
           "virtualNetworkName": {
-            "value": "[parameters('virtualNetworkName')]"
+            "value": "[variables('virtualNetworkName')]"
           },
           "privateEndpointName": {
-            "value": "[if(parameters('deployPrivateNetwork'), parameters('privateEndpointForKeyVaultName'), 'None')]"
+            "value": "[variables('privateEndpointForKeyVaultName')]"
           }
         }
       },
@@ -385,10 +353,10 @@
             ]
           },
           "virtualNetworkName": {
-            "value": "[parameters('virtualNetworkName')]"
+            "value": "[variables('virtualNetworkName')]"
           },
           "privateEndpointName": {
-            "value": "[if(parameters('deployPrivateNetwork'), parameters('privateEndpointForTableStorage'), 'None')]"
+            "value": "[variables('privateEndpointForTableStorage')]"
           }
         }
       },
