@@ -11,10 +11,11 @@
     },
     "license": {
       "type": "string",
-      "defaultValue": "trial",
+      "defaultValue": "community",
       "metadata": {
-        "description": "License Key for SCEPman"
-      }
+        "description": "License Key for SCEPman. Select 'community' to run the free Community Edition."
+      },
+      "minLength": 9
     },
     "keyVaultName": {
       "type": "string",
