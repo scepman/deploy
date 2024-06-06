@@ -1,0 +1,6 @@
+{
+	"inputs": {
+		"channel": "internal",
+		"publicationdirectory": "dist-certmaster"
+	}
+}
