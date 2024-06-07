@@ -27,4 +27,7 @@ jobs:
       shell: pwsh
       run: |
         Import-Module ./arm-ttk/arm-ttk/arm-ttk.psd1
-        Test-AzTemplate -TemplatePath ./install
+        Test-AzTemplate -TemplatePath ./install -ErrorAction Continue
+        if ($Error.Count -gt 0) {
+          exit 1
+        }
