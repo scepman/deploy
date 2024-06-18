@@ -74,8 +74,8 @@
     "privateEndpointForKeyVaultName": "[concat('pep-kv-scepman-',uniquestring(resourceGroup().id))]",
     "privateEndpointForTableStorage": "[concat('pep-sts-scepman-',uniquestring(resourceGroup().id))]",
     "appServiceNames": [
-        "[parameters('primaryAppServiceName')]",
-        "[parameters('certificateMasterAppServiceName')]"
+        "[variables('AppServiceName')]",
+        "[variables('AppServiceCertMasterName')]"
       ]
   },
   "resources": [
