@@ -1,37 +1,37 @@
 {
-    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
-    "parameters": {
-        "StorageAccountTableUrl": {
-            "type": "string",
-            "metadata": {
-                "description": "URL of the Storage Account's table endpoint to retrieve certificate information from"
-            }
-        },
-        "appServiceName": {
-            "type": "string",
-            "metadata": {
-                "description": "Name of SCEPman's app service"
-            }
-        },
-        "scepManBaseURL": {
-            "type": "string",
-            "metadata": {
-                "description": "Base URL of SCEPman"
-            }
-        },
-        "keyVaultURL": {
-            "type": "string",
-            "metadata": {
-                "description": "URL of the key vault"
-            }
-        },
-        "OrgName": {
-            "type": "string",
-            "metadata": {
-                "description": "Name of company or organization for certificate subject"
-            }
-        },
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "StorageAccountTableUrl": {
+      "type": "string",
+      "metadata": {
+        "description": "URL of the Storage Account's table endpoint to retrieve certificate information from"
+      }
+    },
+    "appServiceName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of SCEPman's app service"
+      }
+    },
+    "scepManBaseURL": {
+      "type": "string",
+      "metadata": {
+        "description": "Base URL of SCEPman"
+      }
+    },
+    "keyVaultURL": {
+      "type": "string",
+      "metadata": {
+        "description": "URL of the key vault"
+      }
+    },
+    "OrgName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of company or organization for certificate subject"
+      }
+    },
     "caKeyType": {
       "type": "string",
       "allowedValues": [ "RSA", "RSA-HSM" ],
@@ -59,40 +59,40 @@
         "description": "Log Analytics Workspace name"
       }
     },
-        "license": {
-            "type": "string",
-            "defaultValue": "trial",
-            "metadata": {
-                "description": "License Key for SCEPman"
-            }
-        },
-        "WebsiteArtifactsUri": {
-            "type": "string",
-            "metadata": {
-                "description": "The full URI where SCEPman artifact binaries are stored"
-            }
-        },
-        "updateChannel": {
-            "type": "string",
-            "defaultValue": null,
-            "metadata": {
-                "description": "Which Update Channel shall SCEPman use?"
-            }
-        },
-        "location": {
-            "type": "string",
-            "metadata": {
-                "description": "Resource Group"
-            }
-        }
+    "license": {
+      "type": "string",
+      "defaultValue": "trial",
+      "metadata": {
+        "description": "License Key for SCEPman"
+      }
     },
-    "resources": [
-        {
+    "WebsiteArtifactsUri": {
+      "type": "string",
+      "metadata": {
+        "description": "The full URI where SCEPman artifact binaries are stored"
+      }
+    },
+    "updateChannel": {
+      "type": "string",
+      "defaultValue": null,
+      "metadata": {
+        "description": "Which Update Channel shall SCEPman use?"
+      }
+    },
+    "location": {
+      "type": "string",
+      "metadata": {
+        "description": "Resource Group"
+      }
+    }
+  },
+  "resources": [
+    {
       "apiVersion": "2022-09-01",
       "type": "Microsoft.Web/sites/config",
       "name": "[concat(parameters('appServiceName'),'/appsettings')]",
-            "location": "[parameters('location')]",
-            "properties": {
+      "location": "[parameters('location')]",
+      "properties": {
         "WEBSITE_RUN_FROM_PACKAGE": "[parameters('WebsiteArtifactsUri')]",
         "Update_Channel": "[parameters('updateChannel')]",
         "AppConfig:BaseUrl": "[parameters('scepManBaseURL')]",
@@ -114,7 +114,7 @@
         "AppConfig:KeyVaultConfig:RootCertificateConfig:KeySize": "[parameters('caKeySize')]",
         "AppConfig:ValidityClockSkewMinutes": "1440",
         "AppConfig:KeyVaultConfig:RootCertificateConfig:Subject": "[concat('CN=SCEPman-Root-CA-V1, ', 'OU=',subscription().tenantId, ', ', 'O=\"', parameters('OrgName'), '\"')]"
-                        }
-                }
-    ]
+      }
+    }
+  ]
 }
