@@ -47,7 +47,7 @@
   },
   "resources": [
     {
-      "apiVersion": "2022-03-01",
+      "apiVersion": "2022-09-01",
       "type": "Microsoft.Web/sites/config",
       "name": "[concat(parameters('appServiceName'),'/appsettings')]",
       "location": "[parameters('location')]",

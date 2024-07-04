@@ -63,7 +63,7 @@
   },
   "resources": [
     {
-      "apiVersion": "2022-07-01",
+      "apiVersion": "2023-07-01",
       "type": "Microsoft.KeyVault/vaults",
       "name": "[parameters('keyVaultName')]",
       "location": "[parameters('location')]",
@@ -109,7 +109,7 @@
       "properties": {}
     },
     {
-      "apiVersion": "2022-07-01",
+      "apiVersion": "2023-11-01",
       "type": "Microsoft.Network/privateEndpoints",
       "name": "[parameters('privateEndpointName')]",
       "location": "[parameters('location')]",
