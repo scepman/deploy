@@ -98,7 +98,7 @@
       "properties": {}
     },
     {
-      "apiVersion": "2022-07-01",
+      "apiVersion": "2023-11-01",
       "type": "Microsoft.Network/privateEndpoints",
       "name": "[parameters('privateEndpointName')]",
       "location": "[parameters('location')]",
