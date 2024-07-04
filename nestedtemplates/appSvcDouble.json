@@ -43,7 +43,7 @@
   "resources": [
     {
       "condition": "[equals(parameters('existingAppServicePlanID'), 'none')]",
-      "apiVersion": "2022-03-01",
+      "apiVersion": "2022-09-01",
       "type": "Microsoft.Web/serverfarms",
       "name": "[parameters('AppServicePlanName')]",
       "location": "[parameters('location')]",
@@ -59,7 +59,7 @@
       }
     },
     {
-      "apiVersion": "2022-03-01",
+      "apiVersion": "2022-09-01",
       "type": "Microsoft.Web/sites",
       "name": "[parameters('appServiceName')]",
       "location": "[parameters('location')]",
@@ -85,7 +85,7 @@
       ]
     },
     {
-      "apiVersion": "2022-03-01",
+      "apiVersion": "2022-09-01",
       "type": "Microsoft.Web/sites",
       "name": "[parameters('appServiceName2')]",
       "location": "[parameters('location')]",
