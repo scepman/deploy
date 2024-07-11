@@ -31,7 +31,7 @@
       "properties": {
         "addressSpace": {
           "addressPrefixes": [
-            "10.0.0.0/16"
+            "10.142.0.0/16"
           ]
         },
         "encryption": {
@@ -43,7 +43,7 @@
             "name": "default",
             "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), 'default')]",
             "properties": {
-              "addressPrefix": "10.0.0.0/24",
+              "addressPrefix": "10.142.0.0/24",
               "privateEndpointNetworkPolicies": "Disabled",
               "privateLinkServiceNetworkPolicies": "Enabled",
               "defaultOutboundAccess": true
@@ -54,7 +54,7 @@
             "name": "snet-scepman-appservices",
             "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), 'snet-scepman-appservices')]",
             "properties": {
-              "addressPrefix": "10.0.1.0/24",
+              "addressPrefix": "10.142.1.0/24",
               "delegations": [
                 {
                   "name": "delegation",
