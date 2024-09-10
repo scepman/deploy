@@ -13,7 +13,7 @@
     "permittedPrincipalId": {
       "type": "string",
       "metadata": {
-        "description": "IDs of SCEPman app service principal, whom will be assigned permissions to the KV"
+        "description": "ID of SCEPman app service principal, whom will be assigned permissions to the KV"
       }
     },
     "location": {
@@ -42,23 +42,10 @@
     }
   },
   "variables": {
-    "keys": [
-      "Get",
-      "Create",
-      "UnwrapKey",
-      "Sign"
-    ],
-    "secrets": [
-      "Get",
-      "List",
-      "Set",
-      "Delete"
-    ],
-    "certificates": [
-      "Get",
-      "List",
-      "Create",
-      "ManageContacts"
+    "rbac_roles": [
+      "14b46e9e-c2b7-41b4-b07b-48a6ebf60603", // Key Vault Crypto Officer
+      "a4417e6f-fecd-4de8-b567-7b0420556985", // Key Vault Certificates Officer
+      "4633458b-17de-408a-b874-0445c86b69e6"  // Key Vault Secrets User
     ]
   },
   "resources": [
@@ -75,6 +62,7 @@
         "enablePurgeProtection": true,
         "enableSoftDelete": true,
         "enabledForDiskEncryption": false,
+        "enableRbacAuthorization": true,
         "sku": {
           "name": "premium",
           "family": "A"
@@ -82,20 +70,26 @@
         "networkAcls": {
             "bypass": "None",
             "defaultAction": "[if(equals(parameters('privateEndpointName'), 'None'), 'Allow', 'Deny')]"
-        },
-        "accessPolicies": [
-          {
-            "objectId": "[parameters('permittedPrincipalId')]",
-            "tenantId": "[subscription().tenantId]",
-            "permissions": {
-              "keys": "[variables('keys')]",
-              "secrets": "[variables('secrets')]",
-              "certificates": "[variables('certificates')]"
-            }
-          }
-        ]
+        }
       }
     },
+    {
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2022-04-01",
+      "name": "[guid(concat('roleAssignment-kv-', variables('rbac_roles')[copyIndex()]))]",
+      "scope": "[concat('Microsoft.KeyVault/vaults/', parameters('keyVaultName'))]",
+      "dependsOn": [
+        "[parameters('keyVaultName')]"
+      ],
+      "properties": {
+        "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', variables('rbac_roles')[copyIndex()])]",
+        "principalId": "[parameters('permittedPrincipalId')]"
+      },
+      "copy": {
+        "name": "copy-keyvault-role-assignments",
+        "count": "[length(variables('rbac_roles'))]"
+      }
+    },    
     {
       "type": "Microsoft.Network/privateDnsZones",
       "apiVersion": "2020-06-01",
