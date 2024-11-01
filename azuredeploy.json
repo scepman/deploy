@@ -32,7 +32,7 @@
       "metadata": {
         "description": "Choose a globally unique name for your storage account. Storage account names must be between 3 and 24 characters in length and may contain numbers and lowercase letters only."
       },
-      "defaultValue": "stscepmanUNIQUENAME"
+      "defaultValue": "stscepmanuniquename"
     },
     "appServicePlanName": {
       "type": "string",
@@ -76,7 +76,7 @@
       "metadata": {
         "description": "Choose 'true' to deploy SCEPman with a Virtual Network. In this case, you must also provide names for the parameters virtualNetworkName, privateEndpointForTableStorage, and privateEndpointForKeyVaultName."
       },
-      "defaultValue": false
+      "defaultValue": true
     },
     "virtualNetworkName": {
       "type": "string",
@@ -140,7 +140,7 @@
   "resources": [
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2021-04-01",
+      "apiVersion": "2024-03-01",
       "name": "pid-a262352f-52a9-4ed9-a9ba-6a2b2478d19b-partnercenter",
       "properties": {
         "mode": "Incremental",
@@ -153,7 +153,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2021-04-01",
+      "apiVersion": "2024-03-01",
       "name": "VirtualNetwork",
       "condition": "[parameters('deployPrivateNetwork')]",
       "properties": {
@@ -177,7 +177,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2021-04-01",
+      "apiVersion": "2024-03-01",
       "name": "[concat('AppService-', copyIndex(), '-ConnectionToVirtualNetwork')]",
       "condition": "[parameters('deployPrivateNetwork')]",
       "properties": {
@@ -213,7 +213,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2021-04-01",
+      "apiVersion": "2024-03-01",
       "name": "SCEPmanAppServices",
       "properties": {
         "mode": "Incremental",
@@ -245,7 +245,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2021-04-01",
+      "apiVersion": "2024-03-01",
       "name": "AzureMonitor",
       "properties": {
         "mode": "Incremental",
@@ -268,7 +268,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2021-04-01",
+      "apiVersion": "2024-03-01",
       "name": "SCEPmanVault",
       "properties": {
         "mode": "Incremental",
@@ -307,7 +307,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2021-04-01",
+      "apiVersion": "2024-03-01",
       "name": "DeploymentSCEPmanConfig",
       "properties": {
         "mode": "Incremental",
@@ -354,7 +354,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2021-04-01",
+      "apiVersion": "2024-03-01",
       "name": "DeploymentCertMasterConfig",
       "properties": {
         "mode": "Incremental",
@@ -389,7 +389,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2021-04-01",
+      "apiVersion": "2024-03-01",
       "name": "SCEPmanStorageAccount",
       "properties": {
         "mode": "Incremental",
