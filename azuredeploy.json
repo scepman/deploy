@@ -40,7 +40,7 @@
       "metadata": {
         "description": "Choose a globally unique name for your storage account. Storage account names must be between 3 and 24 characters in length and may contain numbers and lowercase letters only."
       },
-      "defaultValue": "stscepmanUNIQUENAME"
+      "defaultValue": "stscepmanuniquename"
     },
     "appServicePlanName": {
       "type": "string",
@@ -51,7 +51,7 @@
       "type": "string",
       "defaultValue": "none",
       "metadata": {
-        "description": "Provide the AppServicePlan ID of an existing App Service Plan. Keep default value 'none' if you want to create a new one."
+        "description": "Provide the Resource ID of an existing App Service Plan (the long string displayed in the properties tab). Keep default value 'none' if you want to create a new one."
       }
     },
     "primaryAppServiceName": {
@@ -69,7 +69,7 @@
       "metadata": {
         "description": "The Log Analytics Workspace with log data. Alphanumerics and hyphens are allowed."
       },
-      "defaultValue": "law-scepman-UNIQUENAME"
+      "defaultValue": "log-scepman-UNIQUENAME"
     },
     "certificateMasterAppServiceName": {
       "type": "string",
@@ -78,6 +78,39 @@
         "description": "The App Service for the component SCEPman Certificate Master. As it is part of the default FQDN, it must be globally unique and contain only DNS-compatible characters."
       },
       "defaultValue": "app-scepman-UNIQUENAME-cm"
+    },
+    "deployPrivateNetwork": {
+      "type": "bool",
+      "metadata": {
+        "description": "Choose 'true' to deploy SCEPman with a Virtual Network. In this case, you must also provide names for the parameters virtualNetworkName, privateEndpointForTableStorage, and privateEndpointForKeyVaultName."
+      },
+      "defaultValue": true
+    },
+    "virtualNetworkName": {
+      "type": "string",
+      "maxLength": 80,
+      "metadata": {
+        "description": "The name of the Virtual Network. This is only applicable if deployPrivateNetwork is chosen."
+      },
+      "defaultValue": "vnet-scepman-UNIQUENAME"
+    },
+    "privateEndpointForKeyVaultName": {
+      "type": "string",
+      "minLength": 4,
+      "maxLength": 64,
+      "metadata": {
+        "description": "Name of the Private Endpoint for the Key Vault. This is only applicable if deployPrivateNetwork is chosen."
+      },
+      "defaultValue": "pep-kv-scepman-UNIQUENAME"
+    },
+    "privateEndpointForTableStorage": {
+      "type": "string",
+      "minLength": 4,
+      "maxLength": 64,
+      "metadata": {
+        "description": "Name of the Private Endpoint for the Azure Table Storage Service. This is only applicable if deployPrivateNetwork is chosen."
+      },
+      "defaultValue": "pep-sts-scepman-UNIQUENAME"
     },
     "location": {
       "type": "string",
@@ -99,17 +132,23 @@
     "ArtifactsLocationSCEPman": "[uri(variables('artifactsRepositoryUrl'),'dist/Artifacts.zip')]",
     "ArtifactsLocationCertMaster":  "[uri(variables('artifactsRepositoryUrl'),'dist-certmaster/CertMaster-Artifacts.zip')]",
     "templateRepositoryUrl": "https://raw.githubusercontent.com/scepman/install/gcchigh/",
+    "vnetTemplateUri": "[uri(variables('templateRepositoryUrl'), 'nestedtemplates/vnet.json')]",
+    "vnet2AppServicesTemplateUri": "[uri(variables('templateRepositoryUrl'), 'nestedtemplates/vnet-to-appservices.json')]",
     "appSvcTemplateUri": "[uri(variables('templateRepositoryUrl'), 'nestedtemplates/appSvcDouble.json')]",
     "logAnalyticsTemplateUri": "[uri(variables('templateRepositoryUrl'), 'nestedtemplates/loganalytics.json')]",
     "vaultTemplateUri": "[uri(variables('templateRepositoryUrl'), 'nestedtemplates/vault.json')]",
     "appConfigTemplateUri": "[uri(variables('templateRepositoryUrl'), 'nestedtemplates/appConfig-scepman.json')]",
     "appConfigCertMasterTemplateUri": "[uri(variables('templateRepositoryUrl'), 'nestedtemplates/appConfig-certmaster.json')]",
-    "stgAccountTemplateUri": "[uri(variables('templateRepositoryUrl'), 'nestedtemplates/stgAccount.json')]"
+    "stgAccountTemplateUri": "[uri(variables('templateRepositoryUrl'), 'nestedtemplates/stgAccount.json')]",
+    "appServiceNames": [
+        "[parameters('primaryAppServiceName')]",
+        "[parameters('certificateMasterAppServiceName')]"
+      ]
   },
   "resources": [
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2021-04-01",
+      "apiVersion": "2024-03-01",
       "name": "pid-a262352f-52a9-4ed9-a9ba-6a2b2478d19b-partnercenter",
       "properties": {
         "mode": "Incremental",
@@ -122,7 +161,67 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2021-04-01",
+      "apiVersion": "2024-03-01",
+      "name": "VirtualNetwork",
+      "condition": "[parameters('deployPrivateNetwork')]",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[variables('vnetTemplateUri')]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "virtualNetworkName": {
+            "value": "[parameters('virtualNetworkName')]"
+          },
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "resourceTags": {
+            "value": "[parameters('resourceTags')]"
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2024-03-01",
+      "name": "[concat('AppService-', copyIndex(), '-ConnectionToVirtualNetwork')]",
+      "condition": "[parameters('deployPrivateNetwork')]",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[variables('vnet2AppServicesTemplateUri')]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "virtualNetworkName": {
+            "value": "[parameters('virtualNetworkName')]"
+          },
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "appServiceName": {
+            "value": "[variables('appServiceNames')[copyIndex()]]"
+          }
+        }
+      },
+      "dependsOn": [
+        "VirtualNetwork", "SCEPmanAppServices"//,
+       // "SCEPmanVault", "SCEPmanStorageAccount" // The connection does not actually depend on these two resources,
+                                                // but concurrent modifications to the same VNET can lead to deployment errors.
+                                                // This makes sure, only one operation at a time is performed on the VNET.
+      ],
+      "copy": {
+        "name": "appServiceConnectionToVirtualNetwork",
+        "count": 2,
+        "mode": "serial",
+        "batchSize": 1
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2024-03-01",
       "name": "SCEPmanAppServices",
       "properties": {
         "mode": "Incremental",
@@ -154,7 +253,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2021-04-01",
+      "apiVersion": "2024-03-01",
       "name": "AzureMonitor",
       "properties": {
         "mode": "Incremental",
@@ -177,7 +276,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2021-04-01",
+      "apiVersion": "2024-03-01",
       "name": "SCEPmanVault",
       "properties": {
         "mode": "Incremental",
@@ -197,13 +296,26 @@
           },
           "resourceTags": {
             "value": "[parameters('resourceTags')]"
+          },
+          "virtualNetworkName": {
+            "value": "[parameters('virtualNetworkName')]"
+          },
+          "privateEndpointName": {
+            "value": "[if(parameters('deployPrivateNetwork'), parameters('privateEndpointForKeyVaultName'), 'None')]"
           }
         }
-      }
+      },
+      "dependsOn": [
+        "VirtualNetwork",
+        "AppService-0-ConnectionToVirtualNetwork", "AppService-1-ConnectionToVirtualNetwork",
+          // This is only to ensure that no concurrent modifications are made to the VNET. If no VNET is added, 
+          // the dependency is not required, but an if() statement in dependsOn is against Best Practice, so we'll accept the performance hit instead.
+        "SCEPmanStorageAccount" 
+      ]
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2021-04-01",
+      "apiVersion": "2024-03-01",
       "name": "DeploymentSCEPmanConfig",
       "properties": {
         "mode": "Incremental",
@@ -250,7 +362,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2021-04-01",
+      "apiVersion": "2024-03-01",
       "name": "DeploymentCertMasterConfig",
       "properties": {
         "mode": "Incremental",
@@ -285,7 +397,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2021-04-01",
+      "apiVersion": "2024-03-01",
       "name": "SCEPmanStorageAccount",
       "properties": {
         "mode": "Incremental",
@@ -308,9 +420,19 @@
               "[reference('SCEPmanAppServices').outputs.scepmanPrincipalID.value]",
               "[reference('SCEPmanAppServices').outputs.certmasterPrincipalID.value]"
             ]
+          },
+          "virtualNetworkName": {
+            "value": "[parameters('virtualNetworkName')]"
+          },
+          "privateEndpointName": {
+            "value": "[if(parameters('deployPrivateNetwork'), parameters('privateEndpointForTableStorage'), 'None')]"
           }
         }
-      }
+      },
+      "dependsOn": [
+        "VirtualNetwork",
+        "AppService-0-ConnectionToVirtualNetwork", "AppService-1-ConnectionToVirtualNetwork"
+      ]
     }
   ]
 }
