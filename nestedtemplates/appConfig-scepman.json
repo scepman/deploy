@@ -71,12 +71,6 @@
       "metadata": {
         "description": "The full URI where SCEPman artifact binaries are stored"
       }
-    },
-    "location": {
-      "type": "string",
-      "metadata": {
-        "description": "Resource Group"
-      }
     }
   },
   "resources": [
@@ -84,7 +78,6 @@
       "apiVersion": "2022-09-01",
       "type": "Microsoft.Web/sites/config",
       "name": "[concat(parameters('appServiceName'),'/appsettings')]",
-      "location": "[parameters('location')]",
       "properties": {
         "WEBSITE_RUN_FROM_PACKAGE": "[parameters('WebsiteArtifactsUri')]",
         "AppConfig:BaseUrl": "[parameters('scepManBaseURL')]",

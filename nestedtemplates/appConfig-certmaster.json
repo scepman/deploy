@@ -37,12 +37,6 @@
       "metadata": {
         "description": "Log Analytics Workspace name"
       }
-    },
-    "location": {
-      "type": "string",
-      "metadata": {
-        "description": "Location where the resources will be deployed"
-      }
     }
   },
   "resources": [
@@ -50,7 +44,6 @@
       "apiVersion": "2022-09-01",
       "type": "Microsoft.Web/sites/config",
       "name": "[concat(parameters('appServiceName'),'/appsettings')]",
-      "location": "[parameters('location')]",
       "properties": {
         "WEBSITE_RUN_FROM_PACKAGE": "[parameters('WebsiteArtifactsUri')]",
         "AppConfig:AzureStorage:TableStorageEndpoint": "[parameters('StorageAccountTableURL')]",

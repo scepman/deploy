@@ -353,9 +353,6 @@
           },
           "license": {
             "value": "[parameters('license')]"
-          },
-          "location": {
-            "value": "[parameters('location')]"
           }
         }
       }
@@ -388,9 +385,6 @@
           },
           "WebsiteArtifactsUri": {
             "value": "[variables('ArtifactsLocationCertMaster')]"
-          },
-          "location": {
-            "value": "[parameters('location')]"
           }
         }
       }
