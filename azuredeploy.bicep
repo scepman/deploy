@@ -140,7 +140,7 @@ module SCEPmanVault 'nestedtemplates/vault.json' = {
   ]
 }
 
-module DeploymentSCEPmanConfig 'nestedtemplates/appConfig-scepman.json' = {
+module DeploymentSCEPmanConfig 'nestedtemplates/appConfig-scepman.bicep' = {
   name: 'DeploymentSCEPmanConfig'
   params: {
     StorageAccountTableUrl: SCEPmanStorageAccount.outputs.storageAccountTableUrl
@@ -156,7 +156,7 @@ module DeploymentSCEPmanConfig 'nestedtemplates/appConfig-scepman.json' = {
   }
 }
 
-module DeploymentCertMasterConfig 'nestedtemplates/appConfig-certmaster.json' = {
+module DeploymentCertMasterConfig 'nestedtemplates/appConfig-certmaster.bicep' = {
   name: 'DeploymentCertMasterConfig'
   params: {
     appServiceName: certificateMasterAppServiceName
