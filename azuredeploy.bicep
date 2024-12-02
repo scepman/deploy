@@ -77,7 +77,7 @@ module pid_a262352f_52a9_4ed9_a9ba_6a2b2478d19b_partnercenter './empty.bicep' = 
   params: {}
 }
 
-module CreateVirtualNetwork 'nestedtemplates/vnet.json' = if (deployPrivateNetwork) {
+module CreateVirtualNetwork 'nestedtemplates/vnet.bicep' = if (deployPrivateNetwork) {
   name: 'CreateVirtualNetwork'
   params: {
     virtualNetworkName: virtualNetworkName
@@ -87,7 +87,7 @@ module CreateVirtualNetwork 'nestedtemplates/vnet.json' = if (deployPrivateNetwo
 }
 
 @batchSize(1)
-module AppService_ConnectionToVirtualNetwork 'nestedtemplates/vnet-to-appservices.json' = [
+module AppService_ConnectionToVirtualNetwork 'nestedtemplates/vnet-to-appservices.bicep' = [
   for i in range(0, 2): {
     name: 'AppService-${i}-ConnectionToVirtualNetwork'
     params: {
@@ -102,7 +102,7 @@ module AppService_ConnectionToVirtualNetwork 'nestedtemplates/vnet-to-appservice
   }
 ]
 
-module SCEPmanAppServices 'nestedtemplates/appSvcDouble.json' = {
+module SCEPmanAppServices 'nestedtemplates/appSvcDouble.bicep' = {
   name: 'SCEPmanAppServices'
   params: {
     AppServicePlanName: appServicePlanName
@@ -114,7 +114,7 @@ module SCEPmanAppServices 'nestedtemplates/appSvcDouble.json' = {
   }
 }
 
-module AzureMonitor 'nestedtemplates/loganalytics.json' = {
+module AzureMonitor 'nestedtemplates/loganalytics.bicep' = {
   name: 'AzureMonitor'
   params: {
     logAnalyticsAccountName: logAnalyticsWorkspaceName
@@ -123,7 +123,7 @@ module AzureMonitor 'nestedtemplates/loganalytics.json' = {
   }
 }
 
-module SCEPmanVault 'nestedtemplates/vault.json' = {
+module SCEPmanVault 'nestedtemplates/vault.bicep' = {
   name: 'SCEPmanVault'
   params: {
     keyVaultName: keyVaultName
@@ -168,7 +168,7 @@ module DeploymentCertMasterConfig 'nestedtemplates/appConfig-certmaster.bicep' =
   }
 }
 
-module SCEPmanStorageAccount 'nestedtemplates/stgAccount.json' = {
+module SCEPmanStorageAccount 'nestedtemplates/stgAccount.bicep' = {
   name: 'SCEPmanStorageAccount'
   params: {
     StorageAccountName: storageAccountName
