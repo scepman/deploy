@@ -162,7 +162,7 @@
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2024-03-01",
-      "name": "VirtualNetwork",
+      "name": "CreateVirtualNetwork",
       "condition": "[parameters('deployPrivateNetwork')]",
       "properties": {
         "mode": "Incremental",
@@ -207,7 +207,7 @@
         }
       },
       "dependsOn": [
-        "VirtualNetwork", "SCEPmanAppServices"//,
+        "CreateVirtualNetwork", "SCEPmanAppServices"//,
        // "SCEPmanVault", "SCEPmanStorageAccount" // The connection does not actually depend on these two resources,
                                                 // but concurrent modifications to the same VNET can lead to deployment errors.
                                                 // This makes sure, only one operation at a time is performed on the VNET.
@@ -306,7 +306,7 @@
         }
       },
       "dependsOn": [
-        "VirtualNetwork",
+        "CreateVirtualNetwork",
         "AppService-0-ConnectionToVirtualNetwork", "AppService-1-ConnectionToVirtualNetwork",
           // This is only to ensure that no concurrent modifications are made to the VNET. If no VNET is added, 
           // the dependency is not required, but an if() statement in dependsOn is against Best Practice, so we'll accept the performance hit instead.
@@ -424,7 +424,7 @@
         }
       },
       "dependsOn": [
-        "VirtualNetwork",
+        "CreateVirtualNetwork",
         "AppService-0-ConnectionToVirtualNetwork", "AppService-1-ConnectionToVirtualNetwork"
       ]
     }
