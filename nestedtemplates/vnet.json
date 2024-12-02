@@ -17,7 +17,21 @@
     "resourceTags": {
       "type": "object",
       "metadata": {
-        "description": "Tags to be assigned to the created resources"
+        "description": "Tags to be assigned to the created resources."
+      }
+    },
+    "virtualNetworkAddressPrefixes": {
+      "type": "array",
+      "defaultValue": ["10.142.0.0/16"],
+      "metadata": {
+        "description": "List of address prefixes for the Virtual Network."
+      }
+    },
+    "subnetIpPrefixes": {
+      "type": "array",
+      "defaultValue": ["10.142.0.0/24", "10.142.1.0/24"],
+      "metadata": {
+        "description": "Array of subnet IP prefixes."
       }
     }
   },
@@ -30,9 +44,7 @@
       "tags": "[parameters('resourceTags')]",
       "properties": {
         "addressSpace": {
-          "addressPrefixes": [
-            "10.142.0.0/16"
-          ]
+          "addressPrefixes": "[parameters('virtualNetworkAddressPrefixes')]"
         },
         "encryption": {
           "enabled": false,
@@ -43,7 +55,7 @@
             "name": "default",
             "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), 'default')]",
             "properties": {
-              "addressPrefix": "10.142.0.0/24",
+              "addressPrefix": "[parameters('subnetIpPrefixes')[0]]",
               "privateEndpointNetworkPolicies": "Disabled",
               "privateLinkServiceNetworkPolicies": "Enabled",
               "defaultOutboundAccess": true
@@ -54,7 +66,7 @@
             "name": "snet-scepman-appservices",
             "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), 'snet-scepman-appservices')]",
             "properties": {
-              "addressPrefix": "10.142.1.0/24",
+              "addressPrefix": "[parameters('subnetIpPrefixes')[1]]",
               "delegations": [
                 {
                   "name": "delegation",
