@@ -72,7 +72,7 @@ var appServiceNames = [
   certificateMasterAppServiceName
 ]
 
-module pid_a262352f_52a9_4ed9_a9ba_6a2b2478d19b_partnercenter './nested_pid_a262352f_52a9_4ed9_a9ba_6a2b2478d19b_partnercenter.bicep' = {
+module pid_a262352f_52a9_4ed9_a9ba_6a2b2478d19b_partnercenter './empty.bicep' = {
   name: 'pid-a262352f-52a9-4ed9-a9ba-6a2b2478d19b-partnercenter'
   params: {}
 }
