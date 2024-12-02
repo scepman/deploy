@@ -136,7 +136,7 @@ module SCEPmanVault 'nestedtemplates/vault.json' = {
   name: 'SCEPmanVault'
   params: {
     keyVaultName: keyVaultName
-    permittedPrincipalId: SCEPmanAppServices.properties.outputs.scepmanPrincipalID.value
+    permittedPrincipalId: SCEPmanAppServices.outputs.scepmanPrincipalID
     location: location
     resourceTags: resourceTags
     virtualNetworkName: virtualNetworkName
@@ -144,8 +144,7 @@ module SCEPmanVault 'nestedtemplates/vault.json' = {
   }
   dependsOn: [
     CreateVirtualNetwork
-    'AppService-0-ConnectionToVirtualNetwork'
-    'AppService-1-ConnectionToVirtualNetwork'
+    AppService_ConnectionToVirtualNetwork
     SCEPmanStorageAccount
   ]
 }
@@ -153,12 +152,12 @@ module SCEPmanVault 'nestedtemplates/vault.json' = {
 module DeploymentSCEPmanConfig 'nestedtemplates/appConfig-scepman.json' = {
   name: 'DeploymentSCEPmanConfig'
   params: {
-    StorageAccountTableUrl: SCEPmanStorageAccount.properties.outputs.storageAccountTableUrl.value
+    StorageAccountTableUrl: SCEPmanStorageAccount.outputs.storageAccountTableUrl
     appServiceName: primaryAppServiceName
-    scepManBaseURL: SCEPmanAppServices.properties.outputs.scepmanURL.value
-    keyVaultURL: SCEPmanVault.properties.outputs.keyVaultURL.value
+    scepManBaseURL: SCEPmanAppServices.outputs.scepmanURL
+    keyVaultURL: SCEPmanVault.outputs.keyVaultURL
     caKeyType: caKeyType
-    logAnalyticsWorkspaceId: AzureMonitor.properties.outputs.workspaceId.value
+    logAnalyticsWorkspaceId: AzureMonitor.outputs.workspaceId
     logAnalyticsWorkspaceName: logAnalyticsWorkspaceName
     OrgName: OrgName
     WebsiteArtifactsUri: ArtifactsLocationSCEPman
@@ -170,9 +169,9 @@ module DeploymentCertMasterConfig 'nestedtemplates/appConfig-certmaster.json' = 
   name: 'DeploymentCertMasterConfig'
   params: {
     appServiceName: certificateMasterAppServiceName
-    scepmanUrl: SCEPmanAppServices.properties.outputs.scepmanURL.value
-    StorageAccountTableUrl: SCEPmanStorageAccount.properties.outputs.storageAccountTableUrl.value
-    logAnalyticsWorkspaceId: AzureMonitor.properties.outputs.workspaceId.value
+    scepmanUrl: SCEPmanAppServices.outputs.scepmanURL
+    StorageAccountTableUrl: SCEPmanStorageAccount.outputs.storageAccountTableUrl
+    logAnalyticsWorkspaceId: AzureMonitor.outputs.workspaceId
     logAnalyticsWorkspaceName: logAnalyticsWorkspaceName
     WebsiteArtifactsUri: ArtifactsLocationCertMaster
   }
@@ -185,15 +184,14 @@ module SCEPmanStorageAccount 'nestedtemplates/stgAccount.json' = {
     location: location
     resourceTags: resourceTags
     tableContributorPrincipals: [
-      SCEPmanAppServices.properties.outputs.scepmanPrincipalID.value
-      SCEPmanAppServices.properties.outputs.certmasterPrincipalID.value
+      SCEPmanAppServices.outputs.scepmanPrincipalID
+      SCEPmanAppServices.outputs.certmasterPrincipalID
     ]
     virtualNetworkName: virtualNetworkName
     privateEndpointName: (deployPrivateNetwork ? privateEndpointForTableStorage : 'None')
   }
   dependsOn: [
     CreateVirtualNetwork
-    'AppService-0-ConnectionToVirtualNetwork'
-    'AppService-1-ConnectionToVirtualNetwork'
+    AppService_ConnectionToVirtualNetwork
   ]
 }
