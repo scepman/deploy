@@ -1,6 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.31.92.45157",
+      "templateHash": "17542149916566262954"
+    }
+  },
   "parameters": {
     "OrgName": {
       "type": "string",
@@ -18,34 +25,37 @@
     },
     "keyVaultName": {
       "type": "string",
+      "defaultValue": "kv-scepman-UNIQUENAME",
       "minLength": 3,
       "maxLength": 24,
       "metadata": {
         "description": "Specifies the name of the Azure Key Vault. The name of a Key Vault must be globally unique and contain only DNS-compatible characters (letters, numbers, and hyphens)."
-      },
-      "defaultValue": "kv-scepman-UNIQUENAME"
+      }
     },
     "caKeyType": {
       "type": "string",
-      "allowedValues": [ "RSA", "RSA-HSM" ],
+      "defaultValue": "RSA-HSM",
+      "allowedValues": [
+        "RSA",
+        "RSA-HSM"
+      ],
       "metadata": {
         "description": "When generating the SCEPman CA certificate, which kind of key pair shall be created? RSA is a software-protected RSA key; RSA-HSM is HSM-protected."
-      },
-      "defaultValue": "RSA-HSM"
+      }
     },
     "storageAccountName": {
       "type": "string",
+      "defaultValue": "stscepmanuniquename",
       "minLength": 3,
       "maxLength": 24,
       "metadata": {
         "description": "Choose a globally unique name for your storage account. Storage account names must be between 3 and 24 characters in length and may contain numbers and lowercase letters only."
-      },
-      "defaultValue": "stscepmanuniquename"
+      }
     },
     "appServicePlanName": {
       "type": "string",
-      "maxLength": 40,
-      "defaultValue": "asp-scepman-UNIQUENAME"
+      "defaultValue": "asp-scepman-UNIQUENAME",
+      "maxLength": 40
     },
     "existingAppServicePlanID": {
       "type": "string",
@@ -56,61 +66,61 @@
     },
     "primaryAppServiceName": {
       "type": "string",
+      "defaultValue": "app-scepman-UNIQUENAME",
       "maxLength": 60,
       "metadata": {
         "description": "The SCEPman App Service and part of the default FQDN. Therefore, it must be globally unique and contain only DNS-compatible characters."
-      },
-      "defaultValue": "app-scepman-UNIQUENAME"
+      }
     },
     "logAnalyticsWorkspaceName": {
       "type": "string",
+      "defaultValue": "log-scepman-UNIQUENAME",
       "minLength": 4,
       "maxLength": 63,
       "metadata": {
         "description": "The Log Analytics Workspace with log data. Alphanumerics and hyphens are allowed."
-      },
-      "defaultValue": "log-scepman-UNIQUENAME"
+      }
     },
     "certificateMasterAppServiceName": {
       "type": "string",
+      "defaultValue": "app-scepman-UNIQUENAME-cm",
       "maxLength": 60,
       "metadata": {
         "description": "The App Service for the component SCEPman Certificate Master. As it is part of the default FQDN, it must be globally unique and contain only DNS-compatible characters."
-      },
-      "defaultValue": "app-scepman-UNIQUENAME-cm"
+      }
     },
     "deployPrivateNetwork": {
       "type": "bool",
+      "defaultValue": true,
       "metadata": {
         "description": "Choose 'true' to deploy SCEPman with a Virtual Network. In this case, you must also provide names for the parameters virtualNetworkName, privateEndpointForTableStorage, and privateEndpointForKeyVaultName."
-      },
-      "defaultValue": true
+      }
     },
     "virtualNetworkName": {
       "type": "string",
+      "defaultValue": "vnet-scepman-UNIQUENAME",
       "maxLength": 80,
       "metadata": {
         "description": "The name of the Virtual Network. This is only applicable if deployPrivateNetwork is chosen."
-      },
-      "defaultValue": "vnet-scepman-UNIQUENAME"
+      }
     },
     "privateEndpointForKeyVaultName": {
       "type": "string",
+      "defaultValue": "pep-kv-scepman-UNIQUENAME",
       "minLength": 4,
       "maxLength": 64,
       "metadata": {
         "description": "Name of the Private Endpoint for the Key Vault. This is only applicable if deployPrivateNetwork is chosen."
-      },
-      "defaultValue": "pep-kv-scepman-UNIQUENAME"
+      }
     },
     "privateEndpointForTableStorage": {
       "type": "string",
+      "defaultValue": "pep-sts-scepman-UNIQUENAME",
       "minLength": 4,
       "maxLength": 64,
       "metadata": {
         "description": "Name of the Private Endpoint for the Azure Table Storage Service. This is only applicable if deployPrivateNetwork is chosen."
-      },
-      "defaultValue": "pep-sts-scepman-UNIQUENAME"
+      }
     },
     "location": {
       "type": "string",
@@ -129,47 +139,48 @@
   },
   "variables": {
     "artifactsRepositoryUrl": "https://raw.githubusercontent.com/scepman/install/master/",
-    "ArtifactsLocationSCEPman": "[uri(variables('artifactsRepositoryUrl'),'dist/Artifacts.zip')]",
-    "ArtifactsLocationCertMaster":  "[uri(variables('artifactsRepositoryUrl'),'dist-certmaster/CertMaster-Artifacts.zip')]",
-    "templateRepositoryUrl": "https://raw.githubusercontent.com/scepman/install/master/",
-    "vnetTemplateUri": "[uri(variables('templateRepositoryUrl'), 'nestedtemplates/vnet.json')]",
-    "vnet2AppServicesTemplateUri": "[uri(variables('templateRepositoryUrl'), 'nestedtemplates/vnet-to-appservices.json')]",
-    "appSvcTemplateUri": "[uri(variables('templateRepositoryUrl'), 'nestedtemplates/appSvcDouble.json')]",
-    "logAnalyticsTemplateUri": "[uri(variables('templateRepositoryUrl'), 'nestedtemplates/loganalytics.json')]",
-    "vaultTemplateUri": "[uri(variables('templateRepositoryUrl'), 'nestedtemplates/vault.json')]",
-    "appConfigTemplateUri": "[uri(variables('templateRepositoryUrl'), 'nestedtemplates/appConfig-scepman.json')]",
-    "appConfigCertMasterTemplateUri": "[uri(variables('templateRepositoryUrl'), 'nestedtemplates/appConfig-certmaster.json')]",
-    "stgAccountTemplateUri": "[uri(variables('templateRepositoryUrl'), 'nestedtemplates/stgAccount.json')]",
+    "ArtifactsLocationSCEPman": "[uri(variables('artifactsRepositoryUrl'), 'dist/Artifacts.zip')]",
+    "ArtifactsLocationCertMaster": "[uri(variables('artifactsRepositoryUrl'), 'dist-certmaster/CertMaster-Artifacts.zip')]",
     "appServiceNames": [
-        "[parameters('primaryAppServiceName')]",
-        "[parameters('certificateMasterAppServiceName')]"
-      ]
+      "[parameters('primaryAppServiceName')]",
+      "[parameters('certificateMasterAppServiceName')]"
+    ]
   },
   "resources": [
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2024-03-01",
+      "apiVersion": "2022-09-01",
       "name": "pid-a262352f-52a9-4ed9-a9ba-6a2b2478d19b-partnercenter",
       "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
         "mode": "Incremental",
+        "parameters": {},
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.31.92.45157",
+              "templateHash": "11590200223811717167"
+            }
+          },
           "resources": []
         }
       }
     },
     {
-      "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2024-03-01",
-      "name": "VirtualNetwork",
       "condition": "[parameters('deployPrivateNetwork')]",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "CreateVirtualNetwork",
       "properties": {
-        "mode": "Incremental",
-        "templateLink": {
-          "uri": "[variables('vnetTemplateUri')]",
-          "contentVersion": "1.0.0.0"
+        "expressionEvaluationOptions": {
+          "scope": "inner"
         },
+        "mode": "Incremental",
         "parameters": {
           "virtualNetworkName": {
             "value": "[parameters('virtualNetworkName')]"
@@ -180,20 +191,126 @@
           "resourceTags": {
             "value": "[parameters('resourceTags')]"
           }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.31.92.45157",
+              "templateHash": "2252626684540476247"
+            }
+          },
+          "parameters": {
+            "virtualNetworkName": {
+              "type": "string",
+              "metadata": {
+                "description": "Specifies the name of the Virtual Network."
+              }
+            },
+            "location": {
+              "type": "string",
+              "metadata": {
+                "description": "The Azure Region where the Virtual Network will be created."
+              }
+            },
+            "resourceTags": {
+              "type": "object",
+              "metadata": {
+                "description": "Tags to be assigned to the created resources."
+              }
+            },
+            "virtualNetworkAddressPrefixes": {
+              "type": "array",
+              "defaultValue": [
+                "10.142.0.0/16"
+              ],
+              "metadata": {
+                "description": "List of address prefixes for the Virtual Network."
+              }
+            },
+            "subnetIpPrefixes": {
+              "type": "array",
+              "defaultValue": [
+                "10.142.0.0/24",
+                "10.142.1.0/24"
+              ],
+              "metadata": {
+                "description": "Array of subnet IP prefixes."
+              }
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Network/virtualNetworks",
+              "apiVersion": "2023-06-01",
+              "name": "[parameters('virtualNetworkName')]",
+              "location": "[parameters('location')]",
+              "tags": "[parameters('resourceTags')]",
+              "properties": {
+                "addressSpace": {
+                  "addressPrefixes": "[parameters('virtualNetworkAddressPrefixes')]"
+                },
+                "encryption": {
+                  "enabled": false,
+                  "enforcement": "AllowUnencrypted"
+                },
+                "subnets": [
+                  {
+                    "name": "default",
+                    "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), 'default')]",
+                    "properties": {
+                      "addressPrefix": "[parameters('subnetIpPrefixes')[0]]",
+                      "privateEndpointNetworkPolicies": "Disabled",
+                      "privateLinkServiceNetworkPolicies": "Enabled",
+                      "defaultOutboundAccess": true
+                    },
+                    "type": "Microsoft.Network/virtualNetworks/subnets"
+                  },
+                  {
+                    "name": "snet-scepman-appservices",
+                    "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), 'snet-scepman-appservices')]",
+                    "properties": {
+                      "addressPrefix": "[parameters('subnetIpPrefixes')[1]]",
+                      "delegations": [
+                        {
+                          "name": "delegation",
+                          "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets/delegations', parameters('virtualNetworkName'), 'snet-scepman-appservices', 'delegation')]",
+                          "properties": {
+                            "serviceName": "Microsoft.Web/serverfarms"
+                          },
+                          "type": "Microsoft.Network/virtualNetworks/subnets/delegations"
+                        }
+                      ],
+                      "privateEndpointNetworkPolicies": "Disabled",
+                      "privateLinkServiceNetworkPolicies": "Enabled"
+                    },
+                    "type": "Microsoft.Network/virtualNetworks/subnets"
+                  }
+                ],
+                "enableDdosProtection": false
+              }
+            }
+          ]
         }
       }
     },
     {
+      "copy": {
+        "name": "AppService_ConnectionToVirtualNetwork",
+        "count": "[length(range(0, 2))]",
+        "mode": "serial",
+        "batchSize": 1
+      },
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2024-03-01",
-      "name": "[concat('AppService-', copyIndex(), '-ConnectionToVirtualNetwork')]",
-      "condition": "[parameters('deployPrivateNetwork')]",
+      "apiVersion": "2022-09-01",
+      "name": "[format('AppService-{0}-ConnectionToVirtualNetwork', range(0, 2)[copyIndex()])]",
       "properties": {
-        "mode": "Incremental",
-        "templateLink": {
-          "uri": "[variables('vnet2AppServicesTemplateUri')]",
-          "contentVersion": "1.0.0.0"
+        "expressionEvaluationOptions": {
+          "scope": "inner"
         },
+        "mode": "Incremental",
         "parameters": {
           "virtualNetworkName": {
             "value": "[parameters('virtualNetworkName')]"
@@ -202,36 +319,72 @@
             "value": "[parameters('location')]"
           },
           "appServiceName": {
-            "value": "[variables('appServiceNames')[copyIndex()]]"
+            "value": "[variables('appServiceNames')[range(0, 2)[copyIndex()]]]"
           }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.31.92.45157",
+              "templateHash": "9726038779307703442"
+            }
+          },
+          "parameters": {
+            "virtualNetworkName": {
+              "type": "string",
+              "metadata": {
+                "description": "Name of the VNET"
+              }
+            },
+            "appServiceName": {
+              "type": "string",
+              "metadata": {
+                "description": "Name of App Service"
+              }
+            },
+            "location": {
+              "type": "string",
+              "metadata": {
+                "description": "Region in which to create the vnet connection."
+              }
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Web/sites",
+              "apiVersion": "2023-01-01",
+              "name": "[parameters('appServiceName')]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "vnetRouteAllEnabled": false,
+                "vnetImagePullEnabled": false,
+                "vnetContentShareEnabled": false,
+                "virtualNetworkSubnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), 'snet-scepman-appservices')]"
+              }
+            }
+          ]
         }
       },
       "dependsOn": [
-        "VirtualNetwork", "SCEPmanAppServices"//,
-       // "SCEPmanVault", "SCEPmanStorageAccount" // The connection does not actually depend on these two resources,
-                                                // but concurrent modifications to the same VNET can lead to deployment errors.
-                                                // This makes sure, only one operation at a time is performed on the VNET.
-      ],
-      "copy": {
-        "name": "appServiceConnectionToVirtualNetwork",
-        "count": 2,
-        "mode": "serial",
-        "batchSize": 1
-      }
+        "[resourceId('Microsoft.Resources/deployments', 'CreateVirtualNetwork')]",
+        "[resourceId('Microsoft.Resources/deployments', 'SCEPmanAppServices')]"
+      ]
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2024-03-01",
+      "apiVersion": "2022-09-01",
       "name": "SCEPmanAppServices",
       "properties": {
-        "mode": "Incremental",
-        "templateLink": {
-          "uri": "[variables('appSvcTemplateUri')]",
-          "contentVersion": "1.0.0.0"
+        "expressionEvaluationOptions": {
+          "scope": "inner"
         },
+        "mode": "Incremental",
         "parameters": {
           "AppServicePlanName": {
-            "value": "[parameters('AppServicePlanName')]"
+            "value": "[parameters('appServicePlanName')]"
           },
           "existingAppServicePlanID": {
             "value": "[parameters('existingAppServicePlanID')]"
@@ -248,19 +401,154 @@
           "resourceTags": {
             "value": "[parameters('resourceTags')]"
           }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.31.92.45157",
+              "templateHash": "8836432641354004882"
+            }
+          },
+          "parameters": {
+            "existingAppServicePlanID": {
+              "type": "string",
+              "defaultValue": "none",
+              "metadata": {
+                "description": "Provide the AppServicePlan ID of an existing App Service Plan. Keep default value 'none' if you want to create a new one."
+              }
+            },
+            "AppServicePlanName": {
+              "type": "string",
+              "metadata": {
+                "description": "Name of the App Service Plan to be created"
+              }
+            },
+            "appServiceName": {
+              "type": "string",
+              "metadata": {
+                "description": "Name of App Service to be created"
+              }
+            },
+            "appServiceName2": {
+              "type": "string",
+              "metadata": {
+                "description": "Name of second App Service to be created"
+              }
+            },
+            "location": {
+              "type": "string",
+              "metadata": {
+                "description": "Resource Group"
+              }
+            },
+            "resourceTags": {
+              "type": "object",
+              "metadata": {
+                "description": "Tags to be assigned to the created resources"
+              }
+            }
+          },
+          "resources": [
+            {
+              "condition": "[equals(parameters('existingAppServicePlanID'), 'none')]",
+              "type": "Microsoft.Web/serverfarms",
+              "apiVersion": "2022-09-01",
+              "name": "[parameters('AppServicePlanName')]",
+              "location": "[parameters('location')]",
+              "sku": {
+                "tier": "Standard",
+                "name": "S1"
+              },
+              "tags": "[parameters('resourceTags')]",
+              "properties": {
+                "targetWorkerCount": 1
+              }
+            },
+            {
+              "type": "Microsoft.Web/sites",
+              "apiVersion": "2022-09-01",
+              "name": "[parameters('appServiceName')]",
+              "location": "[parameters('location')]",
+              "identity": {
+                "type": "SystemAssigned"
+              },
+              "tags": "[parameters('resourceTags')]",
+              "properties": {
+                "serverFarmId": "[if(equals(parameters('existingAppServicePlanID'), 'none'), resourceId('Microsoft.Web/serverfarms', parameters('AppServicePlanName')), parameters('existingAppServicePlanID'))]",
+                "clientAffinityEnabled": false,
+                "httpsOnly": false,
+                "clientCertEnabled": true,
+                "clientCertMode": "OptionalInteractiveUser",
+                "siteConfig": {
+                  "alwaysOn": true,
+                  "http20Enabled": false,
+                  "ftpsState": "Disabled",
+                  "use32BitWorkerProcess": false
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Web/serverfarms', parameters('AppServicePlanName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Web/sites",
+              "apiVersion": "2024-04-01",
+              "name": "[parameters('appServiceName2')]",
+              "location": "[parameters('location')]",
+              "identity": {
+                "type": "SystemAssigned"
+              },
+              "tags": "[parameters('resourceTags')]",
+              "properties": {
+                "serverFarmId": "[if(equals(parameters('existingAppServicePlanID'), 'none'), resourceId('Microsoft.Web/serverfarms', parameters('AppServicePlanName')), parameters('existingAppServicePlanID'))]",
+                "clientAffinityEnabled": true,
+                "httpsOnly": true,
+                "siteConfig": {
+                  "alwaysOn": true,
+                  "http20Enabled": true,
+                  "ftpsState": "Disabled",
+                  "use32BitWorkerProcess": false,
+                  "minTlsVersion": "1.3"
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Web/serverfarms', parameters('AppServicePlanName'))]"
+              ]
+            }
+          ],
+          "outputs": {
+            "scepmanURL": {
+              "type": "string",
+              "value": "[uri(format('https://{0}', reference(resourceId('Microsoft.Web/sites', parameters('appServiceName')), '2022-09-01').defaultHostName), '/')]"
+            },
+            "scepmanPrincipalID": {
+              "type": "string",
+              "value": "[reference(parameters('appServiceName'), '2022-03-01', 'Full').identity.principalId]"
+            },
+            "certmasterPrincipalID": {
+              "type": "string",
+              "value": "[reference(parameters('appServiceName2'), '2022-03-01', 'Full').identity.principalId]"
+            },
+            "appServicePlanID": {
+              "type": "string",
+              "value": "[if(equals(parameters('existingAppServicePlanID'), 'none'), resourceId('Microsoft.Web/serverfarms', parameters('AppServicePlanName')), parameters('existingAppServicePlanID'))]"
+            }
+          }
         }
       }
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2024-03-01",
+      "apiVersion": "2022-09-01",
       "name": "AzureMonitor",
       "properties": {
-        "mode": "Incremental",
-        "templateLink": {
-          "uri": "[variables('logAnalyticsTemplateUri')]",
-          "contentVersion": "1.0.0.0"
+        "expressionEvaluationOptions": {
+          "scope": "inner"
         },
+        "mode": "Incremental",
         "parameters": {
           "logAnalyticsAccountName": {
             "value": "[parameters('logAnalyticsWorkspaceName')]"
@@ -271,25 +559,76 @@
           "resourceTags": {
             "value": "[parameters('resourceTags')]"
           }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.31.92.45157",
+              "templateHash": "10028972295689736104"
+            }
+          },
+          "parameters": {
+            "logAnalyticsAccountName": {
+              "type": "string",
+              "metadata": {
+                "description": "Name of the Log Analytics Workspace"
+              }
+            },
+            "location": {
+              "type": "string",
+              "metadata": {
+                "description": "Location where the resources will be deployed"
+              }
+            },
+            "resourceTags": {
+              "type": "object",
+              "metadata": {
+                "description": "Tags to be assigned to the created resources"
+              }
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.OperationalInsights/workspaces",
+              "apiVersion": "2022-10-01",
+              "name": "[parameters('logAnalyticsAccountName')]",
+              "location": "[parameters('location')]",
+              "tags": "[parameters('resourceTags')]",
+              "properties": {
+                "retentionInDays": 30,
+                "sku": {
+                  "name": "PerGB2018"
+                }
+              }
+            }
+          ],
+          "outputs": {
+            "workspaceId": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsAccountName')), '2022-10-01').customerId]"
+            }
+          }
         }
       }
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2024-03-01",
+      "apiVersion": "2022-09-01",
       "name": "SCEPmanVault",
       "properties": {
-        "mode": "Incremental",
-        "templateLink": {
-          "uri": "[variables('vaultTemplateUri')]",
-          "contentVersion": "1.0.0.0"
+        "expressionEvaluationOptions": {
+          "scope": "inner"
         },
+        "mode": "Incremental",
         "parameters": {
           "keyVaultName": {
             "value": "[parameters('keyVaultName')]"
           },
           "permittedPrincipalId": {
-            "value": "[reference('SCEPmanAppServices').outputs.scepmanPrincipalID.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'SCEPmanAppServices'), '2022-09-01').outputs.scepmanPrincipalID.value]"
           },
           "location": {
             "value": "[parameters('location')]"
@@ -300,47 +639,227 @@
           "virtualNetworkName": {
             "value": "[parameters('virtualNetworkName')]"
           },
-          "privateEndpointName": {
-            "value": "[if(parameters('deployPrivateNetwork'), parameters('privateEndpointForKeyVaultName'), 'None')]"
+          "privateEndpointName": "[if(parameters('deployPrivateNetwork'), createObject('value', parameters('privateEndpointForKeyVaultName')), createObject('value', 'None'))]"
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.31.92.45157",
+              "templateHash": "16497806723925078443"
+            }
+          },
+          "parameters": {
+            "keyVaultName": {
+              "type": "string",
+              "minLength": 3,
+              "maxLength": 24,
+              "metadata": {
+                "description": "Specifies the name of the key vault."
+              }
+            },
+            "permittedPrincipalId": {
+              "type": "string",
+              "metadata": {
+                "description": "ID of SCEPman app service principal, whom will be assigned permissions to the KV"
+              }
+            },
+            "location": {
+              "type": "string",
+              "metadata": {
+                "description": "Region in which to create the key vault."
+              }
+            },
+            "resourceTags": {
+              "type": "object",
+              "metadata": {
+                "description": "Tags to be assigned to the created resources"
+              }
+            },
+            "virtualNetworkName": {
+              "type": "string",
+              "metadata": {
+                "description": "Name of the Virtual Network to associate with the key vault."
+              }
+            },
+            "privateEndpointName": {
+              "type": "string",
+              "metadata": {
+                "description": "Name of the private endpoint to be created for the key vault. Select 'None' to not create a private endpoint."
+              }
+            }
+          },
+          "variables": {
+            "rbac_roles": [
+              "14b46e9e-c2b7-41b4-b07b-48a6ebf60603",
+              "a4417e6f-fecd-4de8-b567-7b0420556985",
+              "4633458b-17de-408a-b874-0445c86b69e6"
+            ]
+          },
+          "resources": [
+            {
+              "type": "Microsoft.KeyVault/vaults",
+              "apiVersion": "2023-07-01",
+              "name": "[parameters('keyVaultName')]",
+              "location": "[parameters('location')]",
+              "tags": "[parameters('resourceTags')]",
+              "properties": {
+                "tenantId": "[subscription().tenantId]",
+                "enabledForDeployment": false,
+                "enabledForTemplateDeployment": false,
+                "enablePurgeProtection": true,
+                "enableSoftDelete": true,
+                "enabledForDiskEncryption": false,
+                "enableRbacAuthorization": true,
+                "sku": {
+                  "name": "premium",
+                  "family": "A"
+                },
+                "networkAcls": {
+                  "bypass": "None",
+                  "defaultAction": "[if(equals(parameters('privateEndpointName'), 'None'), 'Allow', 'Deny')]"
+                }
+              }
+            },
+            {
+              "copy": {
+                "name": "roleAssignment_kv_rbac_roles",
+                "count": "[length(variables('rbac_roles'))]"
+              },
+              "type": "Microsoft.Authorization/roleAssignments",
+              "apiVersion": "2022-04-01",
+              "scope": "[format('Microsoft.KeyVault/vaults/{0}', parameters('keyVaultName'))]",
+              "name": "[guid(format('roleAssignment-kv-{0}', variables('rbac_roles')[copyIndex()]))]",
+              "properties": {
+                "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', variables('rbac_roles')[copyIndex()])]",
+                "principalId": "[parameters('permittedPrincipalId')]"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
+              ]
+            },
+            {
+              "condition": "[not(equals(parameters('privateEndpointName'), 'None'))]",
+              "type": "Microsoft.Network/privateDnsZones",
+              "apiVersion": "2020-06-01",
+              "name": "privatelink.vaultcore.azure.net",
+              "location": "Global",
+              "tags": "[parameters('resourceTags')]",
+              "properties": {}
+            },
+            {
+              "condition": "[not(equals(parameters('privateEndpointName'), 'None'))]",
+              "type": "Microsoft.Network/privateEndpoints",
+              "apiVersion": "2023-11-01",
+              "name": "[parameters('privateEndpointName')]",
+              "location": "[parameters('location')]",
+              "tags": "[parameters('resourceTags')]",
+              "properties": {
+                "subnet": {
+                  "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), 'default')]"
+                },
+                "privateLinkServiceConnections": [
+                  {
+                    "name": "keyVault",
+                    "properties": {
+                      "privateLinkServiceId": "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]",
+                      "groupIds": [
+                        "vault"
+                      ],
+                      "privateLinkServiceConnectionState": {
+                        "status": "Approved",
+                        "description": "Private endpoint connection approved",
+                        "actionsRequired": "None"
+                      }
+                    }
+                  }
+                ]
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
+              ]
+            },
+            {
+              "condition": "[not(equals(parameters('privateEndpointName'), 'None'))]",
+              "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
+              "apiVersion": "2023-06-01",
+              "name": "[format('{0}/{1}', parameters('privateEndpointName'), 'default')]",
+              "properties": {
+                "privateDnsZoneConfigs": [
+                  {
+                    "name": "privatelink.vaultcore.azure.net",
+                    "properties": {
+                      "privateDnsZoneId": "[resourceId('Microsoft.Network/privateDnsZones', 'privatelink.vaultcore.azure.net')]"
+                    }
+                  }
+                ]
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/privateEndpoints', parameters('privateEndpointName'))]",
+                "[resourceId('Microsoft.Network/privateDnsZones', 'privatelink.vaultcore.azure.net')]"
+              ]
+            },
+            {
+              "condition": "[not(equals(parameters('privateEndpointName'), 'None'))]",
+              "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+              "apiVersion": "2020-06-01",
+              "name": "[format('{0}/{1}', 'privatelink.vaultcore.azure.net', format('{0}-link', parameters('keyVaultName')))]",
+              "location": "global",
+              "properties": {
+                "registrationEnabled": false,
+                "virtualNetwork": {
+                  "id": "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]"
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/privateDnsZones', 'privatelink.vaultcore.azure.net')]"
+              ]
+            }
+          ],
+          "outputs": {
+            "keyVaultURL": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName')), '2023-07-01').vaultUri]"
+            }
           }
         }
       },
       "dependsOn": [
-        "VirtualNetwork",
-        "AppService-0-ConnectionToVirtualNetwork", "AppService-1-ConnectionToVirtualNetwork",
-          // This is only to ensure that no concurrent modifications are made to the VNET. If no VNET is added, 
-          // the dependency is not required, but an if() statement in dependsOn is against Best Practice, so we'll accept the performance hit instead.
-        "SCEPmanStorageAccount" 
+        "AppService_ConnectionToVirtualNetwork",
+        "[resourceId('Microsoft.Resources/deployments', 'CreateVirtualNetwork')]",
+        "[resourceId('Microsoft.Resources/deployments', 'SCEPmanAppServices')]",
+        "[resourceId('Microsoft.Resources/deployments', 'SCEPmanStorageAccount')]"
       ]
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2024-03-01",
+      "apiVersion": "2022-09-01",
       "name": "DeploymentSCEPmanConfig",
       "properties": {
-        "mode": "Incremental",
-        "templateLink": {
-          "uri": "[variables('appConfigTemplateUri')]",
-          "contentVersion": "1.0.0.0"
+        "expressionEvaluationOptions": {
+          "scope": "inner"
         },
+        "mode": "Incremental",
         "parameters": {
           "StorageAccountTableUrl": {
-            "value": "[reference('SCEPmanStorageAccount').outputs.storageAccountTableUrl.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'SCEPmanStorageAccount'), '2022-09-01').outputs.storageAccountTableUrl.value]"
           },
           "appServiceName": {
             "value": "[parameters('primaryAppServiceName')]"
           },
           "scepManBaseURL": {
-            "value": "[reference('SCEPmanAppServices').outputs.scepmanURL.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'SCEPmanAppServices'), '2022-09-01').outputs.scepmanURL.value]"
           },
           "keyVaultURL": {
-            "value": "[reference('SCEPmanVault').outputs.keyVaultURL.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'SCEPmanVault'), '2022-09-01').outputs.keyVaultURL.value]"
           },
           "caKeyType": {
             "value": "[parameters('caKeyType')]"
           },
           "logAnalyticsWorkspaceId": {
-            "value": "[reference('AzureMonitor').outputs.workspaceId.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'AzureMonitor'), '2022-09-01').outputs.workspaceId.value]"
           },
           "logAnalyticsWorkspaceName": {
             "value": "[parameters('logAnalyticsWorkspaceName')]"
@@ -354,31 +873,151 @@
           "license": {
             "value": "[parameters('license')]"
           }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.31.92.45157",
+              "templateHash": "13647077634106833966"
+            }
+          },
+          "parameters": {
+            "StorageAccountTableUrl": {
+              "type": "string",
+              "metadata": {
+                "description": "URL of the Storage Account's table endpoint to retrieve certificate information from"
+              }
+            },
+            "appServiceName": {
+              "type": "string",
+              "metadata": {
+                "description": "Name of SCEPman's app service"
+              }
+            },
+            "scepManBaseURL": {
+              "type": "string",
+              "metadata": {
+                "description": "Base URL of SCEPman"
+              }
+            },
+            "keyVaultURL": {
+              "type": "string",
+              "metadata": {
+                "description": "URL of the key vault"
+              }
+            },
+            "OrgName": {
+              "type": "string",
+              "metadata": {
+                "description": "Name of company or organization for certificate subject"
+              }
+            },
+            "caKeyType": {
+              "type": "string",
+              "defaultValue": "RSA-HSM",
+              "allowedValues": [
+                "RSA",
+                "RSA-HSM"
+              ],
+              "metadata": {
+                "description": "When generating the SCEPman CA certificate, which kind of key pair shall be created? RSA is a software-protected RSA key; RSA-HSM is HSM-protected."
+              }
+            },
+            "caKeySize": {
+              "type": "int",
+              "defaultValue": 4096,
+              "metadata": {
+                "description": "When generating the SCEPman CA certificate, what length in bits shall the key have? Plausible values for RSA are 2048 or 4096. The size also has an impact on the Azure Key Vault pricing."
+              }
+            },
+            "logAnalyticsWorkspaceId": {
+              "type": "string",
+              "metadata": {
+                "description": "Log Analytics Workspace ID"
+              }
+            },
+            "logAnalyticsWorkspaceName": {
+              "type": "string",
+              "metadata": {
+                "description": "Log Analytics Workspace name"
+              }
+            },
+            "license": {
+              "type": "string",
+              "defaultValue": "trial",
+              "metadata": {
+                "description": "License Key for SCEPman"
+              }
+            },
+            "WebsiteArtifactsUri": {
+              "type": "string",
+              "metadata": {
+                "description": "The full URI where SCEPman artifact binaries are stored"
+              }
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Web/sites/config",
+              "apiVersion": "2022-09-01",
+              "name": "[format('{0}/appsettings', parameters('appServiceName'))]",
+              "properties": {
+                "WEBSITE_RUN_FROM_PACKAGE": "[parameters('WebsiteArtifactsUri')]",
+                "AppConfig:BaseUrl": "[parameters('scepManBaseURL')]",
+                "AppConfig:LicenseKey": "[parameters('license')]",
+                "AppConfig:AuthConfig:TenantId": "[subscription().tenantId]",
+                "AppConfig:UseRequestedKeyUsages": "true",
+                "AppConfig:ValidityPeriodDays": "730",
+                "AppConfig:IntuneValidation:ValidityPeriodDays": "365",
+                "AppConfig:DirectCSRValidation:Enabled": "true",
+                "AppConfig:IntuneValidation:DeviceDirectory": "AADAndIntune",
+                "AppConfig:CRL:Source": "Storage",
+                "AppConfig:EnableCertificateStorage": "true",
+                "AppConfig:LoggingConfig:WorkspaceId": "[parameters('logAnalyticsWorkspaceId')]",
+                "AppConfig:LoggingConfig:SharedKey": "[listKeys(resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName')), '2022-10-01').primarySharedKey]",
+                "AppConfig:KeyVaultConfig:KeyVaultURL": "[parameters('keyVaultURL')]",
+                "AppConfig:CertificateStorage:TableStorageEndpoint": "[parameters('StorageAccountTableUrl')]",
+                "AppConfig:KeyVaultConfig:RootCertificateConfig:CertificateName": "SCEPman-Root-CA-V1",
+                "AppConfig:KeyVaultConfig:RootCertificateConfig:KeyType": "[parameters('caKeyType')]",
+                "AppConfig:KeyVaultConfig:RootCertificateConfig:KeySize": "[parameters('caKeySize')]",
+                "AppConfig:ValidityClockSkewMinutes": "1440",
+                "AppConfig:KeyVaultConfig:RootCertificateConfig:Subject": "[format('CN=SCEPman-Root-CA-V1, OU={0}, O=\"{1}\"', subscription().tenantId, parameters('OrgName'))]"
+              }
+            }
+          ]
         }
-      }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', 'AzureMonitor')]",
+        "[resourceId('Microsoft.Resources/deployments', 'SCEPmanAppServices')]",
+        "[resourceId('Microsoft.Resources/deployments', 'SCEPmanStorageAccount')]",
+        "[resourceId('Microsoft.Resources/deployments', 'SCEPmanVault')]"
+      ]
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2024-03-01",
+      "apiVersion": "2022-09-01",
       "name": "DeploymentCertMasterConfig",
       "properties": {
-        "mode": "Incremental",
-        "templateLink": {
-          "uri": "[variables('appConfigCertMasterTemplateUri')]",
-          "contentVersion": "1.0.0.0"
+        "expressionEvaluationOptions": {
+          "scope": "inner"
         },
+        "mode": "Incremental",
         "parameters": {
           "appServiceName": {
             "value": "[parameters('certificateMasterAppServiceName')]"
           },
           "scepmanUrl": {
-            "value": "[reference('SCEPmanAppServices').outputs.scepmanURL.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'SCEPmanAppServices'), '2022-09-01').outputs.scepmanURL.value]"
           },
           "StorageAccountTableUrl": {
-            "value": "[reference('SCEPmanStorageAccount').outputs.storageAccountTableUrl.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'SCEPmanStorageAccount'), '2022-09-01').outputs.storageAccountTableUrl.value]"
           },
           "logAnalyticsWorkspaceId": {
-            "value": "[reference('AzureMonitor').outputs.workspaceId.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'AzureMonitor'), '2022-09-01').outputs.workspaceId.value]"
           },
           "logAnalyticsWorkspaceName": {
             "value": "[parameters('logAnalyticsWorkspaceName')]"
@@ -386,19 +1025,87 @@
           "WebsiteArtifactsUri": {
             "value": "[variables('ArtifactsLocationCertMaster')]"
           }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.31.92.45157",
+              "templateHash": "5901468078577332424"
+            }
+          },
+          "parameters": {
+            "StorageAccountTableUrl": {
+              "type": "string",
+              "metadata": {
+                "description": "URL of the Storage Account's table endpoint to store certificate information"
+              }
+            },
+            "WebsiteArtifactsUri": {
+              "type": "string",
+              "metadata": {
+                "description": "The full URI where CertMaster artifact binaries are stored"
+              }
+            },
+            "appServiceName": {
+              "type": "string",
+              "metadata": {
+                "description": "Name of Certificate Master's app service"
+              }
+            },
+            "scepmanUrl": {
+              "type": "string",
+              "metadata": {
+                "description": "The URL of the SCEPman App Service"
+              }
+            },
+            "logAnalyticsWorkspaceId": {
+              "type": "string",
+              "metadata": {
+                "description": "Log Analytics Workspace ID"
+              }
+            },
+            "logAnalyticsWorkspaceName": {
+              "type": "string",
+              "metadata": {
+                "description": "Log Analytics Workspace name"
+              }
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Web/sites/config",
+              "apiVersion": "2022-09-01",
+              "name": "[format('{0}/appsettings', parameters('appServiceName'))]",
+              "properties": {
+                "WEBSITE_RUN_FROM_PACKAGE": "[parameters('WebsiteArtifactsUri')]",
+                "AppConfig:AzureStorage:TableStorageEndpoint": "[parameters('StorageAccountTableUrl')]",
+                "AppConfig:SCEPman:URL": "[parameters('scepmanUrl')]",
+                "AppConfig:AuthConfig:TenantId": "[subscription().tenantId]",
+                "AppConfig:LoggingConfig:WorkspaceId": "[parameters('logAnalyticsWorkspaceId')]",
+                "AppConfig:LoggingConfig:SharedKey": "[listKeys(resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName')), '2022-10-01').primarySharedKey]"
+              }
+            }
+          ]
         }
-      }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', 'AzureMonitor')]",
+        "[resourceId('Microsoft.Resources/deployments', 'SCEPmanAppServices')]",
+        "[resourceId('Microsoft.Resources/deployments', 'SCEPmanStorageAccount')]"
+      ]
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2024-03-01",
+      "apiVersion": "2022-09-01",
       "name": "SCEPmanStorageAccount",
       "properties": {
-        "mode": "Incremental",
-        "templateLink": {
-          "uri": "[variables('stgAccountTemplateUri')]",
-          "contentVersion": "1.0.0.0"
+        "expressionEvaluationOptions": {
+          "scope": "inner"
         },
+        "mode": "Incremental",
         "parameters": {
           "StorageAccountName": {
             "value": "[parameters('storageAccountName')]"
@@ -411,21 +1118,199 @@
           },
           "tableContributorPrincipals": {
             "value": [
-              "[reference('SCEPmanAppServices').outputs.scepmanPrincipalID.value]",
-              "[reference('SCEPmanAppServices').outputs.certmasterPrincipalID.value]"
+              "[reference(resourceId('Microsoft.Resources/deployments', 'SCEPmanAppServices'), '2022-09-01').outputs.scepmanPrincipalID.value]",
+              "[reference(resourceId('Microsoft.Resources/deployments', 'SCEPmanAppServices'), '2022-09-01').outputs.certmasterPrincipalID.value]"
             ]
           },
           "virtualNetworkName": {
             "value": "[parameters('virtualNetworkName')]"
           },
-          "privateEndpointName": {
-            "value": "[if(parameters('deployPrivateNetwork'), parameters('privateEndpointForTableStorage'), 'None')]"
+          "privateEndpointName": "[if(parameters('deployPrivateNetwork'), createObject('value', parameters('privateEndpointForTableStorage')), createObject('value', 'None'))]"
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.31.92.45157",
+              "templateHash": "4809198528132768969"
+            }
+          },
+          "parameters": {
+            "StorageAccountName": {
+              "type": "string",
+              "metadata": {
+                "description": "Name of the storage account"
+              }
+            },
+            "location": {
+              "type": "string",
+              "metadata": {
+                "description": "Location where the resources will be deployed"
+              }
+            },
+            "resourceTags": {
+              "type": "object",
+              "metadata": {
+                "description": "Tags to be assigned to the created resources"
+              }
+            },
+            "tableContributorPrincipals": {
+              "type": "array",
+              "metadata": {
+                "description": "IDs of Principals that shall receive table contributor rights on the storage account"
+              }
+            },
+            "virtualNetworkName": {
+              "type": "string",
+              "metadata": {
+                "description": "Name of the Virtual Network to associate with the table service of the storage account."
+              }
+            },
+            "privateEndpointName": {
+              "type": "string",
+              "metadata": {
+                "description": "Name of the private endpoint to be created for the table service of the storage account. Pass 'None' if you don't want to create a private endpoint."
+              }
+            }
+          },
+          "variables": {
+            "privateDnsZoneName": "[format('privatelink.table.{0}', environment().suffixes.storage)]"
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Storage/storageAccounts",
+              "apiVersion": "2022-09-01",
+              "name": "[parameters('StorageAccountName')]",
+              "location": "[parameters('location')]",
+              "tags": "[parameters('resourceTags')]",
+              "sku": {
+                "name": "Standard_LRS"
+              },
+              "kind": "StorageV2",
+              "properties": {
+                "accessTier": "Hot",
+                "allowBlobPublicAccess": false,
+                "allowCrossTenantReplication": false,
+                "allowSharedKeyAccess": false,
+                "isHnsEnabled": false,
+                "isNfsV3Enabled": false,
+                "minimumTlsVersion": "TLS1_2",
+                "supportsHttpsTrafficOnly": true,
+                "networkAcls": {
+                  "bypass": "None",
+                  "defaultAction": "[if(equals(parameters('privateEndpointName'), 'None'), 'Allow', 'Deny')]"
+                }
+              }
+            },
+            {
+              "copy": {
+                "name": "roleAssignment_sa_tableContributorPrincipals",
+                "count": "[length(parameters('tableContributorPrincipals'))]"
+              },
+              "type": "Microsoft.Authorization/roleAssignments",
+              "apiVersion": "2022-04-01",
+              "scope": "[format('Microsoft.Storage/storageAccounts/{0}', parameters('StorageAccountName'))]",
+              "name": "[guid(format('roleAssignment-sa-{0}', parameters('tableContributorPrincipals')[copyIndex()]))]",
+              "properties": {
+                "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', '0a9a7e1f-b9d0-4cc4-a60d-0319b160aaa3')]",
+                "principalId": "[parameters('tableContributorPrincipals')[copyIndex()]]"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName'))]"
+              ]
+            },
+            {
+              "condition": "[not(equals(parameters('privateEndpointName'), 'None'))]",
+              "type": "Microsoft.Network/privateDnsZones",
+              "apiVersion": "2020-06-01",
+              "name": "[variables('privateDnsZoneName')]",
+              "location": "Global",
+              "tags": "[parameters('resourceTags')]",
+              "properties": {}
+            },
+            {
+              "condition": "[not(equals(parameters('privateEndpointName'), 'None'))]",
+              "type": "Microsoft.Network/privateEndpoints",
+              "apiVersion": "2023-11-01",
+              "name": "[parameters('privateEndpointName')]",
+              "location": "[parameters('location')]",
+              "tags": "[parameters('resourceTags')]",
+              "properties": {
+                "subnet": {
+                  "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), 'default')]"
+                },
+                "privateLinkServiceConnections": [
+                  {
+                    "name": "tableStorageConnection",
+                    "properties": {
+                      "privateLinkServiceId": "[resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName'))]",
+                      "groupIds": [
+                        "table"
+                      ],
+                      "privateLinkServiceConnectionState": {
+                        "status": "Approved",
+                        "description": "Private endpoint connection approved",
+                        "actionsRequired": "None"
+                      }
+                    }
+                  }
+                ]
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName'))]"
+              ]
+            },
+            {
+              "condition": "[not(equals(parameters('privateEndpointName'), 'None'))]",
+              "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
+              "apiVersion": "2023-06-01",
+              "name": "[format('{0}/{1}', parameters('privateEndpointName'), 'default')]",
+              "properties": {
+                "privateDnsZoneConfigs": [
+                  {
+                    "name": "[variables('privateDnsZoneName')]",
+                    "properties": {
+                      "privateDnsZoneId": "[resourceId('Microsoft.Network/privateDnsZones', variables('privateDnsZoneName'))]"
+                    }
+                  }
+                ]
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/privateDnsZones', variables('privateDnsZoneName'))]",
+                "[resourceId('Microsoft.Network/privateEndpoints', parameters('privateEndpointName'))]"
+              ]
+            },
+            {
+              "condition": "[not(equals(parameters('privateEndpointName'), 'None'))]",
+              "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+              "apiVersion": "2020-06-01",
+              "name": "[format('{0}/{1}', variables('privateDnsZoneName'), format('{0}-link', parameters('StorageAccountName')))]",
+              "location": "global",
+              "properties": {
+                "registrationEnabled": false,
+                "virtualNetwork": {
+                  "id": "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]"
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/privateDnsZones', variables('privateDnsZoneName'))]"
+              ]
+            }
+          ],
+          "outputs": {
+            "storageAccountTableUrl": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName')), '2022-09-01').primaryEndpoints.table]"
+            }
           }
         }
       },
       "dependsOn": [
-        "VirtualNetwork",
-        "AppService-0-ConnectionToVirtualNetwork", "AppService-1-ConnectionToVirtualNetwork"
+        "AppService_ConnectionToVirtualNetwork",
+        "[resourceId('Microsoft.Resources/deployments', 'CreateVirtualNetwork')]",
+        "[resourceId('Microsoft.Resources/deployments', 'SCEPmanAppServices')]"
       ]
     }
   ]
