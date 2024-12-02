@@ -1,0 +1,29 @@
+name: Generate ARM Template
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - '**/*.bicep'
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    container: mcr.microsoft.com/azure-cli
+    permissions:                # Job-level permissions configuration starts here
+      contents: write           # 'write' access to repository contents
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Generate ARM template
+      run: az bicep build --file ./azuredeploy.bicep
+
+    - name: Commit and push generated ARM template
+      run: |
+        git config --global user.name 'github-actions[bot]'
+        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+        git commit -m 'Generate ARM template from Bicep'
+        git push
