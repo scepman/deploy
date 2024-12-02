@@ -12,11 +12,11 @@ param virtualNetworkAddressPrefixes array = [
   '10.142.0.0/16'
 ]
 
-@description('Array of subnet IP prefixes.')
-param subnetIpPrefixes array = [
-  '10.142.0.0/24'
-  '10.142.1.0/24'
-]
+@description('Subnet prefix for the default subnet')
+param subnetIpPrefixDefault string ='10.142.0.0/24'
+
+@description('Subnet prefix for the subnet that will host the App Services')
+param subnetIpPrefixScepman string = '10.142.1.0/24'
 
 resource virtualNetwork 'Microsoft.Network/virtualNetworks@2023-06-01' = {
   name: virtualNetworkName
@@ -35,7 +35,7 @@ resource virtualNetwork 'Microsoft.Network/virtualNetworks@2023-06-01' = {
         name: 'default'
         id: resourceId('Microsoft.Network/virtualNetworks/subnets', virtualNetworkName, 'default')
         properties: {
-          addressPrefix: subnetIpPrefixes[0]
+          addressPrefix: subnetIpPrefixDefault
           privateEndpointNetworkPolicies: 'Disabled'
           privateLinkServiceNetworkPolicies: 'Enabled'
           defaultOutboundAccess: true
@@ -46,7 +46,7 @@ resource virtualNetwork 'Microsoft.Network/virtualNetworks@2023-06-01' = {
         name: 'snet-scepman-appservices'
         id: resourceId('Microsoft.Network/virtualNetworks/subnets', virtualNetworkName, 'snet-scepman-appservices')
         properties: {
-          addressPrefix: subnetIpPrefixes[1]
+          addressPrefix: subnetIpPrefixScepman
           delegations: [
             {
               name: 'delegation'
