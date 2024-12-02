@@ -67,15 +67,6 @@ param resourceTags object = {}
 var artifactsRepositoryUrl = 'https://raw.githubusercontent.com/scepman/install/master/'
 var ArtifactsLocationSCEPman = uri(artifactsRepositoryUrl, 'dist/Artifacts.zip')
 var ArtifactsLocationCertMaster = uri(artifactsRepositoryUrl, 'dist-certmaster/CertMaster-Artifacts.zip')
-var templateRepositoryUrl = 'https://raw.githubusercontent.com/scepman/install/master/'
-var vnetTemplateUri = uri(templateRepositoryUrl, 'nestedtemplates/vnet.json')
-var vnet2AppServicesTemplateUri = uri(templateRepositoryUrl, 'nestedtemplates/vnet-to-appservices.json')
-var appSvcTemplateUri = uri(templateRepositoryUrl, 'nestedtemplates/appSvcDouble.json')
-var logAnalyticsTemplateUri = uri(templateRepositoryUrl, 'nestedtemplates/loganalytics.json')
-var vaultTemplateUri = uri(templateRepositoryUrl, 'nestedtemplates/vault.json')
-var appConfigTemplateUri = uri(templateRepositoryUrl, 'nestedtemplates/appConfig-scepman.json')
-var appConfigCertMasterTemplateUri = uri(templateRepositoryUrl, 'nestedtemplates/appConfig-certmaster.json')
-var stgAccountTemplateUri = uri(templateRepositoryUrl, 'nestedtemplates/stgAccount.json')
 var appServiceNames = [
   primaryAppServiceName
   certificateMasterAppServiceName
