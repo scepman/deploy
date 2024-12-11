@@ -10,7 +10,6 @@ on:
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-    container: mcr.microsoft.com/azure-cli
     permissions:                # Job-level permissions configuration starts here
       contents: write           # 'write' access to repository contents
 
@@ -19,7 +18,10 @@ jobs:
       uses: actions/checkout@v4
 
     - name: Generate ARM template
-      run: az bicep build --file ./azuredeploy.bicep
+      uses: azure/cli@v2
+      with:
+        azcliversion: latest
+        inlineScript: az bicep build --file ./azuredeploy.bicep
 
     - name: Commit and push generated ARM template
       run: |
