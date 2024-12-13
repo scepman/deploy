@@ -20,7 +20,7 @@ param privateEndpointName string
 // See: https://learn.microsoft.com/en-us/azure/private-link/private-endpoint-dns#storage
 var privateDnsZoneName = 'privatelink.table.${environment().suffixes.storage}'
 
-resource StorageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
+resource StorageAccount 'Microsoft.Storage/storageAccounts@2023-05-01' = {
   name: StorageAccountName
   location: location
   tags: resourceTags
