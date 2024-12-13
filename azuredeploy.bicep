@@ -28,6 +28,9 @@ param appServicePlanName string = 'asp-scepman-UNIQUENAME'
 @description('Provide the Resource ID of an existing App Service Plan (the long string displayed in the properties tab). Keep default value \'none\' if you want to create a new one.')
 param existingAppServicePlanID string = 'none'
 
+@description('Use Linux App Service Plan')
+param deployOnLinux bool = false
+
 @description('The SCEPman App Service and part of the default FQDN. Therefore, it must be globally unique and contain only DNS-compatible characters.')
 @maxLength(60)
 param primaryAppServiceName string = 'app-scepman-UNIQUENAME'
@@ -107,7 +110,7 @@ module SCEPmanAppServices 'nestedtemplates/appSvcDouble.bicep' = {
   params: {
     AppServicePlanName: appServicePlanName
     existingAppServicePlanID: existingAppServicePlanID
-    deployOnLinux: false
+    deployOnLinux: deployOnLinux
     appServiceName: primaryAppServiceName
     appServiceName2: certificateMasterAppServiceName
     location: location
@@ -146,6 +149,7 @@ module DeploymentSCEPmanConfig 'nestedtemplates/appConfig-scepman.bicep' = {
   params: {
     StorageAccountTableUrl: SCEPmanStorageAccount.outputs.storageAccountTableUrl
     appServiceName: primaryAppServiceName
+    deployOnLinux: deployOnLinux
     scepManBaseURL: SCEPmanAppServices.outputs.scepmanURL
     keyVaultURL: SCEPmanVault.outputs.keyVaultURL
     caKeyType: caKeyType
@@ -161,6 +165,7 @@ module DeploymentCertMasterConfig 'nestedtemplates/appConfig-certmaster.bicep' =
   name: 'DeploymentCertMasterConfig'
   params: {
     appServiceName: certificateMasterAppServiceName
+    deployOnLinux: deployOnLinux
     scepmanUrl: SCEPmanAppServices.outputs.scepmanURL
     StorageAccountTableUrl: SCEPmanStorageAccount.outputs.storageAccountTableUrl
     logAnalyticsWorkspaceId: AzureMonitor.outputs.workspaceId

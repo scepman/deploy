@@ -35,31 +35,37 @@ param license string = 'trial'
 @description('The full URI where SCEPman artifact binaries are stored')
 param WebsiteArtifactsUri string
 
-resource appServiceName_appsettings 'Microsoft.Web/sites/config@2022-09-01' = {
+@description('Use Linux App Service Plan')
+param deployOnLinux bool
+
+// Function to convert colon-style variable names to underscore-separated variable names if deployOnLinux is true
+func convertVariableNameToLinux(variableName string, deployOnLinux bool) string => deployOnLinux ? replace(variableName, ':', '__') : variableName
+
+resource appServiceName_appsettings 'Microsoft.Web/sites/config@2024-04-01' = {
   name: '${appServiceName}/appsettings'
   properties: {
     WEBSITE_RUN_FROM_PACKAGE: WebsiteArtifactsUri
-    'AppConfig:BaseUrl': scepManBaseURL
-    'AppConfig:LicenseKey': license
-    'AppConfig:AuthConfig:TenantId': subscription().tenantId
-    'AppConfig:UseRequestedKeyUsages': 'true'
-    'AppConfig:ValidityPeriodDays': '730'
-    'AppConfig:IntuneValidation:ValidityPeriodDays': '365'
-    'AppConfig:DirectCSRValidation:Enabled': 'true'
-    'AppConfig:IntuneValidation:DeviceDirectory': 'AADAndIntune'
-    'AppConfig:CRL:Source': 'Storage'
-    'AppConfig:EnableCertificateStorage': 'true'
-    'AppConfig:LoggingConfig:WorkspaceId': logAnalyticsWorkspaceId
-    'AppConfig:LoggingConfig:SharedKey': listKeys(
+    '${convertVariableNameToLinux('AppConfig:BaseUrl', deployOnLinux)}': scepManBaseURL
+    '${convertVariableNameToLinux('AppConfig:LicenseKey', deployOnLinux)}': license
+    '${convertVariableNameToLinux('AppConfig:AuthConfig:TenantId', deployOnLinux)}': subscription().tenantId
+    '${convertVariableNameToLinux('AppConfig:UseRequestedKeyUsages', deployOnLinux)}': 'true'
+    '${convertVariableNameToLinux('AppConfig:ValidityPeriodDays', deployOnLinux)}': '730'
+    '${convertVariableNameToLinux('AppConfig:IntuneValidation:ValidityPeriodDays', deployOnLinux)}': '365'
+    '${convertVariableNameToLinux('AppConfig:DirectCSRValidation:Enabled', deployOnLinux)}': 'true'
+    '${convertVariableNameToLinux('AppConfig:IntuneValidation:DeviceDirectory', deployOnLinux)}': 'AADAndIntune'
+    '${convertVariableNameToLinux('AppConfig:CRL:Source', deployOnLinux)}': 'Storage'
+    '${convertVariableNameToLinux('AppConfig:EnableCertificateStorage', deployOnLinux)}': 'true'
+    '${convertVariableNameToLinux('AppConfig:LoggingConfig:WorkspaceId', deployOnLinux)}': logAnalyticsWorkspaceId
+    '${convertVariableNameToLinux('AppConfig:LoggingConfig:SharedKey', deployOnLinux)}': listKeys(
       resourceId('Microsoft.OperationalInsights/workspaces', logAnalyticsWorkspaceName),
       '2022-10-01'
     ).primarySharedKey
-    'AppConfig:KeyVaultConfig:KeyVaultURL': keyVaultURL
-    'AppConfig:CertificateStorage:TableStorageEndpoint': StorageAccountTableUrl
-    'AppConfig:KeyVaultConfig:RootCertificateConfig:CertificateName': 'SCEPman-Root-CA-V1'
-    'AppConfig:KeyVaultConfig:RootCertificateConfig:KeyType': caKeyType
-    'AppConfig:KeyVaultConfig:RootCertificateConfig:KeySize': caKeySize
-    'AppConfig:ValidityClockSkewMinutes': '1440'
-    'AppConfig:KeyVaultConfig:RootCertificateConfig:Subject': 'CN=SCEPman-Root-CA-V1, OU=${subscription().tenantId}, O="${OrgName}"'
+    '${convertVariableNameToLinux('AppConfig:KeyVaultConfig:KeyVaultURL', deployOnLinux)}': keyVaultURL
+    '${convertVariableNameToLinux('AppConfig:CertificateStorage:TableStorageEndpoint', deployOnLinux)}': StorageAccountTableUrl
+    '${convertVariableNameToLinux('AppConfig:KeyVaultConfig:RootCertificateConfig:CertificateName', deployOnLinux)}': 'SCEPman-Root-CA-V1'
+    '${convertVariableNameToLinux('AppConfig:KeyVaultConfig:RootCertificateConfig:KeyType', deployOnLinux)}': caKeyType
+    '${convertVariableNameToLinux('AppConfig:KeyVaultConfig:RootCertificateConfig:KeySize', deployOnLinux)}': caKeySize
+    '${convertVariableNameToLinux('AppConfig:ValidityClockSkewMinutes', deployOnLinux)}': '1440'
+    '${convertVariableNameToLinux('AppConfig:KeyVaultConfig:RootCertificateConfig:Subject', deployOnLinux)}': 'CN=SCEPman-Root-CA-V1, OU=${subscription().tenantId}, O="${OrgName}"'
   }
 }
