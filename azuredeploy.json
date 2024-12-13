@@ -4,8 +4,8 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.31.92.45157",
-      "templateHash": "17542149916566262954"
+      "version": "0.32.4.45862",
+      "templateHash": "18222951034447780534"
     }
   },
   "parameters": {
@@ -62,6 +62,13 @@
       "defaultValue": "none",
       "metadata": {
         "description": "Provide the Resource ID of an existing App Service Plan (the long string displayed in the properties tab). Keep default value 'none' if you want to create a new one."
+      }
+    },
+    "deployOnLinux": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "Use Linux App Service Plan"
       }
     },
     "primaryAppServiceName": {
@@ -163,8 +170,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.31.92.45157",
-              "templateHash": "11590200223811717167"
+              "version": "0.32.4.45862",
+              "templateHash": "16208364426447542075"
             }
           },
           "resources": []
@@ -198,8 +205,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.31.92.45157",
-              "templateHash": "2252626684540476247"
+              "version": "0.32.4.45862",
+              "templateHash": "10674274146303146116"
             }
           },
           "parameters": {
@@ -230,14 +237,18 @@
                 "description": "List of address prefixes for the Virtual Network."
               }
             },
-            "subnetIpPrefixes": {
-              "type": "array",
-              "defaultValue": [
-                "10.142.0.0/24",
-                "10.142.1.0/24"
-              ],
+            "subnetIpPrefixDefault": {
+              "type": "string",
+              "defaultValue": "10.142.0.0/24",
               "metadata": {
-                "description": "Array of subnet IP prefixes."
+                "description": "Subnet prefix for the default subnet"
+              }
+            },
+            "subnetIpPrefixScepman": {
+              "type": "string",
+              "defaultValue": "10.142.1.0/24",
+              "metadata": {
+                "description": "Subnet prefix for the subnet that will host the App Services"
               }
             }
           },
@@ -261,7 +272,7 @@
                     "name": "default",
                     "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), 'default')]",
                     "properties": {
-                      "addressPrefix": "[parameters('subnetIpPrefixes')[0]]",
+                      "addressPrefix": "[parameters('subnetIpPrefixDefault')]",
                       "privateEndpointNetworkPolicies": "Disabled",
                       "privateLinkServiceNetworkPolicies": "Enabled",
                       "defaultOutboundAccess": true
@@ -272,7 +283,7 @@
                     "name": "snet-scepman-appservices",
                     "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), 'snet-scepman-appservices')]",
                     "properties": {
-                      "addressPrefix": "[parameters('subnetIpPrefixes')[1]]",
+                      "addressPrefix": "[parameters('subnetIpPrefixScepman')]",
                       "delegations": [
                         {
                           "name": "delegation",
@@ -328,8 +339,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.31.92.45157",
-              "templateHash": "9726038779307703442"
+              "version": "0.32.4.45862",
+              "templateHash": "7665409198166939483"
             }
           },
           "parameters": {
@@ -389,6 +400,9 @@
           "existingAppServicePlanID": {
             "value": "[parameters('existingAppServicePlanID')]"
           },
+          "deployOnLinux": {
+            "value": "[parameters('deployOnLinux')]"
+          },
           "appServiceName": {
             "value": "[parameters('primaryAppServiceName')]"
           },
@@ -408,8 +422,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.31.92.45157",
-              "templateHash": "8836432641354004882"
+              "version": "0.32.4.45862",
+              "templateHash": "5262572405803912429"
             }
           },
           "parameters": {
@@ -438,6 +452,12 @@
                 "description": "Name of second App Service to be created"
               }
             },
+            "deployOnLinux": {
+              "type": "bool",
+              "metadata": {
+                "description": "Use Linux App Service Plan"
+              }
+            },
             "location": {
               "type": "string",
               "metadata": {
@@ -455,13 +475,14 @@
             {
               "condition": "[equals(parameters('existingAppServicePlanID'), 'none')]",
               "type": "Microsoft.Web/serverfarms",
-              "apiVersion": "2022-09-01",
+              "apiVersion": "2024-04-01",
               "name": "[parameters('AppServicePlanName')]",
               "location": "[parameters('location')]",
               "sku": {
                 "tier": "Standard",
                 "name": "S1"
               },
+              "kind": "[if(parameters('deployOnLinux'), 'app,linux', 'app')]",
               "tags": "[parameters('resourceTags')]",
               "properties": {
                 "targetWorkerCount": 1
@@ -469,7 +490,7 @@
             },
             {
               "type": "Microsoft.Web/sites",
-              "apiVersion": "2022-09-01",
+              "apiVersion": "2024-04-01",
               "name": "[parameters('appServiceName')]",
               "location": "[parameters('location')]",
               "identity": {
@@ -522,7 +543,7 @@
           "outputs": {
             "scepmanURL": {
               "type": "string",
-              "value": "[uri(format('https://{0}', reference(resourceId('Microsoft.Web/sites', parameters('appServiceName')), '2022-09-01').defaultHostName), '/')]"
+              "value": "[uri(format('https://{0}', reference(resourceId('Microsoft.Web/sites', parameters('appServiceName')), '2024-04-01').defaultHostName), '/')]"
             },
             "scepmanPrincipalID": {
               "type": "string",
@@ -566,8 +587,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.31.92.45157",
-              "templateHash": "10028972295689736104"
+              "version": "0.32.4.45862",
+              "templateHash": "15429748122715199020"
             }
           },
           "parameters": {
@@ -647,8 +668,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.31.92.45157",
-              "templateHash": "16497806723925078443"
+              "version": "0.32.4.45862",
+              "templateHash": "2811173264401349559"
             }
           },
           "parameters": {
@@ -849,6 +870,9 @@
           "appServiceName": {
             "value": "[parameters('primaryAppServiceName')]"
           },
+          "deployOnLinux": {
+            "value": "[parameters('deployOnLinux')]"
+          },
           "scepManBaseURL": {
             "value": "[reference(resourceId('Microsoft.Resources/deployments', 'SCEPmanAppServices'), '2022-09-01').outputs.scepmanURL.value]"
           },
@@ -876,14 +900,38 @@
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "2.0",
           "contentVersion": "1.0.0.0",
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.31.92.45157",
-              "templateHash": "13647077634106833966"
+              "version": "0.32.4.45862",
+              "templateHash": "1885191697763807133"
             }
           },
+          "functions": [
+            {
+              "namespace": "__bicep",
+              "members": {
+                "convertVariableNameToLinux": {
+                  "parameters": [
+                    {
+                      "type": "string",
+                      "name": "variableName"
+                    },
+                    {
+                      "type": "bool",
+                      "name": "deployOnLinux"
+                    }
+                  ],
+                  "output": {
+                    "type": "string",
+                    "value": "[if(parameters('deployOnLinux'), replace(parameters('variableName'), ':', '__'), parameters('variableName'))]"
+                  }
+                }
+              }
+            }
+          ],
           "parameters": {
             "StorageAccountTableUrl": {
               "type": "string",
@@ -957,37 +1005,43 @@
               "metadata": {
                 "description": "The full URI where SCEPman artifact binaries are stored"
               }
+            },
+            "deployOnLinux": {
+              "type": "bool",
+              "metadata": {
+                "description": "Use Linux App Service Plan"
+              }
             }
           },
-          "resources": [
-            {
+          "resources": {
+            "appServiceName_appsettings": {
               "type": "Microsoft.Web/sites/config",
-              "apiVersion": "2022-09-01",
+              "apiVersion": "2024-04-01",
               "name": "[format('{0}/appsettings', parameters('appServiceName'))]",
               "properties": {
                 "WEBSITE_RUN_FROM_PACKAGE": "[parameters('WebsiteArtifactsUri')]",
-                "AppConfig:BaseUrl": "[parameters('scepManBaseURL')]",
-                "AppConfig:LicenseKey": "[parameters('license')]",
-                "AppConfig:AuthConfig:TenantId": "[subscription().tenantId]",
-                "AppConfig:UseRequestedKeyUsages": "true",
-                "AppConfig:ValidityPeriodDays": "730",
-                "AppConfig:IntuneValidation:ValidityPeriodDays": "365",
-                "AppConfig:DirectCSRValidation:Enabled": "true",
-                "AppConfig:IntuneValidation:DeviceDirectory": "AADAndIntune",
-                "AppConfig:CRL:Source": "Storage",
-                "AppConfig:EnableCertificateStorage": "true",
-                "AppConfig:LoggingConfig:WorkspaceId": "[parameters('logAnalyticsWorkspaceId')]",
-                "AppConfig:LoggingConfig:SharedKey": "[listKeys(resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName')), '2022-10-01').primarySharedKey]",
-                "AppConfig:KeyVaultConfig:KeyVaultURL": "[parameters('keyVaultURL')]",
-                "AppConfig:CertificateStorage:TableStorageEndpoint": "[parameters('StorageAccountTableUrl')]",
-                "AppConfig:KeyVaultConfig:RootCertificateConfig:CertificateName": "SCEPman-Root-CA-V1",
-                "AppConfig:KeyVaultConfig:RootCertificateConfig:KeyType": "[parameters('caKeyType')]",
-                "AppConfig:KeyVaultConfig:RootCertificateConfig:KeySize": "[parameters('caKeySize')]",
-                "AppConfig:ValidityClockSkewMinutes": "1440",
-                "AppConfig:KeyVaultConfig:RootCertificateConfig:Subject": "[format('CN=SCEPman-Root-CA-V1, OU={0}, O=\"{1}\"', subscription().tenantId, parameters('OrgName'))]"
+                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:BaseUrl', parameters('deployOnLinux')))]": "[parameters('scepManBaseURL')]",
+                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:LicenseKey', parameters('deployOnLinux')))]": "[parameters('license')]",
+                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:AuthConfig:TenantId', parameters('deployOnLinux')))]": "[subscription().tenantId]",
+                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:UseRequestedKeyUsages', parameters('deployOnLinux')))]": "true",
+                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:ValidityPeriodDays', parameters('deployOnLinux')))]": "730",
+                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:IntuneValidation:ValidityPeriodDays', parameters('deployOnLinux')))]": "365",
+                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:DirectCSRValidation:Enabled', parameters('deployOnLinux')))]": "true",
+                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:IntuneValidation:DeviceDirectory', parameters('deployOnLinux')))]": "AADAndIntune",
+                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:CRL:Source', parameters('deployOnLinux')))]": "Storage",
+                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:EnableCertificateStorage', parameters('deployOnLinux')))]": "true",
+                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:LoggingConfig:WorkspaceId', parameters('deployOnLinux')))]": "[parameters('logAnalyticsWorkspaceId')]",
+                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:LoggingConfig:SharedKey', parameters('deployOnLinux')))]": "[listKeys(resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName')), '2022-10-01').primarySharedKey]",
+                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:KeyVaultConfig:KeyVaultURL', parameters('deployOnLinux')))]": "[parameters('keyVaultURL')]",
+                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:CertificateStorage:TableStorageEndpoint', parameters('deployOnLinux')))]": "[parameters('StorageAccountTableUrl')]",
+                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:KeyVaultConfig:RootCertificateConfig:CertificateName', parameters('deployOnLinux')))]": "SCEPman-Root-CA-V1",
+                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:KeyVaultConfig:RootCertificateConfig:KeyType', parameters('deployOnLinux')))]": "[parameters('caKeyType')]",
+                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:KeyVaultConfig:RootCertificateConfig:KeySize', parameters('deployOnLinux')))]": "[parameters('caKeySize')]",
+                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:ValidityClockSkewMinutes', parameters('deployOnLinux')))]": "1440",
+                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:KeyVaultConfig:RootCertificateConfig:Subject', parameters('deployOnLinux')))]": "[format('CN=SCEPman-Root-CA-V1, OU={0}, O=\"{1}\"', subscription().tenantId, parameters('OrgName'))]"
               }
             }
-          ]
+          }
         }
       },
       "dependsOn": [
@@ -1010,6 +1064,9 @@
           "appServiceName": {
             "value": "[parameters('certificateMasterAppServiceName')]"
           },
+          "deployOnLinux": {
+            "value": "[parameters('deployOnLinux')]"
+          },
           "scepmanUrl": {
             "value": "[reference(resourceId('Microsoft.Resources/deployments', 'SCEPmanAppServices'), '2022-09-01').outputs.scepmanURL.value]"
           },
@@ -1028,14 +1085,38 @@
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "2.0",
           "contentVersion": "1.0.0.0",
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.31.92.45157",
-              "templateHash": "5901468078577332424"
+              "version": "0.32.4.45862",
+              "templateHash": "12918852889695549035"
             }
           },
+          "functions": [
+            {
+              "namespace": "__bicep",
+              "members": {
+                "convertVariableNameToLinux": {
+                  "parameters": [
+                    {
+                      "type": "string",
+                      "name": "variableName"
+                    },
+                    {
+                      "type": "bool",
+                      "name": "deployOnLinux"
+                    }
+                  ],
+                  "output": {
+                    "type": "string",
+                    "value": "[if(parameters('deployOnLinux'), replace(parameters('variableName'), ':', '__'), parameters('variableName'))]"
+                  }
+                }
+              }
+            }
+          ],
           "parameters": {
             "StorageAccountTableUrl": {
               "type": "string",
@@ -1072,23 +1153,29 @@
               "metadata": {
                 "description": "Log Analytics Workspace name"
               }
+            },
+            "deployOnLinux": {
+              "type": "bool",
+              "metadata": {
+                "description": "Use Linux App Service Plan"
+              }
             }
           },
-          "resources": [
-            {
+          "resources": {
+            "appServiceName_appsettings": {
               "type": "Microsoft.Web/sites/config",
-              "apiVersion": "2022-09-01",
+              "apiVersion": "2024-04-01",
               "name": "[format('{0}/appsettings', parameters('appServiceName'))]",
               "properties": {
                 "WEBSITE_RUN_FROM_PACKAGE": "[parameters('WebsiteArtifactsUri')]",
-                "AppConfig:AzureStorage:TableStorageEndpoint": "[parameters('StorageAccountTableUrl')]",
-                "AppConfig:SCEPman:URL": "[parameters('scepmanUrl')]",
-                "AppConfig:AuthConfig:TenantId": "[subscription().tenantId]",
-                "AppConfig:LoggingConfig:WorkspaceId": "[parameters('logAnalyticsWorkspaceId')]",
-                "AppConfig:LoggingConfig:SharedKey": "[listKeys(resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName')), '2022-10-01').primarySharedKey]"
+                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:AzureStorage:TableStorageEndpoint', parameters('deployOnLinux')))]": "[parameters('StorageAccountTableUrl')]",
+                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:SCEPman:URL', parameters('deployOnLinux')))]": "[parameters('scepmanUrl')]",
+                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:AuthConfig:TenantId', parameters('deployOnLinux')))]": "[subscription().tenantId]",
+                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:LoggingConfig:WorkspaceId', parameters('deployOnLinux')))]": "[parameters('logAnalyticsWorkspaceId')]",
+                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:LoggingConfig:SharedKey', parameters('deployOnLinux')))]": "[listKeys(resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName')), '2022-10-01').primarySharedKey]"
               }
             }
-          ]
+          }
         }
       },
       "dependsOn": [
@@ -1133,8 +1220,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.31.92.45157",
-              "templateHash": "4809198528132768969"
+              "version": "0.32.4.45862",
+              "templateHash": "10289940565053564969"
             }
           },
           "parameters": {
