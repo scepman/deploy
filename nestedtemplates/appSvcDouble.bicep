@@ -26,7 +26,7 @@ resource AppServicePlan 'Microsoft.Web/serverfarms@2024-04-01' = if (existingApp
     tier: 'Standard'
     name: 'S1'
   }
-  kind: deployOnLinux ? 'app,linux' : 'app'
+  kind: deployOnLinux ? 'linux' : 'app'
   tags: resourceTags
   properties: {
     targetWorkerCount: 1
