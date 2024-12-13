@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.32.4.45862",
-      "templateHash": "18222951034447780534"
+      "templateHash": "5329710382470665049"
     }
   },
   "parameters": {
@@ -1221,7 +1221,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.32.4.45862",
-              "templateHash": "10289940565053564969"
+              "templateHash": "7423126672849281730"
             }
           },
           "parameters": {
@@ -1268,7 +1268,7 @@
           "resources": [
             {
               "type": "Microsoft.Storage/storageAccounts",
-              "apiVersion": "2022-09-01",
+              "apiVersion": "2023-05-01",
               "name": "[parameters('StorageAccountName')]",
               "location": "[parameters('location')]",
               "tags": "[parameters('resourceTags')]",
@@ -1389,7 +1389,7 @@
           "outputs": {
             "storageAccountTableUrl": {
               "type": "string",
-              "value": "[reference(resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName')), '2022-09-01').primaryEndpoints.table]"
+              "value": "[reference(resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName')), '2023-05-01').primaryEndpoints.table]"
             }
           }
         }
