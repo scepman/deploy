@@ -10,26 +10,30 @@ param appServiceName string
 @description('Name of second App Service to be created')
 param appServiceName2 string
 
+@description('Use Linux App Service Plan')
+param deployOnLinux bool
+
 @description('Resource Group')
 param location string
 
 @description('Tags to be assigned to the created resources')
 param resourceTags object
 
-resource AppServicePlan 'Microsoft.Web/serverfarms@2022-09-01' = if (existingAppServicePlanID == 'none') {
+resource AppServicePlan 'Microsoft.Web/serverfarms@2024-04-01' = if (existingAppServicePlanID == 'none') {
   name: AppServicePlanName
   location: location
   sku: {
     tier: 'Standard'
     name: 'S1'
   }
+  kind: deployOnLinux ? 'app,linux' : 'app'
   tags: resourceTags
   properties: {
     targetWorkerCount: 1
   }
 }
 
-resource appService 'Microsoft.Web/sites@2022-09-01' = {
+resource appService 'Microsoft.Web/sites@2024-04-01' = {
   name: appServiceName
   location: location
   identity: {

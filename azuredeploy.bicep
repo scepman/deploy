@@ -107,6 +107,7 @@ module SCEPmanAppServices 'nestedtemplates/appSvcDouble.bicep' = {
   params: {
     AppServicePlanName: appServicePlanName
     existingAppServicePlanID: existingAppServicePlanID
+    deployOnLinux: false
     appServiceName: primaryAppServiceName
     appServiceName2: certificateMasterAppServiceName
     location: location
