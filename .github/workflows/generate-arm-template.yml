@@ -18,10 +18,7 @@ jobs:
       uses: actions/checkout@v4
 
     - name: Generate ARM template
-      uses: azure/cli@v2
-      with:
-        azcliversion: latest
-        inlineScript: az bicep build --file ./azuredeploy.bicep
+      run: az bicep build --file azuredeploy.bicep
 
     - name: Commit and push generated ARM template
       run: |
