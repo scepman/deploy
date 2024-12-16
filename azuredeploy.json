@@ -4,8 +4,8 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.32.4.45862",
-      "templateHash": "12743879533161731853"
+      "version": "0.31.92.45157",
+      "templateHash": "14369203312791051502"
     }
   },
   "parameters": {
@@ -170,8 +170,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.32.4.45862",
-              "templateHash": "16208364426447542075"
+              "version": "0.31.92.45157",
+              "templateHash": "11590200223811717167"
             }
           },
           "resources": []
@@ -205,8 +205,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.32.4.45862",
-              "templateHash": "10674274146303146116"
+              "version": "0.31.92.45157",
+              "templateHash": "14948041936191327961"
             }
           },
           "parameters": {
@@ -339,8 +339,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.32.4.45862",
-              "templateHash": "7665409198166939483"
+              "version": "0.31.92.45157",
+              "templateHash": "9726038779307703442"
             }
           },
           "parameters": {
@@ -422,8 +422,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.32.4.45862",
-              "templateHash": "13223917999330709134"
+              "version": "0.31.92.45157",
+              "templateHash": "2922843128212245233"
             }
           },
           "parameters": {
@@ -485,7 +485,8 @@
               "kind": "[if(parameters('deployOnLinux'), 'linux', 'app')]",
               "tags": "[parameters('resourceTags')]",
               "properties": {
-                "targetWorkerCount": 1
+                "targetWorkerCount": 1,
+                "reserved": "[parameters('deployOnLinux')]"
               }
             },
             {
@@ -587,8 +588,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.32.4.45862",
-              "templateHash": "15429748122715199020"
+              "version": "0.31.92.45157",
+              "templateHash": "10028972295689736104"
             }
           },
           "parameters": {
@@ -668,8 +669,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.32.4.45862",
-              "templateHash": "2811173264401349559"
+              "version": "0.31.92.45157",
+              "templateHash": "16497806723925078443"
             }
           },
           "parameters": {
@@ -905,8 +906,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.32.4.45862",
-              "templateHash": "1885191697763807133"
+              "version": "0.31.92.45157",
+              "templateHash": "7477265767705757297"
             }
           },
           "functions": [
@@ -1037,6 +1038,7 @@
                 "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:KeyVaultConfig:RootCertificateConfig:CertificateName', parameters('deployOnLinux')))]": "SCEPman-Root-CA-V1",
                 "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:KeyVaultConfig:RootCertificateConfig:KeyType', parameters('deployOnLinux')))]": "[parameters('caKeyType')]",
                 "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:KeyVaultConfig:RootCertificateConfig:KeySize', parameters('deployOnLinux')))]": "[parameters('caKeySize')]",
+                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:OCSP:UseAuthorizedResponder', parameters('deployOnLinux')))]": "true",
                 "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:ValidityClockSkewMinutes', parameters('deployOnLinux')))]": "1440",
                 "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:KeyVaultConfig:RootCertificateConfig:Subject', parameters('deployOnLinux')))]": "[format('CN=SCEPman-Root-CA-V1, OU={0}, O=\"{1}\"', subscription().tenantId, parameters('OrgName'))]"
               }
@@ -1090,8 +1092,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.32.4.45862",
-              "templateHash": "12918852889695549035"
+              "version": "0.31.92.45157",
+              "templateHash": "13805639695097575648"
             }
           },
           "functions": [
@@ -1220,8 +1222,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.32.4.45862",
-              "templateHash": "7423126672849281730"
+              "version": "0.31.92.45157",
+              "templateHash": "2376844476342221751"
             }
           },
           "parameters": {
