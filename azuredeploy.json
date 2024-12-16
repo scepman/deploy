@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.31.92.45157",
-      "templateHash": "14369203312791051502"
+      "templateHash": "16298115262438281084"
     }
   },
   "parameters": {
@@ -670,7 +670,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.31.92.45157",
-              "templateHash": "16497806723925078443"
+              "templateHash": "13835083057107937073"
             }
           },
           "parameters": {
@@ -753,7 +753,7 @@
               "type": "Microsoft.Authorization/roleAssignments",
               "apiVersion": "2022-04-01",
               "scope": "[format('Microsoft.KeyVault/vaults/{0}', parameters('keyVaultName'))]",
-              "name": "[guid(format('roleAssignment-kv-{0}', variables('rbac_roles')[copyIndex()]))]",
+              "name": "[guid(format('roleAssignment-kv-{0}-{1}', variables('rbac_roles')[copyIndex()], parameters('permittedPrincipalId')))]",
               "properties": {
                 "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', variables('rbac_roles')[copyIndex()])]",
                 "principalId": "[parameters('permittedPrincipalId')]"
@@ -1223,7 +1223,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.31.92.45157",
-              "templateHash": "2376844476342221751"
+              "templateHash": "3238303057116883850"
             }
           },
           "parameters": {
@@ -1301,7 +1301,7 @@
               "type": "Microsoft.Authorization/roleAssignments",
               "apiVersion": "2022-04-01",
               "scope": "[format('Microsoft.Storage/storageAccounts/{0}', parameters('StorageAccountName'))]",
-              "name": "[guid(format('roleAssignment-sa-{0}', parameters('tableContributorPrincipals')[copyIndex()]))]",
+              "name": "[guid(format('roleAssignment-sa-{0}-tableContributor', parameters('tableContributorPrincipals')[copyIndex()]))]",
               "properties": {
                 "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', '0a9a7e1f-b9d0-4cc4-a60d-0319b160aaa3')]",
                 "principalId": "[parameters('tableContributorPrincipals')[copyIndex()]]"
