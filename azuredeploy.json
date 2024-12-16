@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.32.4.45862",
-      "templateHash": "5329710382470665049"
+      "templateHash": "12743879533161731853"
     }
   },
   "parameters": {
@@ -423,7 +423,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.32.4.45862",
-              "templateHash": "5262572405803912429"
+              "templateHash": "13223917999330709134"
             }
           },
           "parameters": {
@@ -482,7 +482,7 @@
                 "tier": "Standard",
                 "name": "S1"
               },
-              "kind": "[if(parameters('deployOnLinux'), 'app,linux', 'app')]",
+              "kind": "[if(parameters('deployOnLinux'), 'linux', 'app')]",
               "tags": "[parameters('resourceTags')]",
               "properties": {
                 "targetWorkerCount": 1
