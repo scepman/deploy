@@ -47,7 +47,7 @@ resource StorageAccount 'Microsoft.Storage/storageAccounts@2023-05-01' = {
 resource roleAssignment_sa_tableContributorPrincipals 'Microsoft.Authorization/roleAssignments@2022-04-01' = [
   for item in tableContributorPrincipals: {
     scope: StorageAccount
-    name: guid('roleAssignment-sa-${item}')
+    name: guid('roleAssignment-sa-${item}-tableContributor')
     properties: {
       roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', '0a9a7e1f-b9d0-4cc4-a60d-0319b160aaa3') //0a9a7e1f-b9d0-4cc4-a60d-0319b160aaa3 is Storage Table Data Contributor
       principalId: item
