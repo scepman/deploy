@@ -30,6 +30,7 @@ resource AppServicePlan 'Microsoft.Web/serverfarms@2024-04-01' = if (existingApp
   tags: resourceTags
   properties: {
     targetWorkerCount: 1
+    reserved: deployOnLinux
   }
 }
 
