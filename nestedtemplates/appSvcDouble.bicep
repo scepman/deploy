@@ -52,6 +52,7 @@ resource appService 'Microsoft.Web/sites@2024-04-01' = {
       http20Enabled: false
       ftpsState: 'Disabled'
       use32BitWorkerProcess: false
+      linuxFxVersion: 'DOTNETCORE|8.0'  // If it is not a linux app service plan, this will be ignored
     }
   }
 }
@@ -73,6 +74,7 @@ resource appService2 'Microsoft.Web/sites@2024-04-01' = {
       ftpsState: 'Disabled'
       use32BitWorkerProcess: false
       minTlsVersion: '1.3'
+      linuxFxVersion: 'DOTNETCORE|8.0'  // If it is not a linux app service plan, this will be ignored
     }
   }
 }
