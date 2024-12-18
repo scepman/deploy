@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.31.92.45157",
-      "templateHash": "13814488307021898583"
+      "templateHash": "18016178958396735423"
     }
   },
   "parameters": {
@@ -423,7 +423,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.31.92.45157",
-              "templateHash": "2922843128212245233"
+              "templateHash": "5227578184220976623"
             }
           },
           "parameters": {
@@ -508,7 +508,8 @@
                   "alwaysOn": true,
                   "http20Enabled": false,
                   "ftpsState": "Disabled",
-                  "use32BitWorkerProcess": false
+                  "use32BitWorkerProcess": false,
+                  "linuxFxVersion": "DOTNETCORE|8.0"
                 }
               },
               "dependsOn": [
@@ -533,7 +534,8 @@
                   "http20Enabled": true,
                   "ftpsState": "Disabled",
                   "use32BitWorkerProcess": false,
-                  "minTlsVersion": "1.3"
+                  "minTlsVersion": "1.3",
+                  "linuxFxVersion": "DOTNETCORE|8.0"
                 }
               },
               "dependsOn": [
