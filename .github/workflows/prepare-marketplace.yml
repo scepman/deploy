@@ -31,3 +31,4 @@ jobs:
         with:
           name: Release
           path: publish/*
+          compression-level: 9
