@@ -52,6 +52,7 @@ resource appServiceName_appsettings 'Microsoft.Web/sites/config@2024-04-01' = {
     '${convertVariableNameToLinux('AppConfig:ValidityPeriodDays', deployOnLinux)}': '730'
     '${convertVariableNameToLinux('AppConfig:IntuneValidation:ValidityPeriodDays', deployOnLinux)}': '365'
     '${convertVariableNameToLinux('AppConfig:DirectCSRValidation:Enabled', deployOnLinux)}': 'true'
+    '${convertVariableNameToLinux('AppConfig:DbCSRValidation:ReenrollmentAllowedCertificateTypes', deployOnLinux)}': 'Static'
     '${convertVariableNameToLinux('AppConfig:IntuneValidation:DeviceDirectory', deployOnLinux)}': 'AADAndIntune'
     '${convertVariableNameToLinux('AppConfig:CRL:Source', deployOnLinux)}': 'Storage'
     '${convertVariableNameToLinux('AppConfig:EnableCertificateStorage', deployOnLinux)}': 'true'

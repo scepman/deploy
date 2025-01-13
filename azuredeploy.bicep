@@ -91,7 +91,7 @@ module CreateVirtualNetwork 'nestedtemplates/vnet.bicep' = if (deployPrivateNetw
 
 @batchSize(1)
 module AppService_ConnectionToVirtualNetwork 'nestedtemplates/vnet-to-appservices.bicep' = [
-  for i in range(0, 2): {
+  for i in range(0, 2): if (deployPrivateNetwork) {
     name: 'AppService-${i}-ConnectionToVirtualNetwork'
     params: {
       virtualNetworkName: virtualNetworkName
