@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.32.4.45862",
-      "templateHash": "1566880142581230379"
+      "templateHash": "8592054087941341791"
     }
   },
   "parameters": {
@@ -314,6 +314,7 @@
         "mode": "serial",
         "batchSize": 1
       },
+      "condition": "[parameters('deployPrivateNetwork')]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "[format('AppService-{0}-ConnectionToVirtualNetwork', range(0, 2)[copyIndex()])]",
@@ -909,7 +910,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.32.4.45862",
-              "templateHash": "1383562948883255668"
+              "templateHash": "2837463803015384542"
             }
           },
           "functions": [
@@ -1030,6 +1031,7 @@
                 "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:ValidityPeriodDays', parameters('deployOnLinux')))]": "730",
                 "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:IntuneValidation:ValidityPeriodDays', parameters('deployOnLinux')))]": "365",
                 "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:DirectCSRValidation:Enabled', parameters('deployOnLinux')))]": "true",
+                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:DbCSRValidation:ReenrollmentAllowedCertificateTypes', parameters('deployOnLinux')))]": "Static",
                 "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:IntuneValidation:DeviceDirectory', parameters('deployOnLinux')))]": "AADAndIntune",
                 "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:CRL:Source', parameters('deployOnLinux')))]": "Storage",
                 "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:EnableCertificateStorage', parameters('deployOnLinux')))]": "true",
