@@ -20,7 +20,6 @@ jobs:
           mkdir publish
           cp mainTemplate.json publish
           cp createUiDefinition.json publish
-          cp -r nestedtemplates publish
           mkdir publish/dist
           cp dist/Artifacts.zip publish/dist
           mkdir publish/dist-certmaster
