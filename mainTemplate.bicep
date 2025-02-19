@@ -10,7 +10,7 @@ param updateChannel string = 'prod'
 
 @description('The sasToken required to access _artifactsLocation.  When the template is deployed using the accompanying scripts, a sasToken will be automatically generated. Use the defaultValue if the staging location is not secured.')
 @secure()
-param _artifactsLocationSasToken string
+param _artifactsLocationSasToken string = ''
 
 @description('The base URI where artifacts required by this template are located including a trailing "/"')
 param _artifactsLocation string = deployment().properties.templateLink.uri
@@ -22,8 +22,8 @@ param location string = resourceGroup().location
 param resourceTags object = {}
 
 var artifactsRepositoryUrl = _artifactsLocation
-var ArtifactsLocationSCEPman = uri(artifactsRepositoryUrl, deployOnLinux ? 'dist/Artifacts-Linux.zip${_artifactsLocationSasToken}' : 'dist/Artifacts.zip${_artifactsLocationSasToken}')
-var ArtifactsLocationCertMaster = uri(artifactsRepositoryUrl, deployOnLinux ? 'dist-certmaster/CertMaster-Artifacts-Linux.zip${_artifactsLocationSasToken}' : 'dist-certmaster/CertMaster-Artifacts.zip${_artifactsLocationSasToken}')
+var ArtifactsLocationSCEPman = uri(artifactsRepositoryUrl, 'dist/Artifacts${deployOnLinux ? '-Linux' : ''}.zip${_artifactsLocationSasToken}')
+var ArtifactsLocationCertMaster = uri(artifactsRepositoryUrl, 'dist-certmaster/CertMaster-Artifacts${deployOnLinux ? '-Linux' : ''}.zip${_artifactsLocationSasToken}')
 var AppServicePlanName = 'asp-scepman-${uniqueString(resourceGroup().id)}'
 var AppServiceName = 'app-scepman-${uniqueString(resourceGroup().id)}'
 var AppServiceCertMasterName = 'app-scepman-cm-${uniqueString(resourceGroup().id)}'

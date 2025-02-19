@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.33.93.31351",
-      "templateHash": "2509248969787555898"
+      "templateHash": "15219769084655517916"
     }
   },
   "parameters": {
@@ -32,6 +32,7 @@
     },
     "_artifactsLocationSasToken": {
       "type": "securestring",
+      "defaultValue": "",
       "metadata": {
         "description": "The sasToken required to access _artifactsLocation.  When the template is deployed using the accompanying scripts, a sasToken will be automatically generated. Use the defaultValue if the staging location is not secured."
       }
@@ -60,8 +61,8 @@
   },
   "variables": {
     "artifactsRepositoryUrl": "[parameters('_artifactsLocation')]",
-    "ArtifactsLocationSCEPman": "[uri(variables('artifactsRepositoryUrl'), if(variables('deployOnLinux'), format('dist/Artifacts-Linux.zip{0}', parameters('_artifactsLocationSasToken')), format('dist/Artifacts.zip{0}', parameters('_artifactsLocationSasToken'))))]",
-    "ArtifactsLocationCertMaster": "[uri(variables('artifactsRepositoryUrl'), if(variables('deployOnLinux'), format('dist-certmaster/CertMaster-Artifacts-Linux.zip{0}', parameters('_artifactsLocationSasToken')), format('dist-certmaster/CertMaster-Artifacts.zip{0}', parameters('_artifactsLocationSasToken'))))]",
+    "ArtifactsLocationSCEPman": "[uri(variables('artifactsRepositoryUrl'), format('dist/Artifacts{0}.zip{1}', if(variables('deployOnLinux'), '-Linux', ''), parameters('_artifactsLocationSasToken')))]",
+    "ArtifactsLocationCertMaster": "[uri(variables('artifactsRepositoryUrl'), format('dist-certmaster/CertMaster-Artifacts{0}.zip{1}', if(variables('deployOnLinux'), '-Linux', ''), parameters('_artifactsLocationSasToken')))]",
     "AppServicePlanName": "[format('asp-scepman-{0}', uniqueString(resourceGroup().id))]",
     "AppServiceName": "[format('app-scepman-{0}', uniqueString(resourceGroup().id))]",
     "AppServiceCertMasterName": "[format('app-scepman-cm-{0}', uniqueString(resourceGroup().id))]",
