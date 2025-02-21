@@ -4,8 +4,8 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.32.4.45862",
-      "templateHash": "14388103014039713528"
+      "version": "0.33.93.31351",
+      "templateHash": "6181919141325697983"
     }
   },
   "parameters": {
@@ -170,8 +170,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.32.4.45862",
-              "templateHash": "16208364426447542075"
+              "version": "0.33.93.31351",
+              "templateHash": "1938494866978600684"
             }
           },
           "resources": []
@@ -205,8 +205,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.32.4.45862",
-              "templateHash": "10674274146303146116"
+              "version": "0.33.93.31351",
+              "templateHash": "11112251521809797654"
             }
           },
           "parameters": {
@@ -314,6 +314,7 @@
         "mode": "serial",
         "batchSize": 1
       },
+      "condition": "[parameters('deployPrivateNetwork')]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "[format('AppService-{0}-ConnectionToVirtualNetwork', range(0, 2)[copyIndex()])]",
@@ -339,8 +340,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.32.4.45862",
-              "templateHash": "7665409198166939483"
+              "version": "0.33.93.31351",
+              "templateHash": "12040909019057631371"
             }
           },
           "parameters": {
@@ -422,8 +423,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.32.4.45862",
-              "templateHash": "8706238111805819846"
+              "version": "0.33.93.31351",
+              "templateHash": "10035797049305501513"
             }
           },
           "parameters": {
@@ -590,8 +591,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.32.4.45862",
-              "templateHash": "15429748122715199020"
+              "version": "0.33.93.31351",
+              "templateHash": "1436881049044891296"
             }
           },
           "parameters": {
@@ -671,8 +672,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.32.4.45862",
-              "templateHash": "17093696253594095444"
+              "version": "0.33.93.31351",
+              "templateHash": "16642349427077574410"
             }
           },
           "parameters": {
@@ -908,8 +909,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.32.4.45862",
-              "templateHash": "1383562948883255668"
+              "version": "0.33.93.31351",
+              "templateHash": "3580941272961569082"
             }
           },
           "functions": [
@@ -1030,6 +1031,7 @@
                 "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:ValidityPeriodDays', parameters('deployOnLinux')))]": "730",
                 "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:IntuneValidation:ValidityPeriodDays', parameters('deployOnLinux')))]": "365",
                 "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:DirectCSRValidation:Enabled', parameters('deployOnLinux')))]": "true",
+                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:DbCSRValidation:ReenrollmentAllowedCertificateTypes', parameters('deployOnLinux')))]": "Static",
                 "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:IntuneValidation:DeviceDirectory', parameters('deployOnLinux')))]": "AADAndIntune",
                 "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:CRL:Source', parameters('deployOnLinux')))]": "Storage",
                 "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:EnableCertificateStorage', parameters('deployOnLinux')))]": "true",
@@ -1094,8 +1096,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.32.4.45862",
-              "templateHash": "12918852889695549035"
+              "version": "0.33.93.31351",
+              "templateHash": "6279415732680663725"
             }
           },
           "functions": [
@@ -1224,8 +1226,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.32.4.45862",
-              "templateHash": "5579058231309508017"
+              "version": "0.33.93.31351",
+              "templateHash": "1003439989599708283"
             }
           },
           "parameters": {
