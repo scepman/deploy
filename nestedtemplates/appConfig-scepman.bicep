@@ -49,6 +49,7 @@ resource appServiceName_appsettings 'Microsoft.Web/sites/config@2024-04-01' = {
     '${convertVariableNameToLinux('AppConfig:LicenseKey', deployOnLinux)}': license
     '${convertVariableNameToLinux('AppConfig:AuthConfig:TenantId', deployOnLinux)}': subscription().tenantId
     '${convertVariableNameToLinux('AppConfig:UseRequestedKeyUsages', deployOnLinux)}': 'true'
+    '${convertVariableNameToLinux('AppConfig:OCSP:UseAuthorizedResponder', deployOnLinux)}': 'true'
     '${convertVariableNameToLinux('AppConfig:ValidityPeriodDays', deployOnLinux)}': '730'
     '${convertVariableNameToLinux('AppConfig:IntuneValidation:ValidityPeriodDays', deployOnLinux)}': '365'
     '${convertVariableNameToLinux('AppConfig:DirectCSRValidation:Enabled', deployOnLinux)}': 'true'
