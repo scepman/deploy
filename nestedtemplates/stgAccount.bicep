@@ -78,10 +78,23 @@ var zrsRegions = [
   'westeurope'
   'westus2'
   'westus3'
+  // Additional regions that support ZRS but may not support GZRS
+  'australiasoutheast'
+  'canadaeast'
+  'centraluseuap'
+  'eastus2euap'
+  'japanwest'
+  'koreasouth'
+  'northcentralus'
+  'southindia'
+  'ukwest'
+  'westcentralus'
+  'westus'
 ]
 
 // Determine the appropriate storage account SKU based on region support
 // Priority: GZRS > ZRS > LRS
+// This ensures the best available redundancy option for each region while maintaining deployment reliability
 var storageAccountSku = contains(gzrsRegions, location) ? 'Standard_GZRS' : (contains(zrsRegions, location) ? 'Standard_ZRS' : 'Standard_LRS')
 
 resource StorageAccount 'Microsoft.Storage/storageAccounts@2023-05-01' = {
