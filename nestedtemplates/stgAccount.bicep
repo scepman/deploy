@@ -20,12 +20,76 @@ param privateEndpointName string
 // See: https://learn.microsoft.com/en-us/azure/private-link/private-endpoint-dns#storage
 var privateDnsZoneName = 'privatelink.table.${environment().suffixes.storage}'
 
+// Regions where GZRS (Geo-Zone Redundant Storage) is supported
+// Based on: https://learn.microsoft.com/en-us/azure/storage/common/redundancy-regions-gzrs
+var gzrsRegions = [
+  'australiaeast'
+  'brazilsouth'
+  'canadacentral'
+  'centralindia'
+  'centralus'
+  'eastasia'
+  'eastus'
+  'eastus2'
+  'francecentral'
+  'germanywestcentral'
+  'japaneast'
+  'koreacentral'
+  'northeurope'
+  'norwayeast'
+  'qatarcentral'
+  'southafricanorth'
+  'southcentralus'
+  'southeastasia'
+  'swedencentral'
+  'switzerlandnorth'
+  'uaenorth'
+  'uksouth'
+  'westeurope'
+  'westus2'
+  'westus3'
+]
+
+// Regions where ZRS (Zone Redundant Storage) is supported as fallback
+// Based on: https://learn.microsoft.com/en-us/azure/storage/common/redundancy-regions-zrs
+var zrsRegions = [
+  'australiaeast'
+  'brazilsouth'
+  'canadacentral'
+  'centralindia'
+  'centralus'
+  'eastasia'
+  'eastus'
+  'eastus2'
+  'francecentral'
+  'germanywestcentral'
+  'japaneast'
+  'koreacentral'
+  'northeurope'
+  'norwayeast'
+  'qatarcentral'
+  'southafricanorth'
+  'southcentralus'
+  'southeastasia'
+  'swedencentral'
+  'switzerlandnorth'
+  'uaenorth'
+  'uksouth'
+  'westeurope'
+  'westus2'
+  'westus3'
+]
+
+// Determine the appropriate storage account SKU based on region support
+// Priority: GZRS > ZRS > LRS
+var storageAccountSku = contains(gzrsRegions, location) ? 'Standard_GZRS' : (contains(zrsRegions, location) ? 'Standard_ZRS' : 'Standard_LRS')
+
 resource StorageAccount 'Microsoft.Storage/storageAccounts@2023-05-01' = {
   name: StorageAccountName
   location: location
   tags: resourceTags
   sku: {
-    name: 'Standard_LRS'
+    name: storageAccountSku
   }
   kind: 'StorageV2'
   properties: {

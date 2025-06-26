@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.36.1.42791",
-      "templateHash": "8800200544307140280"
+      "templateHash": "3665807850036291558"
     }
   },
   "parameters": {
@@ -1227,7 +1227,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.36.1.42791",
-              "templateHash": "4308291501482070779"
+              "templateHash": "7594132012818871240"
             }
           },
           "parameters": {
@@ -1269,7 +1269,62 @@
             }
           },
           "variables": {
-            "privateDnsZoneName": "[format('privatelink.table.{0}', environment().suffixes.storage)]"
+            "privateDnsZoneName": "[format('privatelink.table.{0}', environment().suffixes.storage)]",
+            "gzrsRegions": [
+              "australiaeast",
+              "brazilsouth",
+              "canadacentral",
+              "centralindia",
+              "centralus",
+              "eastasia",
+              "eastus",
+              "eastus2",
+              "francecentral",
+              "germanywestcentral",
+              "japaneast",
+              "koreacentral",
+              "northeurope",
+              "norwayeast",
+              "qatarcentral",
+              "southafricanorth",
+              "southcentralus",
+              "southeastasia",
+              "swedencentral",
+              "switzerlandnorth",
+              "uaenorth",
+              "uksouth",
+              "westeurope",
+              "westus2",
+              "westus3"
+            ],
+            "zrsRegions": [
+              "australiaeast",
+              "brazilsouth",
+              "canadacentral",
+              "centralindia",
+              "centralus",
+              "eastasia",
+              "eastus",
+              "eastus2",
+              "francecentral",
+              "germanywestcentral",
+              "japaneast",
+              "koreacentral",
+              "northeurope",
+              "norwayeast",
+              "qatarcentral",
+              "southafricanorth",
+              "southcentralus",
+              "southeastasia",
+              "swedencentral",
+              "switzerlandnorth",
+              "uaenorth",
+              "uksouth",
+              "westeurope",
+              "westus2",
+              "westus3"
+            ],
+            "storageAccountSku": "[if(contains(variables('gzrsRegions'), parameters('location')), 'Standard_GZRS', if(contains(variables('zrsRegions'), parameters('location')), 'Standard_ZRS', 'Standard_LRS'))]"
           },
           "resources": [
             {
@@ -1279,7 +1334,7 @@
               "location": "[parameters('location')]",
               "tags": "[parameters('resourceTags')]",
               "sku": {
-                "name": "Standard_LRS"
+                "name": "[variables('storageAccountSku')]"
               },
               "kind": "StorageV2",
               "properties": {
