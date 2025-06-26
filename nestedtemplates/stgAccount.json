@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.36.1.42791",
-      "templateHash": "7594132012818871240"
+      "templateHash": "3426783947341460401"
     }
   },
   "parameters": {
@@ -100,7 +100,18 @@
       "uksouth",
       "westeurope",
       "westus2",
-      "westus3"
+      "westus3",
+      "australiasoutheast",
+      "canadaeast",
+      "centraluseuap",
+      "eastus2euap",
+      "japanwest",
+      "koreasouth",
+      "northcentralus",
+      "southindia",
+      "ukwest",
+      "westcentralus",
+      "westus"
     ],
     "storageAccountSku": "[if(contains(variables('gzrsRegions'), parameters('location')), 'Standard_GZRS', if(contains(variables('zrsRegions'), parameters('location')), 'Standard_ZRS', 'Standard_LRS'))]"
   },
