@@ -4,8 +4,8 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.35.1.17967",
-      "templateHash": "8980670172234328292"
+      "version": "0.36.1.42791",
+      "templateHash": "1516168870989845647"
     }
   },
   "parameters": {
@@ -96,6 +96,13 @@
         "description": "The App Service for the component SCEPman Certificate Master. As it is part of the default FQDN, it must be globally unique and contain only DNS-compatible characters."
       }
     },
+    "enableHealthCheck": {
+      "type": "bool",
+      "defaultValue": true,
+      "metadata": {
+        "description": "Enable the App Service health check."
+      }
+    },
     "deployPrivateNetwork": {
       "type": "bool",
       "defaultValue": true,
@@ -170,8 +177,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.35.1.17967",
-              "templateHash": "5721384004089500046"
+              "version": "0.36.1.42791",
+              "templateHash": "1346970631410067646"
             }
           },
           "resources": []
@@ -205,8 +212,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.35.1.17967",
-              "templateHash": "16924175229229137226"
+              "version": "0.36.1.42791",
+              "templateHash": "6483367305574417529"
             }
           },
           "parameters": {
@@ -340,8 +347,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.35.1.17967",
-              "templateHash": "7452352196458194136"
+              "version": "0.36.1.42791",
+              "templateHash": "17920251221196923686"
             }
           },
           "parameters": {
@@ -423,8 +430,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.35.1.17967",
-              "templateHash": "18183252547904766293"
+              "version": "0.36.1.42791",
+              "templateHash": "1068806365398614096"
             }
           },
           "parameters": {
@@ -481,7 +488,7 @@
               "location": "[parameters('location')]",
               "sku": {
                 "tier": "Standard",
-                "name": "S1"
+                "name": "[if(parameters('deployOnLinux'), 'P0V3', 'S1')]"
               },
               "kind": "[if(parameters('deployOnLinux'), 'linux', 'app')]",
               "tags": "[parameters('resourceTags')]",
@@ -591,8 +598,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.35.1.17967",
-              "templateHash": "12861156197825825038"
+              "version": "0.36.1.42791",
+              "templateHash": "7298347885549599115"
             }
           },
           "parameters": {
@@ -672,8 +679,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.35.1.17967",
-              "templateHash": "14481739536557617928"
+              "version": "0.36.1.42791",
+              "templateHash": "14045171358394681557"
             }
           },
           "parameters": {
@@ -900,6 +907,9 @@
           },
           "license": {
             "value": "[parameters('license')]"
+          },
+          "enableHealthCheck": {
+            "value": "[parameters('enableHealthCheck')]"
           }
         },
         "template": {
@@ -909,8 +919,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.35.1.17967",
-              "templateHash": "11346258355617842274"
+              "version": "0.36.1.42791",
+              "templateHash": "2482485126117008468"
             }
           },
           "functions": [
@@ -1015,6 +1025,12 @@
               "metadata": {
                 "description": "Use Linux App Service Plan"
               }
+            },
+            "enableHealthCheck": {
+              "type": "bool",
+              "metadata": {
+                "description": "Enable health check"
+              }
             }
           },
           "resources": {
@@ -1045,6 +1061,15 @@
                 "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:OCSP:UseAuthorizedResponder', parameters('deployOnLinux')))]": "true",
                 "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:ValidityClockSkewMinutes', parameters('deployOnLinux')))]": "1440",
                 "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:KeyVaultConfig:RootCertificateConfig:Subject', parameters('deployOnLinux')))]": "[format('CN=SCEPman-Root-CA-V1, OU={0}, O=\"{1}\"', subscription().tenantId, parameters('OrgName'))]"
+              }
+            },
+            "appServiceName_websettings": {
+              "condition": "[parameters('enableHealthCheck')]",
+              "type": "Microsoft.Web/sites/config",
+              "apiVersion": "2024-04-01",
+              "name": "[format('{0}/web', parameters('appServiceName'))]",
+              "properties": {
+                "healthCheckPath": "/probe"
               }
             }
           }
@@ -1087,6 +1112,9 @@
           },
           "WebsiteArtifactsUri": {
             "value": "[variables('ArtifactsLocationCertMaster')]"
+          },
+          "enableHealthCheck": {
+            "value": "[parameters('enableHealthCheck')]"
           }
         },
         "template": {
@@ -1096,8 +1124,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.35.1.17967",
-              "templateHash": "3430143626128555220"
+              "version": "0.36.1.42791",
+              "templateHash": "1115370584402547189"
             }
           },
           "functions": [
@@ -1165,6 +1193,12 @@
               "metadata": {
                 "description": "Use Linux App Service Plan"
               }
+            },
+            "enableHealthCheck": {
+              "type": "bool",
+              "metadata": {
+                "description": "Enable health check"
+              }
             }
           },
           "resources": {
@@ -1179,6 +1213,15 @@
                 "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:AuthConfig:TenantId', parameters('deployOnLinux')))]": "[subscription().tenantId]",
                 "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:LoggingConfig:WorkspaceId', parameters('deployOnLinux')))]": "[parameters('logAnalyticsWorkspaceId')]",
                 "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:LoggingConfig:SharedKey', parameters('deployOnLinux')))]": "[listKeys(resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName')), '2022-10-01').primarySharedKey]"
+              }
+            },
+            "appServiceName_websettings": {
+              "condition": "[parameters('enableHealthCheck')]",
+              "type": "Microsoft.Web/sites/config",
+              "apiVersion": "2024-04-01",
+              "name": "[format('{0}/web', parameters('appServiceName'))]",
+              "properties": {
+                "healthCheckPath": "/probe"
               }
             }
           }
@@ -1226,8 +1269,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.35.1.17967",
-              "templateHash": "4386014034727708226"
+              "version": "0.36.1.42791",
+              "templateHash": "3426783947341460401"
             }
           },
           "parameters": {
@@ -1269,7 +1312,73 @@
             }
           },
           "variables": {
-            "privateDnsZoneName": "[format('privatelink.table.{0}', environment().suffixes.storage)]"
+            "privateDnsZoneName": "[format('privatelink.table.{0}', environment().suffixes.storage)]",
+            "gzrsRegions": [
+              "australiaeast",
+              "brazilsouth",
+              "canadacentral",
+              "centralindia",
+              "centralus",
+              "eastasia",
+              "eastus",
+              "eastus2",
+              "francecentral",
+              "germanywestcentral",
+              "japaneast",
+              "koreacentral",
+              "northeurope",
+              "norwayeast",
+              "qatarcentral",
+              "southafricanorth",
+              "southcentralus",
+              "southeastasia",
+              "swedencentral",
+              "switzerlandnorth",
+              "uaenorth",
+              "uksouth",
+              "westeurope",
+              "westus2",
+              "westus3"
+            ],
+            "zrsRegions": [
+              "australiaeast",
+              "brazilsouth",
+              "canadacentral",
+              "centralindia",
+              "centralus",
+              "eastasia",
+              "eastus",
+              "eastus2",
+              "francecentral",
+              "germanywestcentral",
+              "japaneast",
+              "koreacentral",
+              "northeurope",
+              "norwayeast",
+              "qatarcentral",
+              "southafricanorth",
+              "southcentralus",
+              "southeastasia",
+              "swedencentral",
+              "switzerlandnorth",
+              "uaenorth",
+              "uksouth",
+              "westeurope",
+              "westus2",
+              "westus3",
+              "australiasoutheast",
+              "canadaeast",
+              "centraluseuap",
+              "eastus2euap",
+              "japanwest",
+              "koreasouth",
+              "northcentralus",
+              "southindia",
+              "ukwest",
+              "westcentralus",
+              "westus"
+            ],
+            "storageAccountSku": "[if(contains(variables('gzrsRegions'), parameters('location')), 'Standard_GZRS', if(contains(variables('zrsRegions'), parameters('location')), 'Standard_ZRS', 'Standard_LRS'))]"
           },
           "resources": [
             {
@@ -1279,7 +1388,7 @@
               "location": "[parameters('location')]",
               "tags": "[parameters('resourceTags')]",
               "sku": {
-                "name": "Standard_LRS"
+                "name": "[variables('storageAccountSku')]"
               },
               "kind": "StorageV2",
               "properties": {
