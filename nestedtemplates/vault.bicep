@@ -12,7 +12,7 @@ param location string
 @description('Tags to be assigned to the created resources')
 param resourceTags object
 
-@description('Name of the Virtual Network to associate with the key vault.')
+@description('Name of the Virtual Network to associate with the key vault. Pass \'None\' if you don\'t want to use a Virtual Network.')
 param virtualNetworkName string
 
 var rbac_roles = [

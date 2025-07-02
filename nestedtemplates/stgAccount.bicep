@@ -10,7 +10,7 @@ param resourceTags object
 @description('IDs of Principals that shall receive table contributor rights on the storage account')
 param tableContributorPrincipals array
 
-@description('Name of the Virtual Network to associate with the table service of the storage account.')
+@description('Name of the Virtual Network to associate with the table service of the storage account. Pass \'None\' if you don\'t want to use a Virtual Network.')
 param virtualNetworkName string
 
 resource StorageAccount 'Microsoft.Storage/storageAccounts@2023-05-01' = {
