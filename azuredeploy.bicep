@@ -54,16 +54,6 @@ param deployPrivateNetwork bool = true
 @maxLength(80)
 param virtualNetworkName string = 'vnet-scepman-UNIQUENAME'
 
-@description('Name of the Private Endpoint for the Key Vault. This is only applicable if deployPrivateNetwork is chosen.')
-@minLength(4)
-@maxLength(64)
-param privateEndpointForKeyVaultName string = 'pep-kv-scepman-UNIQUENAME'
-
-@description('Name of the Private Endpoint for the Azure Table Storage Service. This is only applicable if deployPrivateNetwork is chosen.')
-@minLength(4)
-@maxLength(64)
-param privateEndpointForTableStorage string = 'pep-sts-scepman-UNIQUENAME'
-
 @description('Location for all resources. For a manual deployment, we recommend the default value.')
 param location string = resourceGroup().location
 
@@ -138,7 +128,6 @@ module SCEPmanVault 'nestedtemplates/vault.bicep' = {
     location: location
     resourceTags: resourceTags
     virtualNetworkName: virtualNetworkName
-    privateEndpointName: (deployPrivateNetwork ? privateEndpointForKeyVaultName : 'None')
   }
   dependsOn: [
     CreateVirtualNetwork
@@ -190,7 +179,6 @@ module SCEPmanStorageAccount 'nestedtemplates/stgAccount.bicep' = {
       SCEPmanAppServices.outputs.certmasterPrincipalID
     ]
     virtualNetworkName: virtualNetworkName
-    privateEndpointName: (deployPrivateNetwork ? privateEndpointForTableStorage : 'None')
   }
   dependsOn: [
     CreateVirtualNetwork
