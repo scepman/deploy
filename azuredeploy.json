@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.36.1.42791",
-      "templateHash": "13380605959542552060"
+      "templateHash": "1516168870989845647"
     }
   },
   "parameters": {
@@ -94,6 +94,13 @@
       "maxLength": 60,
       "metadata": {
         "description": "The App Service for the component SCEPman Certificate Master. As it is part of the default FQDN, it must be globally unique and contain only DNS-compatible characters."
+      }
+    },
+    "enableHealthCheck": {
+      "type": "bool",
+      "defaultValue": true,
+      "metadata": {
+        "description": "Enable the App Service health check."
       }
     },
     "deployPrivateNetwork": {
@@ -424,7 +431,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.36.1.42791",
-              "templateHash": "13768104284659437533"
+              "templateHash": "1068806365398614096"
             }
           },
           "parameters": {
@@ -481,7 +488,7 @@
               "location": "[parameters('location')]",
               "sku": {
                 "tier": "Standard",
-                "name": "S1"
+                "name": "[if(parameters('deployOnLinux'), 'P0V3', 'S1')]"
               },
               "kind": "[if(parameters('deployOnLinux'), 'linux', 'app')]",
               "tags": "[parameters('resourceTags')]",
@@ -900,6 +907,9 @@
           },
           "license": {
             "value": "[parameters('license')]"
+          },
+          "enableHealthCheck": {
+            "value": "[parameters('enableHealthCheck')]"
           }
         },
         "template": {
@@ -910,7 +920,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.36.1.42791",
-              "templateHash": "7957251873760527962"
+              "templateHash": "2482485126117008468"
             }
           },
           "functions": [
@@ -1015,6 +1025,12 @@
               "metadata": {
                 "description": "Use Linux App Service Plan"
               }
+            },
+            "enableHealthCheck": {
+              "type": "bool",
+              "metadata": {
+                "description": "Enable health check"
+              }
             }
           },
           "resources": {
@@ -1045,6 +1061,15 @@
                 "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:OCSP:UseAuthorizedResponder', parameters('deployOnLinux')))]": "true",
                 "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:ValidityClockSkewMinutes', parameters('deployOnLinux')))]": "1440",
                 "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:KeyVaultConfig:RootCertificateConfig:Subject', parameters('deployOnLinux')))]": "[format('CN=SCEPman-Root-CA-V1, OU={0}, O=\"{1}\"', subscription().tenantId, parameters('OrgName'))]"
+              }
+            },
+            "appServiceName_websettings": {
+              "condition": "[parameters('enableHealthCheck')]",
+              "type": "Microsoft.Web/sites/config",
+              "apiVersion": "2024-04-01",
+              "name": "[format('{0}/web', parameters('appServiceName'))]",
+              "properties": {
+                "healthCheckPath": "/probe"
               }
             }
           }
@@ -1087,6 +1112,9 @@
           },
           "WebsiteArtifactsUri": {
             "value": "[variables('ArtifactsLocationCertMaster')]"
+          },
+          "enableHealthCheck": {
+            "value": "[parameters('enableHealthCheck')]"
           }
         },
         "template": {
@@ -1097,7 +1125,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.36.1.42791",
-              "templateHash": "4256768774296824723"
+              "templateHash": "1115370584402547189"
             }
           },
           "functions": [
@@ -1165,6 +1193,12 @@
               "metadata": {
                 "description": "Use Linux App Service Plan"
               }
+            },
+            "enableHealthCheck": {
+              "type": "bool",
+              "metadata": {
+                "description": "Enable health check"
+              }
             }
           },
           "resources": {
@@ -1179,6 +1213,15 @@
                 "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:AuthConfig:TenantId', parameters('deployOnLinux')))]": "[subscription().tenantId]",
                 "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:LoggingConfig:WorkspaceId', parameters('deployOnLinux')))]": "[parameters('logAnalyticsWorkspaceId')]",
                 "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:LoggingConfig:SharedKey', parameters('deployOnLinux')))]": "[listKeys(resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName')), '2022-10-01').primarySharedKey]"
+              }
+            },
+            "appServiceName_websettings": {
+              "condition": "[parameters('enableHealthCheck')]",
+              "type": "Microsoft.Web/sites/config",
+              "apiVersion": "2024-04-01",
+              "name": "[format('{0}/web', parameters('appServiceName'))]",
+              "properties": {
+                "healthCheckPath": "/probe"
               }
             }
           }
