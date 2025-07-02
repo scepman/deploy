@@ -24,7 +24,7 @@ resource AppServicePlan 'Microsoft.Web/serverfarms@2024-04-01' = if (existingApp
   location: location
   sku: {
     tier: 'Standard'
-    name: 'S1'
+    name: deployOnLinux ? 'P0V3' : 'S1'
   }
   kind: deployOnLinux ? 'linux' : 'app'
   tags: resourceTags
