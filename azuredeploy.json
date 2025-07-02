@@ -107,7 +107,7 @@
       "type": "bool",
       "defaultValue": true,
       "metadata": {
-        "description": "Choose 'true' to deploy SCEPman with a Virtual Network. In this case, you must also provide names for the parameters virtualNetworkName, privateEndpointForTableStorage, and privateEndpointForKeyVaultName."
+        "description": "Choose 'true' to deploy SCEPman with a Virtual Network. In this case, you must also provide names for the parameter virtualNetworkName."
       }
     },
     "virtualNetworkName": {
