@@ -15,7 +15,7 @@ jobs:
       publicationdirectory: ${{ steps.regexparsing.outputs.publicationdirectory }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 2  # Shallow clone to have the commit history for the diff
       - id: regexparsing
@@ -89,7 +89,7 @@ jobs:
         run: exit 1
 
       - name: Checkout
-        uses: actions/checkout@v4 # This has fetch-depth 1 by default
+        uses: actions/checkout@v5 # This has fetch-depth 1 by default
 
       - name: Log in with Azure
         uses: azure/login@v2
