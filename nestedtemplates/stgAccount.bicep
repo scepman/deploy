@@ -114,6 +114,7 @@ resource StorageAccount 'Microsoft.Storage/storageAccounts@2023-05-01' = {
     isNfsV3Enabled: false
     minimumTlsVersion: 'TLS1_2'
     supportsHttpsTrafficOnly: true
+    publicNetworkAccess: ((privateEndpointName == 'None') ? 'Enabled' : 'Disabled')
     networkAcls: {
       bypass: 'None'
       defaultAction: ((privateEndpointName == 'None') ? 'Allow' : 'Deny')
