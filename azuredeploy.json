@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.37.4.10188",
-      "templateHash": "7228115935615561525"
+      "templateHash": "13801268113196579111"
     }
   },
   "parameters": {
@@ -680,7 +680,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.37.4.10188",
-              "templateHash": "3342369762235407773"
+              "templateHash": "11932481400885930762"
             }
           },
           "parameters": {
@@ -749,6 +749,7 @@
                   "name": "premium",
                   "family": "A"
                 },
+                "publicNetworkAccess": "[if(equals(parameters('privateEndpointName'), 'None'), 'Enabled', 'Disabled')]",
                 "networkAcls": {
                   "bypass": "None",
                   "defaultAction": "[if(equals(parameters('privateEndpointName'), 'None'), 'Allow', 'Deny')]"
@@ -1270,7 +1271,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.37.4.10188",
-              "templateHash": "1555945194459209366"
+              "templateHash": "6622986609257007697"
             }
           },
           "parameters": {
@@ -1400,6 +1401,7 @@
                 "isNfsV3Enabled": false,
                 "minimumTlsVersion": "TLS1_2",
                 "supportsHttpsTrafficOnly": true,
+                "publicNetworkAccess": "[if(equals(parameters('privateEndpointName'), 'None'), 'Enabled', 'Disabled')]",
                 "networkAcls": {
                   "bypass": "None",
                   "defaultAction": "[if(equals(parameters('privateEndpointName'), 'None'), 'Allow', 'Deny')]"
