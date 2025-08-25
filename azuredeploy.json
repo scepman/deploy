@@ -4,8 +4,8 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.36.1.42791",
-      "templateHash": "16842334095607760499"
+      "version": "0.37.4.10188",
+      "templateHash": "7228115935615561525"
     }
   },
   "parameters": {
@@ -107,7 +107,7 @@
       "type": "bool",
       "defaultValue": true,
       "metadata": {
-        "description": "Choose 'true' to deploy SCEPman with a Virtual Network. In this case, you must also provide names for the parameter virtualNetworkName."
+        "description": "Choose 'true' to deploy SCEPman with a Virtual Network. In this case, you must also provide names for the parameters virtualNetworkName, privateEndpointForTableStorage, and privateEndpointForKeyVaultName."
       }
     },
     "virtualNetworkName": {
@@ -116,6 +116,24 @@
       "maxLength": 80,
       "metadata": {
         "description": "The name of the Virtual Network. This is only applicable if deployPrivateNetwork is chosen."
+      }
+    },
+    "privateEndpointForKeyVaultName": {
+      "type": "string",
+      "defaultValue": "pep-kv-scepman-UNIQUENAME",
+      "minLength": 4,
+      "maxLength": 64,
+      "metadata": {
+        "description": "Name of the Private Endpoint for the Key Vault. This is only applicable if deployPrivateNetwork is chosen."
+      }
+    },
+    "privateEndpointForTableStorage": {
+      "type": "string",
+      "defaultValue": "pep-sts-scepman-UNIQUENAME",
+      "minLength": 4,
+      "maxLength": 64,
+      "metadata": {
+        "description": "Name of the Private Endpoint for the Azure Table Storage Service. This is only applicable if deployPrivateNetwork is chosen."
       }
     },
     "location": {
@@ -159,8 +177,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.36.1.42791",
-              "templateHash": "1346970631410067646"
+              "version": "0.37.4.10188",
+              "templateHash": "13337000887973620417"
             }
           },
           "resources": []
@@ -194,8 +212,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.36.1.42791",
-              "templateHash": "4953572198927722792"
+              "version": "0.37.4.10188",
+              "templateHash": "10296732365828291102"
             }
           },
           "parameters": {
@@ -226,6 +244,13 @@
                 "description": "List of address prefixes for the Virtual Network."
               }
             },
+            "subnetIpPrefixDefault": {
+              "type": "string",
+              "defaultValue": "10.142.0.0/24",
+              "metadata": {
+                "description": "Subnet prefix for the default subnet"
+              }
+            },
             "subnetIpPrefixScepman": {
               "type": "string",
               "defaultValue": "10.142.1.0/24",
@@ -251,6 +276,17 @@
                 },
                 "subnets": [
                   {
+                    "name": "default",
+                    "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), 'default')]",
+                    "properties": {
+                      "addressPrefix": "[parameters('subnetIpPrefixDefault')]",
+                      "privateEndpointNetworkPolicies": "Disabled",
+                      "privateLinkServiceNetworkPolicies": "Enabled",
+                      "defaultOutboundAccess": true
+                    },
+                    "type": "Microsoft.Network/virtualNetworks/subnets"
+                  },
+                  {
                     "name": "snet-scepman-appservices",
                     "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), 'snet-scepman-appservices')]",
                     "properties": {
@@ -263,20 +299,6 @@
                             "serviceName": "Microsoft.Web/serverfarms"
                           },
                           "type": "Microsoft.Network/virtualNetworks/subnets/delegations"
-                        }
-                      ],
-                      "serviceEndpoints": [
-                        {
-                          "service": "Microsoft.KeyVault",
-                          "locations": [
-                            "*"
-                          ]
-                        },
-                        {
-                          "service": "Microsoft.Storage",
-                          "locations": [
-                            "[parameters('location')]"
-                          ]
                         }
                       ],
                       "privateEndpointNetworkPolicies": "Disabled",
@@ -325,8 +347,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.36.1.42791",
-              "templateHash": "17920251221196923686"
+              "version": "0.37.4.10188",
+              "templateHash": "16820367123773131095"
             }
           },
           "parameters": {
@@ -408,8 +430,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.36.1.42791",
-              "templateHash": "1068806365398614096"
+              "version": "0.37.4.10188",
+              "templateHash": "3501366634916079626"
             }
           },
           "parameters": {
@@ -576,8 +598,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.36.1.42791",
-              "templateHash": "7298347885549599115"
+              "version": "0.37.4.10188",
+              "templateHash": "10026202896022222817"
             }
           },
           "parameters": {
@@ -648,7 +670,8 @@
           },
           "virtualNetworkName": {
             "value": "[parameters('virtualNetworkName')]"
-          }
+          },
+          "privateEndpointName": "[if(parameters('deployPrivateNetwork'), createObject('value', parameters('privateEndpointForKeyVaultName')), createObject('value', 'None'))]"
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
@@ -656,8 +679,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.36.1.42791",
-              "templateHash": "5424672627474251509"
+              "version": "0.37.4.10188",
+              "templateHash": "3342369762235407773"
             }
           },
           "parameters": {
@@ -690,7 +713,13 @@
             "virtualNetworkName": {
               "type": "string",
               "metadata": {
-                "description": "Name of the Virtual Network to associate with the key vault. Pass 'None' if you don't want to use a Virtual Network."
+                "description": "Name of the Virtual Network to associate with the key vault."
+              }
+            },
+            "privateEndpointName": {
+              "type": "string",
+              "metadata": {
+                "description": "Name of the private endpoint to be created for the key vault. Select 'None' to not create a private endpoint."
               }
             }
           },
@@ -722,13 +751,7 @@
                 },
                 "networkAcls": {
                   "bypass": "None",
-                  "defaultAction": "[if(equals(parameters('virtualNetworkName'), 'None'), 'Allow', 'Deny')]",
-                  "virtualNetworkRules": [
-                    {
-                      "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), 'snet-scepman-appservices')]",
-                      "ignoreMissingVnetServiceEndpoint": false
-                    }
-                  ]
+                  "defaultAction": "[if(equals(parameters('privateEndpointName'), 'None'), 'Allow', 'Deny')]"
                 }
               }
             },
@@ -747,6 +770,83 @@
               },
               "dependsOn": [
                 "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
+              ]
+            },
+            {
+              "condition": "[not(equals(parameters('privateEndpointName'), 'None'))]",
+              "type": "Microsoft.Network/privateDnsZones",
+              "apiVersion": "2020-06-01",
+              "name": "privatelink.vaultcore.azure.net",
+              "location": "Global",
+              "tags": "[parameters('resourceTags')]",
+              "properties": {}
+            },
+            {
+              "condition": "[not(equals(parameters('privateEndpointName'), 'None'))]",
+              "type": "Microsoft.Network/privateEndpoints",
+              "apiVersion": "2023-11-01",
+              "name": "[parameters('privateEndpointName')]",
+              "location": "[parameters('location')]",
+              "tags": "[parameters('resourceTags')]",
+              "properties": {
+                "subnet": {
+                  "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), 'default')]"
+                },
+                "privateLinkServiceConnections": [
+                  {
+                    "name": "keyVault",
+                    "properties": {
+                      "privateLinkServiceId": "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]",
+                      "groupIds": [
+                        "vault"
+                      ],
+                      "privateLinkServiceConnectionState": {
+                        "status": "Approved",
+                        "description": "Private endpoint connection approved",
+                        "actionsRequired": "None"
+                      }
+                    }
+                  }
+                ]
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
+              ]
+            },
+            {
+              "condition": "[not(equals(parameters('privateEndpointName'), 'None'))]",
+              "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
+              "apiVersion": "2023-06-01",
+              "name": "[format('{0}/{1}', parameters('privateEndpointName'), 'default')]",
+              "properties": {
+                "privateDnsZoneConfigs": [
+                  {
+                    "name": "privatelink.vaultcore.azure.net",
+                    "properties": {
+                      "privateDnsZoneId": "[resourceId('Microsoft.Network/privateDnsZones', 'privatelink.vaultcore.azure.net')]"
+                    }
+                  }
+                ]
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/privateEndpoints', parameters('privateEndpointName'))]",
+                "[resourceId('Microsoft.Network/privateDnsZones', 'privatelink.vaultcore.azure.net')]"
+              ]
+            },
+            {
+              "condition": "[not(equals(parameters('privateEndpointName'), 'None'))]",
+              "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+              "apiVersion": "2020-06-01",
+              "name": "[format('{0}/{1}', 'privatelink.vaultcore.azure.net', format('{0}-link', parameters('keyVaultName')))]",
+              "location": "global",
+              "properties": {
+                "registrationEnabled": false,
+                "virtualNetwork": {
+                  "id": "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]"
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/privateDnsZones', 'privatelink.vaultcore.azure.net')]"
               ]
             }
           ],
@@ -819,8 +919,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.36.1.42791",
-              "templateHash": "2482485126117008468"
+              "version": "0.37.4.10188",
+              "templateHash": "7333685008936998391"
             }
           },
           "functions": [
@@ -1024,8 +1124,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.36.1.42791",
-              "templateHash": "1115370584402547189"
+              "version": "0.37.4.10188",
+              "templateHash": "768905777601264804"
             }
           },
           "functions": [
@@ -1160,7 +1260,8 @@
           },
           "virtualNetworkName": {
             "value": "[parameters('virtualNetworkName')]"
-          }
+          },
+          "privateEndpointName": "[if(parameters('deployPrivateNetwork'), createObject('value', parameters('privateEndpointForTableStorage')), createObject('value', 'None'))]"
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
@@ -1168,8 +1269,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.36.1.42791",
-              "templateHash": "1652615187676602197"
+              "version": "0.37.4.10188",
+              "templateHash": "1555945194459209366"
             }
           },
           "parameters": {
@@ -1200,11 +1301,18 @@
             "virtualNetworkName": {
               "type": "string",
               "metadata": {
-                "description": "Name of the Virtual Network to associate with the table service of the storage account. Pass 'None' if you don't want to use a Virtual Network."
+                "description": "Name of the Virtual Network to associate with the table service of the storage account."
+              }
+            },
+            "privateEndpointName": {
+              "type": "string",
+              "metadata": {
+                "description": "Name of the private endpoint to be created for the table service of the storage account. Pass 'None' if you don't want to create a private endpoint."
               }
             }
           },
           "variables": {
+            "privateDnsZoneName": "[format('privatelink.table.{0}', environment().suffixes.storage)]",
             "gzrsRegions": [
               "australiaeast",
               "brazilsouth",
@@ -1294,13 +1402,7 @@
                 "supportsHttpsTrafficOnly": true,
                 "networkAcls": {
                   "bypass": "None",
-                  "defaultAction": "[if(equals(parameters('virtualNetworkName'), 'None'), 'Allow', 'Deny')]",
-                  "virtualNetworkRules": [
-                    {
-                      "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), 'snet-scepman-appservices')]",
-                      "action": "Allow"
-                    }
-                  ]
+                  "defaultAction": "[if(equals(parameters('privateEndpointName'), 'None'), 'Allow', 'Deny')]"
                 }
               }
             },
@@ -1319,6 +1421,83 @@
               },
               "dependsOn": [
                 "[resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName'))]"
+              ]
+            },
+            {
+              "condition": "[not(equals(parameters('privateEndpointName'), 'None'))]",
+              "type": "Microsoft.Network/privateDnsZones",
+              "apiVersion": "2020-06-01",
+              "name": "[variables('privateDnsZoneName')]",
+              "location": "Global",
+              "tags": "[parameters('resourceTags')]",
+              "properties": {}
+            },
+            {
+              "condition": "[not(equals(parameters('privateEndpointName'), 'None'))]",
+              "type": "Microsoft.Network/privateEndpoints",
+              "apiVersion": "2023-11-01",
+              "name": "[parameters('privateEndpointName')]",
+              "location": "[parameters('location')]",
+              "tags": "[parameters('resourceTags')]",
+              "properties": {
+                "subnet": {
+                  "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), 'default')]"
+                },
+                "privateLinkServiceConnections": [
+                  {
+                    "name": "tableStorageConnection",
+                    "properties": {
+                      "privateLinkServiceId": "[resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName'))]",
+                      "groupIds": [
+                        "table"
+                      ],
+                      "privateLinkServiceConnectionState": {
+                        "status": "Approved",
+                        "description": "Private endpoint connection approved",
+                        "actionsRequired": "None"
+                      }
+                    }
+                  }
+                ]
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName'))]"
+              ]
+            },
+            {
+              "condition": "[not(equals(parameters('privateEndpointName'), 'None'))]",
+              "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
+              "apiVersion": "2023-06-01",
+              "name": "[format('{0}/{1}', parameters('privateEndpointName'), 'default')]",
+              "properties": {
+                "privateDnsZoneConfigs": [
+                  {
+                    "name": "[variables('privateDnsZoneName')]",
+                    "properties": {
+                      "privateDnsZoneId": "[resourceId('Microsoft.Network/privateDnsZones', variables('privateDnsZoneName'))]"
+                    }
+                  }
+                ]
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/privateDnsZones', variables('privateDnsZoneName'))]",
+                "[resourceId('Microsoft.Network/privateEndpoints', parameters('privateEndpointName'))]"
+              ]
+            },
+            {
+              "condition": "[not(equals(parameters('privateEndpointName'), 'None'))]",
+              "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+              "apiVersion": "2020-06-01",
+              "name": "[format('{0}/{1}', variables('privateDnsZoneName'), format('{0}-link', parameters('StorageAccountName')))]",
+              "location": "global",
+              "properties": {
+                "registrationEnabled": false,
+                "virtualNetwork": {
+                  "id": "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]"
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/privateDnsZones', variables('privateDnsZoneName'))]"
               ]
             }
           ],
