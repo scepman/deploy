@@ -19,6 +19,10 @@ param logAnalyticsWorkspaceName string
 @description('Use Linux App Service Plan')
 param deployOnLinux bool
 
+@description('Enable health check')
+param enableHealthCheck bool
+
+// Function to convert colon-style variable names to underscore-separated variable names if deployOnLinux is true
 @description('Which Update Channel shall SCEPman use?')
 param updateChannel string
 
@@ -38,5 +42,12 @@ resource appServiceName_appsettings 'Microsoft.Web/sites/config@2024-04-01' = {
       resourceId('Microsoft.OperationalInsights/workspaces', logAnalyticsWorkspaceName),
       '2022-10-01'
     ).primarySharedKey
+  }
+}
+
+resource appServiceName_websettings 'Microsoft.Web/sites/config@2024-04-01' = if (enableHealthCheck) {
+  name: '${appServiceName}/web'
+  properties: {
+    healthCheckPath: '/probe'
   }
 }

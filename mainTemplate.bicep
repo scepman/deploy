@@ -32,6 +32,7 @@ var caKeyType = 'RSA-HSM'
 var logAnalyticsWorkspaceName = 'log-scepman-${uniqueString(resourceGroup().id)}'
 var storageAccountName = 'stscepman${uniqueString(resourceGroup().id)}'
 var virtualNetworkName = 'vnet-scepman-${uniqueString(resourceGroup().id)}'
+var enableHealthCheck = true
 var deployPrivateNetwork = true
 var deployOnLinux = false
 var privateEndpointForKeyVaultName = 'pep-kv-scepman-${uniqueString(resourceGroup().id)}'
@@ -123,6 +124,7 @@ module DeploymentSCEPmanConfig 'nestedtemplates/appConfig-scepman.bicep' = {
     OrgName: OrgName
     WebsiteArtifactsUri: ArtifactsLocationSCEPman
     license: license
+    enableHealthCheck: enableHealthCheck
     updateChannel: updateChannel
   }
 }
@@ -137,6 +139,7 @@ module DeploymentCertMasterConfig 'nestedtemplates/appConfig-certmaster.bicep' =
     logAnalyticsWorkspaceId: AzureMonitor.outputs.workspaceId
     logAnalyticsWorkspaceName: logAnalyticsWorkspaceName
     WebsiteArtifactsUri: ArtifactsLocationCertMaster
+    enableHealthCheck: enableHealthCheck
     updateChannel: updateChannel
   }
 }

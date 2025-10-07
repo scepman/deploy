@@ -40,6 +40,7 @@ resource keyVault 'Microsoft.KeyVault/vaults@2023-07-01' = {
       name: 'premium'
       family: 'A'
     }
+    publicNetworkAccess: ((privateEndpointName == 'None') ? 'Enabled' : 'Disabled')
     networkAcls: {
       bypass: 'None'
       defaultAction: ((privateEndpointName == 'None') ? 'Allow' : 'Deny')
