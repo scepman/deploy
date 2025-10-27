@@ -26,7 +26,7 @@ jobs:
           cp dist-certmaster/CertMaster-Artifacts.zip publish/dist-certmaster
 
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: Release
           path: publish/*
