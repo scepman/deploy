@@ -29,7 +29,7 @@ param appServicePlanName string = 'asp-scepman-UNIQUENAME'
 param existingAppServicePlanID string = 'none'
 
 @description('Use Linux App Service Plan')
-param deployOnLinux bool = false
+param deployOnLinux bool = true
 
 @description('The SCEPman App Service and part of the default FQDN. Therefore, it must be globally unique and contain only DNS-compatible characters.')
 @maxLength(60)
