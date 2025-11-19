@@ -4,8 +4,8 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.37.4.10188",
-      "templateHash": "13801268113196579111"
+      "version": "0.38.33.27573",
+      "templateHash": "5251118776109228503"
     }
   },
   "parameters": {
@@ -66,7 +66,7 @@
     },
     "deployOnLinux": {
       "type": "bool",
-      "defaultValue": false,
+      "defaultValue": true,
       "metadata": {
         "description": "Use Linux App Service Plan"
       }
@@ -163,7 +163,7 @@
   "resources": [
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
+      "apiVersion": "2025-04-01",
       "name": "pid-a262352f-52a9-4ed9-a9ba-6a2b2478d19b-partnercenter",
       "properties": {
         "expressionEvaluationOptions": {
@@ -177,8 +177,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.37.4.10188",
-              "templateHash": "13337000887973620417"
+              "version": "0.38.33.27573",
+              "templateHash": "6624317026103563084"
             }
           },
           "resources": []
@@ -188,7 +188,7 @@
     {
       "condition": "[parameters('deployPrivateNetwork')]",
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
+      "apiVersion": "2025-04-01",
       "name": "CreateVirtualNetwork",
       "properties": {
         "expressionEvaluationOptions": {
@@ -212,8 +212,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.37.4.10188",
-              "templateHash": "10296732365828291102"
+              "version": "0.38.33.27573",
+              "templateHash": "18358337097579399610"
             }
           },
           "parameters": {
@@ -323,7 +323,7 @@
       },
       "condition": "[parameters('deployPrivateNetwork')]",
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
+      "apiVersion": "2025-04-01",
       "name": "[format('AppService-{0}-ConnectionToVirtualNetwork', range(0, 2)[copyIndex()])]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -347,8 +347,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.37.4.10188",
-              "templateHash": "16820367123773131095"
+              "version": "0.38.33.27573",
+              "templateHash": "5078340777926515027"
             }
           },
           "parameters": {
@@ -394,7 +394,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
+      "apiVersion": "2025-04-01",
       "name": "SCEPmanAppServices",
       "properties": {
         "expressionEvaluationOptions": {
@@ -430,8 +430,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.37.4.10188",
-              "templateHash": "3501366634916079626"
+              "version": "0.38.33.27573",
+              "templateHash": "5691289657379292450"
             }
           },
           "parameters": {
@@ -574,7 +574,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
+      "apiVersion": "2025-04-01",
       "name": "AzureMonitor",
       "properties": {
         "expressionEvaluationOptions": {
@@ -598,8 +598,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.37.4.10188",
-              "templateHash": "10026202896022222817"
+              "version": "0.38.33.27573",
+              "templateHash": "17267615264207227794"
             }
           },
           "parameters": {
@@ -648,7 +648,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
+      "apiVersion": "2025-04-01",
       "name": "SCEPmanVault",
       "properties": {
         "expressionEvaluationOptions": {
@@ -660,7 +660,7 @@
             "value": "[parameters('keyVaultName')]"
           },
           "permittedPrincipalId": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'SCEPmanAppServices'), '2022-09-01').outputs.scepmanPrincipalID.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'SCEPmanAppServices'), '2025-04-01').outputs.scepmanPrincipalID.value]"
           },
           "location": {
             "value": "[parameters('location')]"
@@ -679,8 +679,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.37.4.10188",
-              "templateHash": "11932481400885930762"
+              "version": "0.38.33.27573",
+              "templateHash": "6493119135045676052"
             }
           },
           "parameters": {
@@ -868,7 +868,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
+      "apiVersion": "2025-04-01",
       "name": "DeploymentSCEPmanConfig",
       "properties": {
         "expressionEvaluationOptions": {
@@ -877,7 +877,7 @@
         "mode": "Incremental",
         "parameters": {
           "StorageAccountTableUrl": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'SCEPmanStorageAccount'), '2022-09-01').outputs.storageAccountTableUrl.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'SCEPmanStorageAccount'), '2025-04-01').outputs.storageAccountTableUrl.value]"
           },
           "appServiceName": {
             "value": "[parameters('primaryAppServiceName')]"
@@ -886,16 +886,16 @@
             "value": "[parameters('deployOnLinux')]"
           },
           "scepManBaseURL": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'SCEPmanAppServices'), '2022-09-01').outputs.scepmanURL.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'SCEPmanAppServices'), '2025-04-01').outputs.scepmanURL.value]"
           },
           "keyVaultURL": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'SCEPmanVault'), '2022-09-01').outputs.keyVaultURL.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'SCEPmanVault'), '2025-04-01').outputs.keyVaultURL.value]"
           },
           "caKeyType": {
             "value": "[parameters('caKeyType')]"
           },
           "logAnalyticsWorkspaceId": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'AzureMonitor'), '2022-09-01').outputs.workspaceId.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'AzureMonitor'), '2025-04-01').outputs.workspaceId.value]"
           },
           "logAnalyticsWorkspaceName": {
             "value": "[parameters('logAnalyticsWorkspaceName')]"
@@ -920,8 +920,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.37.4.10188",
-              "templateHash": "7333685008936998391"
+              "version": "0.38.33.27573",
+              "templateHash": "2531369510902040983"
             }
           },
           "functions": [
@@ -1085,7 +1085,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
+      "apiVersion": "2025-04-01",
       "name": "DeploymentCertMasterConfig",
       "properties": {
         "expressionEvaluationOptions": {
@@ -1100,13 +1100,13 @@
             "value": "[parameters('deployOnLinux')]"
           },
           "scepmanUrl": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'SCEPmanAppServices'), '2022-09-01').outputs.scepmanURL.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'SCEPmanAppServices'), '2025-04-01').outputs.scepmanURL.value]"
           },
           "StorageAccountTableUrl": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'SCEPmanStorageAccount'), '2022-09-01').outputs.storageAccountTableUrl.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'SCEPmanStorageAccount'), '2025-04-01').outputs.storageAccountTableUrl.value]"
           },
           "logAnalyticsWorkspaceId": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'AzureMonitor'), '2022-09-01').outputs.workspaceId.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'AzureMonitor'), '2025-04-01').outputs.workspaceId.value]"
           },
           "logAnalyticsWorkspaceName": {
             "value": "[parameters('logAnalyticsWorkspaceName')]"
@@ -1125,8 +1125,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.37.4.10188",
-              "templateHash": "768905777601264804"
+              "version": "0.38.33.27573",
+              "templateHash": "13347496884002553474"
             }
           },
           "functions": [
@@ -1236,7 +1236,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
+      "apiVersion": "2025-04-01",
       "name": "SCEPmanStorageAccount",
       "properties": {
         "expressionEvaluationOptions": {
@@ -1255,8 +1255,8 @@
           },
           "tableContributorPrincipals": {
             "value": [
-              "[reference(resourceId('Microsoft.Resources/deployments', 'SCEPmanAppServices'), '2022-09-01').outputs.scepmanPrincipalID.value]",
-              "[reference(resourceId('Microsoft.Resources/deployments', 'SCEPmanAppServices'), '2022-09-01').outputs.certmasterPrincipalID.value]"
+              "[reference(resourceId('Microsoft.Resources/deployments', 'SCEPmanAppServices'), '2025-04-01').outputs.scepmanPrincipalID.value]",
+              "[reference(resourceId('Microsoft.Resources/deployments', 'SCEPmanAppServices'), '2025-04-01').outputs.certmasterPrincipalID.value]"
             ]
           },
           "virtualNetworkName": {
@@ -1270,8 +1270,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.37.4.10188",
-              "templateHash": "6622986609257007697"
+              "version": "0.38.33.27573",
+              "templateHash": "525184253460464608"
             }
           },
           "parameters": {
