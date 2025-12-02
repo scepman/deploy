@@ -38,6 +38,9 @@ param WebsiteArtifactsUri string
 @description('Use Linux App Service Plan')
 param deployOnLinux bool
 
+@description('Enable health check')
+param enableHealthCheck bool
+
 // Function to convert colon-style variable names to underscore-separated variable names if deployOnLinux is true
 func convertVariableNameToLinux(variableName string, deployOnLinux bool) string => deployOnLinux ? replace(variableName, ':', '__') : variableName
 
@@ -49,6 +52,7 @@ resource appServiceName_appsettings 'Microsoft.Web/sites/config@2024-04-01' = {
     '${convertVariableNameToLinux('AppConfig:LicenseKey', deployOnLinux)}': license
     '${convertVariableNameToLinux('AppConfig:AuthConfig:TenantId', deployOnLinux)}': subscription().tenantId
     '${convertVariableNameToLinux('AppConfig:UseRequestedKeyUsages', deployOnLinux)}': 'true'
+    '${convertVariableNameToLinux('AppConfig:OCSP:UseAuthorizedResponder', deployOnLinux)}': 'true'
     '${convertVariableNameToLinux('AppConfig:ValidityPeriodDays', deployOnLinux)}': '730'
     '${convertVariableNameToLinux('AppConfig:IntuneValidation:ValidityPeriodDays', deployOnLinux)}': '365'
     '${convertVariableNameToLinux('AppConfig:DirectCSRValidation:Enabled', deployOnLinux)}': 'true'
@@ -69,5 +73,12 @@ resource appServiceName_appsettings 'Microsoft.Web/sites/config@2024-04-01' = {
     '${convertVariableNameToLinux('AppConfig:OCSP:UseAuthorizedResponder', deployOnLinux)}': 'true'
     '${convertVariableNameToLinux('AppConfig:ValidityClockSkewMinutes', deployOnLinux)}': '1440'
     '${convertVariableNameToLinux('AppConfig:KeyVaultConfig:RootCertificateConfig:Subject', deployOnLinux)}': 'CN=SCEPman-Root-CA-V1, OU=${subscription().tenantId}, O="${OrgName}"'
+  }
+}
+
+resource appServiceName_websettings 'Microsoft.Web/sites/config@2024-04-01' = if (enableHealthCheck) {
+  name: '${appServiceName}/web'
+  properties: {
+    healthCheckPath: '/probe'
   }
 }
