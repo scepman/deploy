@@ -29,7 +29,7 @@ param appServicePlanName string = 'asp-scepman-UNIQUENAME'
 param existingAppServicePlanID string = 'none'
 
 @description('Use Linux App Service Plan')
-param deployOnLinux bool = false
+param deployOnLinux bool = true
 
 @description('The SCEPman App Service and part of the default FQDN. Therefore, it must be globally unique and contain only DNS-compatible characters.')
 @maxLength(60)
@@ -43,6 +43,9 @@ param logAnalyticsWorkspaceName string = 'log-scepman-UNIQUENAME'
 @description('The App Service for the component SCEPman Certificate Master. As it is part of the default FQDN, it must be globally unique and contain only DNS-compatible characters.')
 @maxLength(60)
 param certificateMasterAppServiceName string = 'app-scepman-UNIQUENAME-cm'
+
+@description('Enable the App Service health check.')
+param enableHealthCheck bool = true
 
 @description('Choose \'true\' to deploy SCEPman with a Virtual Network. In this case, you must also provide names for the parameters virtualNetworkName, privateEndpointForTableStorage, and privateEndpointForKeyVaultName.')
 param deployPrivateNetwork bool = true
@@ -158,6 +161,7 @@ module DeploymentSCEPmanConfig 'nestedtemplates/appConfig-scepman.bicep' = {
     OrgName: OrgName
     WebsiteArtifactsUri: ArtifactsLocationSCEPman
     license: license
+    enableHealthCheck: enableHealthCheck
   }
 }
 
@@ -171,6 +175,7 @@ module DeploymentCertMasterConfig 'nestedtemplates/appConfig-certmaster.bicep' =
     logAnalyticsWorkspaceId: AzureMonitor.outputs.workspaceId
     logAnalyticsWorkspaceName: logAnalyticsWorkspaceName
     WebsiteArtifactsUri: ArtifactsLocationCertMaster
+    enableHealthCheck: enableHealthCheck
   }
 }
 
