@@ -21,7 +21,8 @@ param privateEndpointName string
 var privateDnsZoneName = 'privatelink.table.${environment().suffixes.storage}'
 
 // Regions where GZRS (Geo-Zone Redundant Storage) is supported
-// Based on: https://learn.microsoft.com/en-us/azure/storage/common/redundancy-regions-gzrs
+// These regions have BOTH Availability Zones AND a Paired Region
+// Based on: https://learn.microsoft.com/en-us/azure/reliability/regions-list
 var gzrsRegions = [
   'australiaeast'
   'brazilsouth'
@@ -34,10 +35,10 @@ var gzrsRegions = [
   'francecentral'
   'germanywestcentral'
   'japaneast'
+  'japanwest'
   'koreacentral'
   'northeurope'
   'norwayeast'
-  'qatarcentral'
   'southafricanorth'
   'southcentralus'
   'southeastasia'
@@ -50,52 +51,102 @@ var gzrsRegions = [
   'westus3'
 ]
 
-// Regions where ZRS (Zone Redundant Storage) is supported as fallback
-// Based on: https://learn.microsoft.com/en-us/azure/storage/common/redundancy-regions-zrs
+// Regions where ZRS (Zone Redundant Storage) is supported
+// These regions have Availability Zone support
+// Based on: https://learn.microsoft.com/en-us/azure/reliability/regions-list
 var zrsRegions = [
   'australiaeast'
+  'austriaeast'
+  'belgiumcentral'
   'brazilsouth'
   'canadacentral'
+  'centralindia'
+  'centralus'
+  'chilecentral'
+  'eastasia'
+  'eastus'
+  'eastus2'
+  'francecentral'
+  'germanywestcentral'
+  'indonesiacentral'
+  'israelcentral'
+  'italynorth'
+  'japaneast'
+  'japanwest'
+  'koreacentral'
+  'malaysiawest'
+  'mexicocentral'
+  'newzealandnorth'
+  'northeurope'
+  'norwayeast'
+  'polandcentral'
+  'qatarcentral'
+  'southafricanorth'
+  'southcentralus'
+  'southeastasia'
+  'spaincentral'
+  'swedencentral'
+  'switzerlandnorth'
+  'uaenorth'
+  'uksouth'
+  'westeurope'
+  'westus2'
+  'westus3'
+]
+
+// Regions with geo-redundant support (have a Paired Region)
+// These regions support GRS (Geo-Redundant Storage)
+// Based on: https://learn.microsoft.com/en-us/azure/reliability/regions-list
+var geoRedundantRegions = [
+  'australiacentral'
+  'australiacentral2'
+  'australiaeast'
+  'australiasoutheast'
+  'brazilsouth'
+  'brazilsoutheast'
+  'canadacentral'
+  'canadaeast'
   'centralindia'
   'centralus'
   'eastasia'
   'eastus'
   'eastus2'
   'francecentral'
+  'francesouth'
+  'germanynorth'
   'germanywestcentral'
   'japaneast'
+  'japanwest'
   'koreacentral'
+  'koreasouth'
+  'northcentralus'
   'northeurope'
   'norwayeast'
-  'qatarcentral'
+  'norwaywest'
   'southafricanorth'
+  'southafricawest'
   'southcentralus'
+  'southindia'
   'southeastasia'
   'swedencentral'
   'switzerlandnorth'
+  'switzerlandwest'
+  'uaecentral'
   'uaenorth'
   'uksouth'
-  'westeurope'
-  'westus2'
-  'westus3'
-  // Additional regions that support ZRS but may not support GZRS
-  'australiasoutheast'
-  'canadaeast'
-  'centraluseuap'
-  'eastus2euap'
-  'japanwest'
-  'koreasouth'
-  'northcentralus'
-  'southindia'
   'ukwest'
   'westcentralus'
+  'westeurope'
+  'westindia'
   'westus'
+  'westus2'
+  'westus3'
 ]
 
 // Determine the appropriate storage account SKU based on region support
-// Priority: GZRS > ZRS > LRS
+// Priority: GZRS (AZ + Paired) > GRS (Paired) > ZRS (AZ) > LRS (Default)
 // This ensures the best available redundancy option for each region while maintaining deployment reliability
-var storageAccountSku = contains(gzrsRegions, location) ? 'Standard_GZRS' : (contains(zrsRegions, location) ? 'Standard_ZRS' : 'Standard_LRS')
+var storageAccountSku = contains(gzrsRegions, location) ? 'Standard_GZRS' : (contains(geoRedundantRegions, location) ? 'Standard_GRS' : (contains(zrsRegions, location) ? 'Standard_ZRS' : 'Standard_LRS'))
 
 resource StorageAccount 'Microsoft.Storage/storageAccounts@2023-05-01' = {
   name: StorageAccountName
