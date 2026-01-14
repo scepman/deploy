@@ -11,22 +11,38 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           ref: 'marketplace'
 
+      - name: Download Artifacts from install repository
+        run: |
+          # Download artifacts from the install repository's master branch
+          # Using raw.githubusercontent.com for direct file access
+          INSTALL_BRANCH="master"
+          echo "Downloading artifacts from scepman/install repository, branch: $INSTALL_BRANCH"
+          
+          # Download Artifacts-Linux.zip
+          curl -L -o Artifacts-Linux.zip "https://raw.githubusercontent.com/scepman/install/$INSTALL_BRANCH/dist/Artifacts-Linux.zip"
+          
+          # Download CertMaster-Artifacts-Linux.zip
+          curl -L -o CertMaster-Artifacts-Linux.zip "https://raw.githubusercontent.com/scepman/install/$INSTALL_BRANCH/dist-certmaster/CertMaster-Artifacts-Linux.zip"
+          
+          # Verify downloads
+          echo "Downloaded files:"
+          ls -lh Artifacts-Linux.zip CertMaster-Artifacts-Linux.zip
       - name: Assemble files to publish
         run: |
           mkdir publish
           cp mainTemplate.json publish
           cp createUiDefinition.json publish
           mkdir publish/dist
-          cp dist/Artifacts.zip publish/dist
+          cp Artifacts-Linux.zip publish/dist/
           mkdir publish/dist-certmaster
-          cp dist-certmaster/CertMaster-Artifacts.zip publish/dist-certmaster
+          cp CertMaster-Artifacts-Linux.zip publish/dist-certmaster/
 
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: Release
           path: publish/*
