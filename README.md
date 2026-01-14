@@ -12,7 +12,7 @@ This repository serves the Bicep and ARM templates for deploying SCEPman to an A
 
 ## Upstream history rewrite and how to resync your fork
 
-This repository underwent a **one-time history rewrite** at 2025-12-16 to get rid of the voluminous history of SCEPman artifacts now hosted at https://github.com/scepman/install.
+This repository underwent a **one-time history rewrite** at 2026-01-14 to get rid of the voluminous history of SCEPman artifacts now hosted at https://github.com/scepman/install.
 
 ### What changed
 
