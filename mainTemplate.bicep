@@ -21,9 +21,6 @@ param location string = resourceGroup().location
 @description('Tags to be assigned to all created resources. Use JSON syntax, e.g. if you want to add tags env with value dev and project with value scepman, then write { "env":"dev", "project":"scepman"}.')
 param resourceTags object = {}
 
-var artifactsRepositoryUrl = _artifactsLocation
-var ArtifactsLocationSCEPman = uri(artifactsRepositoryUrl, 'dist/Artifacts${deployOnLinux ? '-Linux' : ''}.zip${_artifactsLocationSasToken}')
-var ArtifactsLocationCertMaster = uri(artifactsRepositoryUrl, 'dist-certmaster/CertMaster-Artifacts${deployOnLinux ? '-Linux' : ''}.zip${_artifactsLocationSasToken}')
 var AppServicePlanName = 'asp-scepman-${uniqueString(resourceGroup().id)}'
 var AppServiceName = 'app-scepman-${uniqueString(resourceGroup().id)}'
 var AppServiceCertMasterName = 'app-scepman-cm-${uniqueString(resourceGroup().id)}'
@@ -41,6 +38,9 @@ var appServiceNames = [
   AppServiceName
   AppServiceCertMasterName
 ]
+var artifactsRepositoryUrl = _artifactsLocation
+var ArtifactsLocationSCEPman = uri(artifactsRepositoryUrl, 'dist/Artifacts${deployOnLinux ? '-Linux' : ''}.zip${_artifactsLocationSasToken}')
+var ArtifactsLocationCertMaster = uri(artifactsRepositoryUrl, 'dist-certmaster/CertMaster-Artifacts${deployOnLinux ? '-Linux' : ''}.zip${_artifactsLocationSasToken}')
 
 module pid_a262352f_52a9_4ed9_a9ba_6a2b2478d19b_partnercenter './empty.bicep' = {
   name: 'pid-a262352f-52a9-4ed9-a9ba-6a2b2478d19b-partnercenter'

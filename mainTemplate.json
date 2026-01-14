@@ -4,13 +4,8 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-<<<<<<< HEAD:mainTemplate.json
-      "version": "0.38.5.1644",
-      "templateHash": "10395498179941975522"
-=======
       "version": "0.39.26.7824",
-      "templateHash": "9265161188761980991"
->>>>>>> master:azuredeploy.json
+      "templateHash": "5890505678523380439"
     }
   },
   "parameters": {
@@ -46,104 +41,7 @@
       "type": "string",
       "defaultValue": "[deployment().properties.templateLink.uri]",
       "metadata": {
-<<<<<<< HEAD:mainTemplate.json
         "description": "The base URI where artifacts required by this template are located including a trailing \"/\""
-=======
-        "description": "When generating the SCEPman CA certificate, which kind of key pair shall be created? RSA is a software-protected RSA key; RSA-HSM is HSM-protected."
-      }
-    },
-    "storageAccountName": {
-      "type": "string",
-      "defaultValue": "stscepmanuniquename",
-      "minLength": 3,
-      "maxLength": 24,
-      "metadata": {
-        "description": "Choose a globally unique name for your storage account. Storage account names must be between 3 and 24 characters in length and may contain numbers and lowercase letters only."
-      }
-    },
-    "appServicePlanName": {
-      "type": "string",
-      "defaultValue": "asp-scepman-UNIQUENAME",
-      "maxLength": 40
-    },
-    "existingAppServicePlanID": {
-      "type": "string",
-      "defaultValue": "none",
-      "metadata": {
-        "description": "Provide the Resource ID of an existing App Service Plan (the long string displayed in the properties tab). Keep default value 'none' if you want to create a new one."
-      }
-    },
-    "deployOnLinux": {
-      "type": "bool",
-      "defaultValue": true,
-      "metadata": {
-        "description": "Use Linux App Service Plan"
-      }
-    },
-    "primaryAppServiceName": {
-      "type": "string",
-      "defaultValue": "app-scepman-UNIQUENAME",
-      "maxLength": 60,
-      "metadata": {
-        "description": "The SCEPman App Service and part of the default FQDN. Therefore, it must be globally unique and contain only DNS-compatible characters."
-      }
-    },
-    "logAnalyticsWorkspaceName": {
-      "type": "string",
-      "defaultValue": "log-scepman-UNIQUENAME",
-      "minLength": 4,
-      "maxLength": 63,
-      "metadata": {
-        "description": "The Log Analytics Workspace with log data. Alphanumerics and hyphens are allowed."
-      }
-    },
-    "certificateMasterAppServiceName": {
-      "type": "string",
-      "defaultValue": "app-scepman-UNIQUENAME-cm",
-      "maxLength": 60,
-      "metadata": {
-        "description": "The App Service for the component SCEPman Certificate Master. As it is part of the default FQDN, it must be globally unique and contain only DNS-compatible characters."
-      }
-    },
-    "enableHealthCheck": {
-      "type": "bool",
-      "defaultValue": true,
-      "metadata": {
-        "description": "Enable the App Service health check."
-      }
-    },
-    "deployPrivateNetwork": {
-      "type": "bool",
-      "defaultValue": true,
-      "metadata": {
-        "description": "Choose 'true' to deploy SCEPman with a Virtual Network. In this case, you must also provide names for the parameters virtualNetworkName, privateEndpointForTableStorage, and privateEndpointForKeyVaultName."
-      }
-    },
-    "virtualNetworkName": {
-      "type": "string",
-      "defaultValue": "vnet-scepman-UNIQUENAME",
-      "maxLength": 80,
-      "metadata": {
-        "description": "The name of the Virtual Network. This is only applicable if deployPrivateNetwork is chosen."
-      }
-    },
-    "privateEndpointForKeyVaultName": {
-      "type": "string",
-      "defaultValue": "pep-kv-scepman-UNIQUENAME",
-      "minLength": 4,
-      "maxLength": 64,
-      "metadata": {
-        "description": "Name of the Private Endpoint for the Key Vault. This is only applicable if deployPrivateNetwork is chosen."
-      }
-    },
-    "privateEndpointForTableStorage": {
-      "type": "string",
-      "defaultValue": "pep-sts-scepman-UNIQUENAME",
-      "minLength": 4,
-      "maxLength": 64,
-      "metadata": {
-        "description": "Name of the Private Endpoint for the Azure Table Storage Service. This is only applicable if deployPrivateNetwork is chosen."
->>>>>>> master:azuredeploy.json
       }
     },
     "location": {
@@ -162,9 +60,6 @@
     }
   },
   "variables": {
-    "artifactsRepositoryUrl": "[parameters('_artifactsLocation')]",
-    "ArtifactsLocationSCEPman": "[uri(variables('artifactsRepositoryUrl'), format('dist/Artifacts{0}.zip{1}', if(variables('deployOnLinux'), '-Linux', ''), parameters('_artifactsLocationSasToken')))]",
-    "ArtifactsLocationCertMaster": "[uri(variables('artifactsRepositoryUrl'), format('dist-certmaster/CertMaster-Artifacts{0}.zip{1}', if(variables('deployOnLinux'), '-Linux', ''), parameters('_artifactsLocationSasToken')))]",
     "AppServicePlanName": "[format('asp-scepman-{0}', uniqueString(resourceGroup().id))]",
     "AppServiceName": "[format('app-scepman-{0}', uniqueString(resourceGroup().id))]",
     "AppServiceCertMasterName": "[format('app-scepman-cm-{0}', uniqueString(resourceGroup().id))]",
@@ -175,13 +70,16 @@
     "virtualNetworkName": "[format('vnet-scepman-{0}', uniqueString(resourceGroup().id))]",
     "enableHealthCheck": true,
     "deployPrivateNetwork": true,
-    "deployOnLinux": false,
+    "deployOnLinux": true,
     "privateEndpointForKeyVaultName": "[format('pep-kv-scepman-{0}', uniqueString(resourceGroup().id))]",
     "privateEndpointForTableStorage": "[format('pep-sts-scepman-{0}', uniqueString(resourceGroup().id))]",
     "appServiceNames": [
       "[variables('AppServiceName')]",
       "[variables('AppServiceCertMasterName')]"
-    ]
+    ],
+    "artifactsRepositoryUrl": "[parameters('_artifactsLocation')]",
+    "ArtifactsLocationSCEPman": "[uri(variables('artifactsRepositoryUrl'), format('dist/Artifacts{0}.zip{1}', if(variables('deployOnLinux'), '-Linux', ''), parameters('_artifactsLocationSasToken')))]",
+    "ArtifactsLocationCertMaster": "[uri(variables('artifactsRepositoryUrl'), format('dist-certmaster/CertMaster-Artifacts{0}.zip{1}', if(variables('deployOnLinux'), '-Linux', ''), parameters('_artifactsLocationSasToken')))]"
   },
   "resources": [
     {
@@ -200,13 +98,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-<<<<<<< HEAD:mainTemplate.json
-              "version": "0.38.5.1644",
-              "templateHash": "3211781645287174514"
-=======
               "version": "0.39.26.7824",
               "templateHash": "16873125938269548923"
->>>>>>> master:azuredeploy.json
             }
           },
           "resources": []
@@ -240,13 +133,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-<<<<<<< HEAD:mainTemplate.json
-              "version": "0.38.5.1644",
-              "templateHash": "14132623513381578167"
-=======
               "version": "0.39.26.7824",
               "templateHash": "17114891096311511446"
->>>>>>> master:azuredeploy.json
             }
           },
           "parameters": {
@@ -380,13 +268,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-<<<<<<< HEAD:mainTemplate.json
-              "version": "0.38.5.1644",
-              "templateHash": "11887114770303721892"
-=======
               "version": "0.39.26.7824",
               "templateHash": "10546456521129268348"
->>>>>>> master:azuredeploy.json
             }
           },
           "parameters": {
@@ -465,13 +348,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-<<<<<<< HEAD:mainTemplate.json
-              "version": "0.38.5.1644",
-              "templateHash": "14286880103984747326"
-=======
               "version": "0.39.26.7824",
               "templateHash": "7753112418218179036"
->>>>>>> master:azuredeploy.json
             }
           },
           "parameters": {
@@ -638,13 +516,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-<<<<<<< HEAD:mainTemplate.json
-              "version": "0.38.5.1644",
-              "templateHash": "18435178836052774858"
-=======
               "version": "0.39.26.7824",
               "templateHash": "3971763333033399141"
->>>>>>> master:azuredeploy.json
             }
           },
           "parameters": {
@@ -724,13 +597,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-<<<<<<< HEAD:mainTemplate.json
-              "version": "0.38.5.1644",
-              "templateHash": "14957126716623518206"
-=======
               "version": "0.39.26.7824",
               "templateHash": "7296235052918823860"
->>>>>>> master:azuredeploy.json
             }
           },
           "parameters": {
@@ -973,13 +841,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-<<<<<<< HEAD:mainTemplate.json
-              "version": "0.38.5.1644",
-              "templateHash": "17910890078737606886"
-=======
               "version": "0.39.26.7824",
-              "templateHash": "10677728227586191960"
->>>>>>> master:azuredeploy.json
+              "templateHash": "14033490568953490224"
             }
           },
           "functions": [
@@ -1193,13 +1056,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-<<<<<<< HEAD:mainTemplate.json
-              "version": "0.38.5.1644",
-              "templateHash": "3745269212625461829"
-=======
               "version": "0.39.26.7824",
-              "templateHash": "1481677744462222338"
->>>>>>> master:azuredeploy.json
+              "templateHash": "9167289557400083453"
             }
           },
           "functions": [
@@ -1350,13 +1208,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-<<<<<<< HEAD:mainTemplate.json
-              "version": "0.38.5.1644",
-              "templateHash": "8964090214488121839"
-=======
               "version": "0.39.26.7824",
               "templateHash": "4722436582661142344"
->>>>>>> master:azuredeploy.json
             }
           },
           "parameters": {
