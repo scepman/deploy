@@ -22,25 +22,24 @@ jobs:
           INSTALL_BRANCH="master"
           echo "Downloading artifacts from scepman/install repository, branch: $INSTALL_BRANCH"
           
-          # Download Artifacts.zip
-          curl -L -o Artifacts.zip "https://raw.githubusercontent.com/scepman/install/$INSTALL_BRANCH/dist/Artifacts.zip"
+          # Download Artifacts-Linux.zip
+          curl -L -o Artifacts-Linux.zip "https://raw.githubusercontent.com/scepman/install/$INSTALL_BRANCH/dist/Artifacts-Linux.zip"
           
-          # Download CertMaster-Artifacts.zip
-          curl -L -o CertMaster-Artifacts.zip "https://raw.githubusercontent.com/scepman/install/$INSTALL_BRANCH/dist-certmaster/CertMaster-Artifacts.zip"
+          # Download CertMaster-Artifacts-Linux.zip
+          curl -L -o CertMaster-Artifacts-Linux.zip "https://raw.githubusercontent.com/scepman/install/$INSTALL_BRANCH/dist-certmaster/CertMaster-Artifacts-Linux.zip"
           
           # Verify downloads
           echo "Downloaded files:"
-          ls -lh Artifacts.zip CertMaster-Artifacts.zip
-
+          ls -lh Artifacts-Linux.zip CertMaster-Artifacts-Linux.zip
       - name: Assemble files to publish
         run: |
           mkdir publish
           cp mainTemplate.json publish
           cp createUiDefinition.json publish
           mkdir publish/dist
-          cp Artifacts.zip publish/dist/
+          cp Artifacts-Linux.zip publish/dist/
           mkdir publish/dist-certmaster
-          cp CertMaster-Artifacts.zip publish/dist-certmaster/
+          cp CertMaster-Artifacts-Linux.zip publish/dist-certmaster/
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v5
