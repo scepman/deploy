@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.39.26.7824",
-      "templateHash": "4942280913068034173"
+      "templateHash": "14132486103519937036"
     }
   },
   "parameters": {
@@ -118,6 +118,14 @@
         "description": "The name of the Virtual Network. This is only applicable if deployPrivateNetwork is chosen."
       }
     },
+    "nsgName": {
+      "type": "string",
+      "defaultValue": "nsg-scepman-UNIQUENAME",
+      "maxLength": 80,
+      "metadata": {
+        "description": "Name of the Network Security Group applied to the subnets. This is only applicable if deployPrivateNetwork is chosen."
+      }
+    },
     "privateEndpointForKeyVaultName": {
       "type": "string",
       "defaultValue": "[format('pep-kv-scepman-{0}', uniqueString(resourceGroup().id))]",
@@ -204,6 +212,9 @@
           },
           "resourceTags": {
             "value": "[parameters('resourceTags')]"
+          },
+          "networkSecurityGroupName": {
+            "value": "[parameters('nsgName')]"
           }
         },
         "template": {
@@ -213,7 +224,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.39.26.7824",
-              "templateHash": "17114891096311511446"
+              "templateHash": "2076289075641564975"
             }
           },
           "parameters": {
@@ -233,6 +244,13 @@
               "type": "object",
               "metadata": {
                 "description": "Tags to be assigned to the created resources."
+              }
+            },
+            "networkSecurityGroupName": {
+              "type": "string",
+              "defaultValue": "[format('nsg-{0}', parameters('virtualNetworkName'))]",
+              "metadata": {
+                "description": "Name of the Network Security Group applied to the subnets."
               }
             },
             "virtualNetworkAddressPrefixes": {
@@ -261,6 +279,14 @@
           },
           "resources": [
             {
+              "type": "Microsoft.Network/networkSecurityGroups",
+              "apiVersion": "2023-06-01",
+              "name": "[parameters('networkSecurityGroupName')]",
+              "location": "[parameters('location')]",
+              "tags": "[parameters('resourceTags')]",
+              "properties": {}
+            },
+            {
               "type": "Microsoft.Network/virtualNetworks",
               "apiVersion": "2023-06-01",
               "name": "[parameters('virtualNetworkName')]",
@@ -282,7 +308,10 @@
                       "addressPrefix": "[parameters('subnetIpPrefixDefault')]",
                       "privateEndpointNetworkPolicies": "Disabled",
                       "privateLinkServiceNetworkPolicies": "Enabled",
-                      "defaultOutboundAccess": true
+                      "defaultOutboundAccess": true,
+                      "networkSecurityGroup": {
+                        "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroupName'))]"
+                      }
                     },
                     "type": "Microsoft.Network/virtualNetworks/subnets"
                   },
@@ -302,13 +331,19 @@
                         }
                       ],
                       "privateEndpointNetworkPolicies": "Disabled",
-                      "privateLinkServiceNetworkPolicies": "Enabled"
+                      "privateLinkServiceNetworkPolicies": "Enabled",
+                      "networkSecurityGroup": {
+                        "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroupName'))]"
+                      }
                     },
                     "type": "Microsoft.Network/virtualNetworks/subnets"
                   }
                 ],
                 "enableDdosProtection": false
-              }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroupName'))]"
+              ]
             }
           ]
         }
