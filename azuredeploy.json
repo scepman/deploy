@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.39.26.7824",
-      "templateHash": "913796622258530581"
+      "templateHash": "13917650468220715752"
     }
   },
   "parameters": {
@@ -224,7 +224,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.39.26.7824",
-              "templateHash": "2076289075641564975"
+              "templateHash": "15247812465335479075"
             }
           },
           "parameters": {
@@ -308,7 +308,7 @@
                       "addressPrefix": "[parameters('subnetIpPrefixDefault')]",
                       "privateEndpointNetworkPolicies": "Disabled",
                       "privateLinkServiceNetworkPolicies": "Enabled",
-                      "defaultOutboundAccess": true,
+                      "defaultOutboundAccess": false,
                       "networkSecurityGroup": {
                         "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroupName'))]"
                       }
@@ -332,6 +332,7 @@
                       ],
                       "privateEndpointNetworkPolicies": "Disabled",
                       "privateLinkServiceNetworkPolicies": "Enabled",
+                      "defaultOutboundAccess": false,
                       "networkSecurityGroup": {
                         "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroupName'))]"
                       }
