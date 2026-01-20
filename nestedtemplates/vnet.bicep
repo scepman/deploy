@@ -8,7 +8,7 @@ param location string
 param resourceTags object
 
 @description('Name of the Network Security Group applied to the subnets.')
-param networkSecurityGroupName string = '${virtualNetworkName}-nsg'
+param networkSecurityGroupName string = 'nsg-${virtualNetworkName}'
 
 @description('List of address prefixes for the Virtual Network.')
 param virtualNetworkAddressPrefixes array = [

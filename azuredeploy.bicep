@@ -54,6 +54,10 @@ param deployPrivateNetwork bool = true
 @maxLength(80)
 param virtualNetworkName string = 'vnet-scepman-UNIQUENAME'
 
+@description('Name of the Network Security Group applied to the subnets. This is only applicable if deployPrivateNetwork is chosen.')
+@maxLength(80)
+param nsgName string = 'nsg-scepman-UNIQUENAME'
+
 @description('Name of the Private Endpoint for the Key Vault. This is only applicable if deployPrivateNetwork is chosen.')
 @minLength(4)
 @maxLength(64)
@@ -89,6 +93,7 @@ module CreateVirtualNetwork 'nestedtemplates/vnet.bicep' = if (deployPrivateNetw
     virtualNetworkName: virtualNetworkName
     location: location
     resourceTags: resourceTags
+    networkSecurityGroupName: nsgName
   }
 }
 
