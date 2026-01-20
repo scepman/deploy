@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.39.26.7824",
-      "templateHash": "5892696379083875657"
+      "templateHash": "913796622258530581"
     }
   },
   "parameters": {
@@ -118,6 +118,14 @@
         "description": "The name of the Virtual Network. This is only applicable if deployPrivateNetwork is chosen."
       }
     },
+    "nsgName": {
+      "type": "string",
+      "defaultValue": "nsg-scepman-UNIQUENAME",
+      "maxLength": 80,
+      "metadata": {
+        "description": "Name of the Network Security Group applied to the subnets. This is only applicable if deployPrivateNetwork is chosen."
+      }
+    },
     "privateEndpointForKeyVaultName": {
       "type": "string",
       "defaultValue": "pep-kv-scepman-UNIQUENAME",
@@ -204,6 +212,9 @@
           },
           "resourceTags": {
             "value": "[parameters('resourceTags')]"
+          },
+          "networkSecurityGroupName": {
+            "value": "[parameters('nsgName')]"
           }
         },
         "template": {
@@ -213,7 +224,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.39.26.7824",
-              "templateHash": "498823220313053821"
+              "templateHash": "2076289075641564975"
             }
           },
           "parameters": {
@@ -237,7 +248,7 @@
             },
             "networkSecurityGroupName": {
               "type": "string",
-              "defaultValue": "[format('{0}-nsg', parameters('virtualNetworkName'))]",
+              "defaultValue": "[format('nsg-{0}', parameters('virtualNetworkName'))]",
               "metadata": {
                 "description": "Name of the Network Security Group applied to the subnets."
               }
