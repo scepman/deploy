@@ -48,7 +48,7 @@ resource virtualNetwork 'Microsoft.Network/virtualNetworks@2023-06-01' = {
           addressPrefix: subnetIpPrefixDefault
           privateEndpointNetworkPolicies: 'Disabled'
           privateLinkServiceNetworkPolicies: 'Enabled'
-          defaultOutboundAccess: true
+          defaultOutboundAccess: false
           networkSecurityGroup: {
             id: subnetNsg.id
           }
@@ -77,6 +77,7 @@ resource virtualNetwork 'Microsoft.Network/virtualNetworks@2023-06-01' = {
           ]
           privateEndpointNetworkPolicies: 'Disabled'
           privateLinkServiceNetworkPolicies: 'Enabled'
+          defaultOutboundAccess: false
           networkSecurityGroup: {
             id: subnetNsg.id
           }
