@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.39.26.7824",
-      "templateHash": "9265161188761980991"
+      "templateHash": "5892696379083875657"
     }
   },
   "parameters": {
@@ -213,7 +213,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.39.26.7824",
-              "templateHash": "17114891096311511446"
+              "templateHash": "498823220313053821"
             }
           },
           "parameters": {
@@ -233,6 +233,13 @@
               "type": "object",
               "metadata": {
                 "description": "Tags to be assigned to the created resources."
+              }
+            },
+            "networkSecurityGroupName": {
+              "type": "string",
+              "defaultValue": "[format('{0}-nsg', parameters('virtualNetworkName'))]",
+              "metadata": {
+                "description": "Name of the Network Security Group applied to the subnets."
               }
             },
             "virtualNetworkAddressPrefixes": {
@@ -261,6 +268,14 @@
           },
           "resources": [
             {
+              "type": "Microsoft.Network/networkSecurityGroups",
+              "apiVersion": "2023-06-01",
+              "name": "[parameters('networkSecurityGroupName')]",
+              "location": "[parameters('location')]",
+              "tags": "[parameters('resourceTags')]",
+              "properties": {}
+            },
+            {
               "type": "Microsoft.Network/virtualNetworks",
               "apiVersion": "2023-06-01",
               "name": "[parameters('virtualNetworkName')]",
@@ -282,7 +297,10 @@
                       "addressPrefix": "[parameters('subnetIpPrefixDefault')]",
                       "privateEndpointNetworkPolicies": "Disabled",
                       "privateLinkServiceNetworkPolicies": "Enabled",
-                      "defaultOutboundAccess": true
+                      "defaultOutboundAccess": true,
+                      "networkSecurityGroup": {
+                        "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroupName'))]"
+                      }
                     },
                     "type": "Microsoft.Network/virtualNetworks/subnets"
                   },
@@ -302,13 +320,19 @@
                         }
                       ],
                       "privateEndpointNetworkPolicies": "Disabled",
-                      "privateLinkServiceNetworkPolicies": "Enabled"
+                      "privateLinkServiceNetworkPolicies": "Enabled",
+                      "networkSecurityGroup": {
+                        "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroupName'))]"
+                      }
                     },
                     "type": "Microsoft.Network/virtualNetworks/subnets"
                   }
                 ],
                 "enableDdosProtection": false
-              }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroupName'))]"
+              ]
             }
           ]
         }

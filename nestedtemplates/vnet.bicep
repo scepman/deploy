@@ -7,6 +7,9 @@ param location string
 @description('Tags to be assigned to the created resources.')
 param resourceTags object
 
+@description('Name of the Network Security Group applied to the subnets.')
+param networkSecurityGroupName string = '${virtualNetworkName}-nsg'
+
 @description('List of address prefixes for the Virtual Network.')
 param virtualNetworkAddressPrefixes array = [
   '10.142.0.0/16'
@@ -17,6 +20,13 @@ param subnetIpPrefixDefault string ='10.142.0.0/24'
 
 @description('Subnet prefix for the subnet that will host the App Services')
 param subnetIpPrefixScepman string = '10.142.1.0/24'
+
+resource subnetNsg 'Microsoft.Network/networkSecurityGroups@2023-06-01' = {
+  name: networkSecurityGroupName
+  location: location
+  tags: resourceTags
+  properties: {}
+}
 
 resource virtualNetwork 'Microsoft.Network/virtualNetworks@2023-06-01' = {
   name: virtualNetworkName
@@ -39,6 +49,9 @@ resource virtualNetwork 'Microsoft.Network/virtualNetworks@2023-06-01' = {
           privateEndpointNetworkPolicies: 'Disabled'
           privateLinkServiceNetworkPolicies: 'Enabled'
           defaultOutboundAccess: true
+          networkSecurityGroup: {
+            id: subnetNsg.id
+          }
         }
         type: 'Microsoft.Network/virtualNetworks/subnets'
       }
@@ -64,6 +77,9 @@ resource virtualNetwork 'Microsoft.Network/virtualNetworks@2023-06-01' = {
           ]
           privateEndpointNetworkPolicies: 'Disabled'
           privateLinkServiceNetworkPolicies: 'Enabled'
+          networkSecurityGroup: {
+            id: subnetNsg.id
+          }
         }
         type: 'Microsoft.Network/virtualNetworks/subnets'
       }
