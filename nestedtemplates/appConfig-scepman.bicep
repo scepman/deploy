@@ -23,11 +23,11 @@ param caKeyType string = 'RSA-HSM'
 @description('When generating the SCEPman CA certificate, what length in bits shall the key have? Plausible values for RSA are 2048 or 4096. The size also has an impact on the Azure Key Vault pricing.')
 param caKeySize int = 4096
 
-@description('Log Analytics Workspace ID')
-param logAnalyticsWorkspaceId string
+@description('Data Collection Rule Endpoint URI')
+param dataCollectionRuleEndpointUri string
 
-@description('Log Analytics Workspace name')
-param logAnalyticsWorkspaceName string
+@description('Data Collection Rule Immutable ID')
+param dataCollectionRuleImmutableId string
 
 @description('License Key for SCEPman')
 param license string = 'trial'
@@ -60,11 +60,8 @@ resource appServiceName_appsettings 'Microsoft.Web/sites/config@2024-04-01' = {
     '${convertVariableNameToLinux('AppConfig:IntuneValidation:DeviceDirectory', deployOnLinux)}': 'AADAndIntune'
     '${convertVariableNameToLinux('AppConfig:CRL:Source', deployOnLinux)}': 'Storage'
     '${convertVariableNameToLinux('AppConfig:EnableCertificateStorage', deployOnLinux)}': 'true'
-    '${convertVariableNameToLinux('AppConfig:LoggingConfig:WorkspaceId', deployOnLinux)}': logAnalyticsWorkspaceId
-    '${convertVariableNameToLinux('AppConfig:LoggingConfig:SharedKey', deployOnLinux)}': listKeys(
-      resourceId('Microsoft.OperationalInsights/workspaces', logAnalyticsWorkspaceName),
-      '2022-10-01'
-    ).primarySharedKey
+    '${convertVariableNameToLinux('AppConfig:LoggingConfig:DataCollectionEndpointUri', deployOnLinux)}': dataCollectionRuleEndpointUri
+    '${convertVariableNameToLinux('AppConfig:LoggingConfig:RuleId', deployOnLinux)}' : dataCollectionRuleImmutableId
     '${convertVariableNameToLinux('AppConfig:KeyVaultConfig:KeyVaultURL', deployOnLinux)}': keyVaultURL
     '${convertVariableNameToLinux('AppConfig:CertificateStorage:TableStorageEndpoint', deployOnLinux)}': StorageAccountTableUrl
     '${convertVariableNameToLinux('AppConfig:KeyVaultConfig:RootCertificateConfig:CertificateName', deployOnLinux)}': 'SCEPman-Root-CA-V1'

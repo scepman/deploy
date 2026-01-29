@@ -10,11 +10,11 @@ param appServiceName string
 @description('The URL of the SCEPman App Service')
 param scepmanUrl string
 
-@description('Log Analytics Workspace ID')
-param logAnalyticsWorkspaceId string
+@description('Data Collection Rule Endpoint URI')
+param dataCollectionRuleEndpointUri string
 
-@description('Log Analytics Workspace name')
-param logAnalyticsWorkspaceName string
+@description('Data Collection Rule Immutable ID')
+param dataCollectionRuleImmutableId string
 
 @description('Use Linux App Service Plan')
 param deployOnLinux bool
@@ -32,11 +32,8 @@ resource appServiceName_appsettings 'Microsoft.Web/sites/config@2024-04-01' = {
     '${convertVariableNameToLinux('AppConfig:AzureStorage:TableStorageEndpoint', deployOnLinux)}': StorageAccountTableUrl
     '${convertVariableNameToLinux('AppConfig:SCEPman:URL', deployOnLinux)}': scepmanUrl
     '${convertVariableNameToLinux('AppConfig:AuthConfig:TenantId', deployOnLinux)}': subscription().tenantId
-    '${convertVariableNameToLinux('AppConfig:LoggingConfig:WorkspaceId', deployOnLinux)}': logAnalyticsWorkspaceId
-    '${convertVariableNameToLinux('AppConfig:LoggingConfig:SharedKey', deployOnLinux)}': listKeys(
-      resourceId('Microsoft.OperationalInsights/workspaces', logAnalyticsWorkspaceName),
-      '2022-10-01'
-    ).primarySharedKey
+        '${convertVariableNameToLinux('AppConfig:LoggingConfig:DataCollectionEndpointUri', deployOnLinux)}': dataCollectionRuleEndpointUri
+    '${convertVariableNameToLinux('AppConfig:LoggingConfig:RuleId', deployOnLinux)}' : dataCollectionRuleImmutableId
   }
 }
 

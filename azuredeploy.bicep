@@ -40,6 +40,11 @@ param primaryAppServiceName string = 'app-scepman-UNIQUENAME'
 @maxLength(63)
 param logAnalyticsWorkspaceName string = 'log-scepman-UNIQUENAME'
 
+@description('The Data Collection Rule. Alphanumerics and hyphens are allowed.')
+@minLength(4)
+@maxLength(63)
+param dataCollectionRuleName string = 'dcr-scepman-UNIQUENAME'
+
 @description('The App Service for the component SCEPman Certificate Master. As it is part of the default FQDN, it must be globally unique and contain only DNS-compatible characters.')
 @maxLength(60)
 param certificateMasterAppServiceName string = 'app-scepman-UNIQUENAME-cm'
@@ -130,6 +135,11 @@ module AzureMonitor 'nestedtemplates/loganalytics.bicep' = {
   name: 'AzureMonitor'
   params: {
     logAnalyticsAccountName: logAnalyticsWorkspaceName
+    dataCollectionRuleName: dataCollectionRuleName
+    metricsPublisherPrincipals: [
+      SCEPmanAppServices.outputs.scepmanPrincipalID
+      SCEPmanAppServices.outputs.certmasterPrincipalID
+    ]
     location: location
     resourceTags: resourceTags
   }
@@ -161,8 +171,8 @@ module DeploymentSCEPmanConfig 'nestedtemplates/appConfig-scepman.bicep' = {
     scepManBaseURL: SCEPmanAppServices.outputs.scepmanURL
     keyVaultURL: SCEPmanVault.outputs.keyVaultURL
     caKeyType: caKeyType
-    logAnalyticsWorkspaceId: AzureMonitor.outputs.workspaceId
-    logAnalyticsWorkspaceName: logAnalyticsWorkspaceName
+    dataCollectionRuleEndpointUri: AzureMonitor.outputs.dcrEndpointUri
+    dataCollectionRuleImmutableId: AzureMonitor.outputs.dcrImmutableId
     OrgName: OrgName
     WebsiteArtifactsUri: ArtifactsLocationSCEPman
     license: license
@@ -177,8 +187,8 @@ module DeploymentCertMasterConfig 'nestedtemplates/appConfig-certmaster.bicep' =
     deployOnLinux: deployOnLinux
     scepmanUrl: SCEPmanAppServices.outputs.scepmanURL
     StorageAccountTableUrl: SCEPmanStorageAccount.outputs.storageAccountTableUrl
-    logAnalyticsWorkspaceId: AzureMonitor.outputs.workspaceId
-    logAnalyticsWorkspaceName: logAnalyticsWorkspaceName
+    dataCollectionRuleEndpointUri: AzureMonitor.outputs.dcrEndpointUri
+    dataCollectionRuleImmutableId: AzureMonitor.outputs.dcrImmutableId
     WebsiteArtifactsUri: ArtifactsLocationCertMaster
     enableHealthCheck: enableHealthCheck
   }
