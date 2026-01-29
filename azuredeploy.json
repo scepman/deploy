@@ -4,8 +4,8 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.39.26.7824",
-      "templateHash": "13917650468220715752"
+      "version": "0.35.1.17967",
+      "templateHash": "4589958539135588507"
     }
   },
   "parameters": {
@@ -86,6 +86,15 @@
       "maxLength": 63,
       "metadata": {
         "description": "The Log Analytics Workspace with log data. Alphanumerics and hyphens are allowed."
+      }
+    },
+    "dataCollectionRuleName": {
+      "type": "string",
+      "defaultValue": "dcr-scepman-UNIQUENAME",
+      "minLength": 4,
+      "maxLength": 63,
+      "metadata": {
+        "description": "The Data Collection Rule. Alphanumerics and hyphens are allowed."
       }
     },
     "certificateMasterAppServiceName": {
@@ -171,7 +180,7 @@
   "resources": [
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2025-04-01",
+      "apiVersion": "2022-09-01",
       "name": "pid-a262352f-52a9-4ed9-a9ba-6a2b2478d19b-partnercenter",
       "properties": {
         "expressionEvaluationOptions": {
@@ -185,8 +194,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.39.26.7824",
-              "templateHash": "16873125938269548923"
+              "version": "0.35.1.17967",
+              "templateHash": "5721384004089500046"
             }
           },
           "resources": []
@@ -196,7 +205,7 @@
     {
       "condition": "[parameters('deployPrivateNetwork')]",
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2025-04-01",
+      "apiVersion": "2022-09-01",
       "name": "CreateVirtualNetwork",
       "properties": {
         "expressionEvaluationOptions": {
@@ -223,8 +232,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.39.26.7824",
-              "templateHash": "15247812465335479075"
+              "version": "0.35.1.17967",
+              "templateHash": "7901687308642785175"
             }
           },
           "parameters": {
@@ -359,7 +368,7 @@
       },
       "condition": "[parameters('deployPrivateNetwork')]",
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2025-04-01",
+      "apiVersion": "2022-09-01",
       "name": "[format('AppService-{0}-ConnectionToVirtualNetwork', range(0, 2)[copyIndex()])]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -383,8 +392,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.39.26.7824",
-              "templateHash": "10546456521129268348"
+              "version": "0.35.1.17967",
+              "templateHash": "7452352196458194136"
             }
           },
           "parameters": {
@@ -430,7 +439,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2025-04-01",
+      "apiVersion": "2022-09-01",
       "name": "SCEPmanAppServices",
       "properties": {
         "expressionEvaluationOptions": {
@@ -466,8 +475,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.39.26.7824",
-              "templateHash": "7753112418218179036"
+              "version": "0.35.1.17967",
+              "templateHash": "2443569730121061710"
             }
           },
           "parameters": {
@@ -610,7 +619,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2025-04-01",
+      "apiVersion": "2022-09-01",
       "name": "AzureMonitor",
       "properties": {
         "expressionEvaluationOptions": {
@@ -620,6 +629,15 @@
         "parameters": {
           "logAnalyticsAccountName": {
             "value": "[parameters('logAnalyticsWorkspaceName')]"
+          },
+          "dataCollectionRuleName": {
+            "value": "[parameters('dataCollectionRuleName')]"
+          },
+          "metricsPublisherPrincipals": {
+            "value": [
+              "[reference(resourceId('Microsoft.Resources/deployments', 'SCEPmanAppServices'), '2022-09-01').outputs.scepmanPrincipalID.value]",
+              "[reference(resourceId('Microsoft.Resources/deployments', 'SCEPmanAppServices'), '2022-09-01').outputs.certmasterPrincipalID.value]"
+            ]
           },
           "location": {
             "value": "[parameters('location')]"
@@ -634,8 +652,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.39.26.7824",
-              "templateHash": "3971763333033399141"
+              "version": "0.35.1.17967",
+              "templateHash": "7998912553061374610"
             }
           },
           "parameters": {
@@ -643,6 +661,18 @@
               "type": "string",
               "metadata": {
                 "description": "Name of the Log Analytics Workspace"
+              }
+            },
+            "dataCollectionRuleName": {
+              "type": "string",
+              "metadata": {
+                "description": "Name of the Data Collection Rule"
+              }
+            },
+            "metricsPublisherPrincipals": {
+              "type": "array",
+              "metadata": {
+                "description": "Service Principal Ids to be assigned the Metrics Publisher role on the Data Collection Rule"
               }
             },
             "location": {
@@ -671,20 +701,229 @@
                   "name": "PerGB2018"
                 }
               }
+            },
+            {
+              "type": "Microsoft.OperationalInsights/workspaces/tables",
+              "apiVersion": "2025-02-01",
+              "name": "[format('{0}/{1}', parameters('logAnalyticsAccountName'), 'SCEPman_CL')]",
+              "properties": {
+                "totalRetentionInDays": 30,
+                "plan": "Analytics",
+                "schema": {
+                  "name": "SCEPman_CL",
+                  "columns": [
+                    {
+                      "name": "TimeGenerated",
+                      "type": "datetime"
+                    },
+                    {
+                      "name": "Timestamp",
+                      "type": "string"
+                    },
+                    {
+                      "name": "Level",
+                      "type": "string"
+                    },
+                    {
+                      "name": "Message",
+                      "type": "string"
+                    },
+                    {
+                      "name": "Exception",
+                      "type": "string"
+                    },
+                    {
+                      "name": "TenantIdentifier",
+                      "type": "string"
+                    },
+                    {
+                      "name": "RequestUrl",
+                      "type": "string"
+                    },
+                    {
+                      "name": "UserAgent",
+                      "type": "string"
+                    },
+                    {
+                      "name": "LogCategory",
+                      "type": "string"
+                    },
+                    {
+                      "name": "EventId",
+                      "type": "string"
+                    },
+                    {
+                      "name": "Hostname",
+                      "type": "string"
+                    },
+                    {
+                      "name": "WebsiteHostname",
+                      "type": "string"
+                    },
+                    {
+                      "name": "WebsiteSiteName",
+                      "type": "string"
+                    },
+                    {
+                      "name": "WebsiteSlotName",
+                      "type": "string"
+                    },
+                    {
+                      "name": "BaseUrl",
+                      "type": "string"
+                    },
+                    {
+                      "name": "TraceIdentifier",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "retentionInDays": 30
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsAccountName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Insights/dataCollectionRules",
+              "apiVersion": "2023-03-11",
+              "name": "[parameters('dataCollectionRuleName')]",
+              "location": "[parameters('location')]",
+              "tags": "[parameters('resourceTags')]",
+              "kind": "Direct",
+              "properties": {
+                "description": "Data Collection Rule for SCEPman logs",
+                "streamDeclarations": {
+                  "Custom-SCEPmanLogs": {
+                    "columns": [
+                      {
+                        "name": "Timestamp",
+                        "type": "string"
+                      },
+                      {
+                        "name": "Level",
+                        "type": "string"
+                      },
+                      {
+                        "name": "Message",
+                        "type": "string"
+                      },
+                      {
+                        "name": "Exception",
+                        "type": "string"
+                      },
+                      {
+                        "name": "TenantIdentifier",
+                        "type": "string"
+                      },
+                      {
+                        "name": "RequestUrl",
+                        "type": "string"
+                      },
+                      {
+                        "name": "UserAgent",
+                        "type": "string"
+                      },
+                      {
+                        "name": "LogCategory",
+                        "type": "string"
+                      },
+                      {
+                        "name": "EventId",
+                        "type": "string"
+                      },
+                      {
+                        "name": "Hostname",
+                        "type": "string"
+                      },
+                      {
+                        "name": "WebsiteHostname",
+                        "type": "string"
+                      },
+                      {
+                        "name": "WebsiteSiteName",
+                        "type": "string"
+                      },
+                      {
+                        "name": "WebsiteSlotName",
+                        "type": "string"
+                      },
+                      {
+                        "name": "BaseUrl",
+                        "type": "string"
+                      },
+                      {
+                        "name": "TraceIdentifier",
+                        "type": "string"
+                      },
+                      {
+                        "name": "TimeGenerated",
+                        "type": "datetime"
+                      }
+                    ]
+                  }
+                },
+                "destinations": {
+                  "logAnalytics": [
+                    {
+                      "workspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsAccountName'))]",
+                      "name": "SCEPmanLogAnalyticsDestination"
+                    }
+                  ]
+                },
+                "dataFlows": [
+                  {
+                    "streams": [
+                      "Custom-SCEPmanLogs"
+                    ],
+                    "destinations": [
+                      "SCEPmanLogAnalyticsDestination"
+                    ],
+                    "outputStream": "Custom-SCEPman_CL"
+                  }
+                ]
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsAccountName'))]"
+              ]
+            },
+            {
+              "copy": {
+                "name": "roleAssignment_law_metricspublisherPrincipals",
+                "count": "[length(parameters('metricsPublisherPrincipals'))]"
+              },
+              "type": "Microsoft.Authorization/roleAssignments",
+              "apiVersion": "2022-04-01",
+              "scope": "[format('Microsoft.Insights/dataCollectionRules/{0}', parameters('dataCollectionRuleName'))]",
+              "name": "[guid(format('roleAssignment-law-{0}-metricspublisher', parameters('metricsPublisherPrincipals')[copyIndex()]))]",
+              "properties": {
+                "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', '3913510d-42f4-4e42-8a64-420c390055eb')]",
+                "principalId": "[parameters('metricsPublisherPrincipals')[copyIndex()]]"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Insights/dataCollectionRules', parameters('dataCollectionRuleName'))]"
+              ]
             }
           ],
           "outputs": {
-            "workspaceId": {
+            "dcrImmutableId": {
               "type": "string",
-              "value": "[reference(resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsAccountName')), '2022-10-01').customerId]"
+              "value": "[reference(resourceId('Microsoft.Insights/dataCollectionRules', parameters('dataCollectionRuleName')), '2023-03-11').immutableId]"
+            },
+            "dcrEndpointUri": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.Insights/dataCollectionRules', parameters('dataCollectionRuleName')), '2023-03-11').endpoints.logsIngestion]"
             }
           }
         }
-      }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', 'SCEPmanAppServices')]"
+      ]
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2025-04-01",
+      "apiVersion": "2022-09-01",
       "name": "SCEPmanVault",
       "properties": {
         "expressionEvaluationOptions": {
@@ -696,7 +935,7 @@
             "value": "[parameters('keyVaultName')]"
           },
           "permittedPrincipalId": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'SCEPmanAppServices'), '2025-04-01').outputs.scepmanPrincipalID.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'SCEPmanAppServices'), '2022-09-01').outputs.scepmanPrincipalID.value]"
           },
           "location": {
             "value": "[parameters('location')]"
@@ -715,8 +954,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.39.26.7824",
-              "templateHash": "7296235052918823860"
+              "version": "0.35.1.17967",
+              "templateHash": "11846817336575419253"
             }
           },
           "parameters": {
@@ -904,7 +1143,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2025-04-01",
+      "apiVersion": "2022-09-01",
       "name": "DeploymentSCEPmanConfig",
       "properties": {
         "expressionEvaluationOptions": {
@@ -913,7 +1152,7 @@
         "mode": "Incremental",
         "parameters": {
           "StorageAccountTableUrl": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'SCEPmanStorageAccount'), '2025-04-01').outputs.storageAccountTableUrl.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'SCEPmanStorageAccount'), '2022-09-01').outputs.storageAccountTableUrl.value]"
           },
           "appServiceName": {
             "value": "[parameters('primaryAppServiceName')]"
@@ -922,19 +1161,19 @@
             "value": "[parameters('deployOnLinux')]"
           },
           "scepManBaseURL": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'SCEPmanAppServices'), '2025-04-01').outputs.scepmanURL.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'SCEPmanAppServices'), '2022-09-01').outputs.scepmanURL.value]"
           },
           "keyVaultURL": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'SCEPmanVault'), '2025-04-01').outputs.keyVaultURL.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'SCEPmanVault'), '2022-09-01').outputs.keyVaultURL.value]"
           },
           "caKeyType": {
             "value": "[parameters('caKeyType')]"
           },
-          "logAnalyticsWorkspaceId": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'AzureMonitor'), '2025-04-01').outputs.workspaceId.value]"
+          "dataCollectionRuleEndpointUri": {
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'AzureMonitor'), '2022-09-01').outputs.dcrEndpointUri.value]"
           },
-          "logAnalyticsWorkspaceName": {
-            "value": "[parameters('logAnalyticsWorkspaceName')]"
+          "dataCollectionRuleImmutableId": {
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'AzureMonitor'), '2022-09-01').outputs.dcrImmutableId.value]"
           },
           "OrgName": {
             "value": "[parameters('OrgName')]"
@@ -956,8 +1195,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.39.26.7824",
-              "templateHash": "10677728227586191960"
+              "version": "0.35.1.17967",
+              "templateHash": "18372313970091502528"
             }
           },
           "functions": [
@@ -1032,16 +1271,16 @@
                 "description": "When generating the SCEPman CA certificate, what length in bits shall the key have? Plausible values for RSA are 2048 or 4096. The size also has an impact on the Azure Key Vault pricing."
               }
             },
-            "logAnalyticsWorkspaceId": {
+            "dataCollectionRuleEndpointUri": {
               "type": "string",
               "metadata": {
-                "description": "Log Analytics Workspace ID"
+                "description": "Data Collection Rule Endpoint URI"
               }
             },
-            "logAnalyticsWorkspaceName": {
+            "dataCollectionRuleImmutableId": {
               "type": "string",
               "metadata": {
-                "description": "Log Analytics Workspace name"
+                "description": "Data Collection Rule Immutable ID"
               }
             },
             "license": {
@@ -1088,8 +1327,8 @@
                 "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:IntuneValidation:DeviceDirectory', parameters('deployOnLinux')))]": "AADAndIntune",
                 "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:CRL:Source', parameters('deployOnLinux')))]": "Storage",
                 "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:EnableCertificateStorage', parameters('deployOnLinux')))]": "true",
-                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:LoggingConfig:WorkspaceId', parameters('deployOnLinux')))]": "[parameters('logAnalyticsWorkspaceId')]",
-                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:LoggingConfig:SharedKey', parameters('deployOnLinux')))]": "[listKeys(resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName')), '2022-10-01').primarySharedKey]",
+                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:LoggingConfig:DataCollectionEndpointUri', parameters('deployOnLinux')))]": "[parameters('dataCollectionRuleEndpointUri')]",
+                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:LoggingConfig:RuleId', parameters('deployOnLinux')))]": "[parameters('dataCollectionRuleImmutableId')]",
                 "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:KeyVaultConfig:KeyVaultURL', parameters('deployOnLinux')))]": "[parameters('keyVaultURL')]",
                 "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:CertificateStorage:TableStorageEndpoint', parameters('deployOnLinux')))]": "[parameters('StorageAccountTableUrl')]",
                 "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:KeyVaultConfig:RootCertificateConfig:CertificateName', parameters('deployOnLinux')))]": "SCEPman-Root-CA-V1",
@@ -1121,7 +1360,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2025-04-01",
+      "apiVersion": "2022-09-01",
       "name": "DeploymentCertMasterConfig",
       "properties": {
         "expressionEvaluationOptions": {
@@ -1136,16 +1375,16 @@
             "value": "[parameters('deployOnLinux')]"
           },
           "scepmanUrl": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'SCEPmanAppServices'), '2025-04-01').outputs.scepmanURL.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'SCEPmanAppServices'), '2022-09-01').outputs.scepmanURL.value]"
           },
           "StorageAccountTableUrl": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'SCEPmanStorageAccount'), '2025-04-01').outputs.storageAccountTableUrl.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'SCEPmanStorageAccount'), '2022-09-01').outputs.storageAccountTableUrl.value]"
           },
-          "logAnalyticsWorkspaceId": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'AzureMonitor'), '2025-04-01').outputs.workspaceId.value]"
+          "dataCollectionRuleEndpointUri": {
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'AzureMonitor'), '2022-09-01').outputs.dcrEndpointUri.value]"
           },
-          "logAnalyticsWorkspaceName": {
-            "value": "[parameters('logAnalyticsWorkspaceName')]"
+          "dataCollectionRuleImmutableId": {
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'AzureMonitor'), '2022-09-01').outputs.dcrImmutableId.value]"
           },
           "WebsiteArtifactsUri": {
             "value": "[variables('ArtifactsLocationCertMaster')]"
@@ -1161,8 +1400,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.39.26.7824",
-              "templateHash": "1481677744462222338"
+              "version": "0.35.1.17967",
+              "templateHash": "5803364920204985215"
             }
           },
           "functions": [
@@ -1213,16 +1452,16 @@
                 "description": "The URL of the SCEPman App Service"
               }
             },
-            "logAnalyticsWorkspaceId": {
+            "dataCollectionRuleEndpointUri": {
               "type": "string",
               "metadata": {
-                "description": "Log Analytics Workspace ID"
+                "description": "Data Collection Rule Endpoint URI"
               }
             },
-            "logAnalyticsWorkspaceName": {
+            "dataCollectionRuleImmutableId": {
               "type": "string",
               "metadata": {
-                "description": "Log Analytics Workspace name"
+                "description": "Data Collection Rule Immutable ID"
               }
             },
             "deployOnLinux": {
@@ -1248,8 +1487,8 @@
                 "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:AzureStorage:TableStorageEndpoint', parameters('deployOnLinux')))]": "[parameters('StorageAccountTableUrl')]",
                 "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:SCEPman:URL', parameters('deployOnLinux')))]": "[parameters('scepmanUrl')]",
                 "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:AuthConfig:TenantId', parameters('deployOnLinux')))]": "[subscription().tenantId]",
-                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:LoggingConfig:WorkspaceId', parameters('deployOnLinux')))]": "[parameters('logAnalyticsWorkspaceId')]",
-                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:LoggingConfig:SharedKey', parameters('deployOnLinux')))]": "[listKeys(resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName')), '2022-10-01').primarySharedKey]"
+                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:LoggingConfig:DataCollectionEndpointUri', parameters('deployOnLinux')))]": "[parameters('dataCollectionRuleEndpointUri')]",
+                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:LoggingConfig:RuleId', parameters('deployOnLinux')))]": "[parameters('dataCollectionRuleImmutableId')]"
               }
             },
             "appServiceName_websettings": {
@@ -1272,7 +1511,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2025-04-01",
+      "apiVersion": "2022-09-01",
       "name": "SCEPmanStorageAccount",
       "properties": {
         "expressionEvaluationOptions": {
@@ -1291,8 +1530,8 @@
           },
           "tableContributorPrincipals": {
             "value": [
-              "[reference(resourceId('Microsoft.Resources/deployments', 'SCEPmanAppServices'), '2025-04-01').outputs.scepmanPrincipalID.value]",
-              "[reference(resourceId('Microsoft.Resources/deployments', 'SCEPmanAppServices'), '2025-04-01').outputs.certmasterPrincipalID.value]"
+              "[reference(resourceId('Microsoft.Resources/deployments', 'SCEPmanAppServices'), '2022-09-01').outputs.scepmanPrincipalID.value]",
+              "[reference(resourceId('Microsoft.Resources/deployments', 'SCEPmanAppServices'), '2022-09-01').outputs.certmasterPrincipalID.value]"
             ]
           },
           "virtualNetworkName": {
@@ -1306,8 +1545,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.39.26.7824",
-              "templateHash": "4722436582661142344"
+              "version": "0.35.1.17967",
+              "templateHash": "13303633220440336245"
             }
           },
           "parameters": {
