@@ -4,8 +4,8 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.39.26.7824",
-      "templateHash": "13917650468220715752"
+      "version": "0.41.2.15936",
+      "templateHash": "2151213389218041688"
     }
   },
   "parameters": {
@@ -185,8 +185,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.39.26.7824",
-              "templateHash": "16873125938269548923"
+              "version": "0.41.2.15936",
+              "templateHash": "15050332927029945745"
             }
           },
           "resources": []
@@ -223,8 +223,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.39.26.7824",
-              "templateHash": "15247812465335479075"
+              "version": "0.41.2.15936",
+              "templateHash": "18365080140298033135"
             }
           },
           "parameters": {
@@ -383,8 +383,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.39.26.7824",
-              "templateHash": "10546456521129268348"
+              "version": "0.41.2.15936",
+              "templateHash": "10270763183257662231"
             }
           },
           "parameters": {
@@ -466,8 +466,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.39.26.7824",
-              "templateHash": "7753112418218179036"
+              "version": "0.41.2.15936",
+              "templateHash": "5383047094207400530"
             }
           },
           "parameters": {
@@ -634,8 +634,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.39.26.7824",
-              "templateHash": "3971763333033399141"
+              "version": "0.41.2.15936",
+              "templateHash": "8472121963845397815"
             }
           },
           "parameters": {
@@ -715,8 +715,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.39.26.7824",
-              "templateHash": "7296235052918823860"
+              "version": "0.41.2.15936",
+              "templateHash": "10276727824310893916"
             }
           },
           "parameters": {
@@ -799,7 +799,7 @@
               },
               "type": "Microsoft.Authorization/roleAssignments",
               "apiVersion": "2022-04-01",
-              "scope": "[format('Microsoft.KeyVault/vaults/{0}', parameters('keyVaultName'))]",
+              "scope": "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]",
               "name": "[guid(format('roleAssignment-kv-{0}-{1}', variables('rbac_roles')[copyIndex()], parameters('permittedPrincipalId')))]",
               "properties": {
                 "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', variables('rbac_roles')[copyIndex()])]",
@@ -956,8 +956,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.39.26.7824",
-              "templateHash": "10677728227586191960"
+              "version": "0.41.2.15936",
+              "templateHash": "9125955007972002040"
             }
           },
           "functions": [
@@ -1161,8 +1161,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.39.26.7824",
-              "templateHash": "1481677744462222338"
+              "version": "0.41.2.15936",
+              "templateHash": "1595035704628613273"
             }
           },
           "functions": [
@@ -1306,8 +1306,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.39.26.7824",
-              "templateHash": "4722436582661142344"
+              "version": "0.41.2.15936",
+              "templateHash": "957643914969256383"
             }
           },
           "parameters": {
@@ -1375,7 +1375,9 @@
               "uksouth",
               "westeurope",
               "westus2",
-              "westus3"
+              "westus3",
+              "usgovvirginia",
+              "chinanorth3"
             ],
             "zrsRegions": [
               "australiaeast",
@@ -1414,7 +1416,9 @@
               "uksouth",
               "westeurope",
               "westus2",
-              "westus3"
+              "westus3",
+              "usgovvirginia",
+              "chinanorth3"
             ],
             "geoRedundantRegions": [
               "australiacentral",
@@ -1459,7 +1463,18 @@
               "westindia",
               "westus",
               "westus2",
-              "westus3"
+              "westus3",
+              "usgovvirginia",
+              "usgovarizona",
+              "usgovtexas",
+              "usdodcentral",
+              "usdodeast",
+              "chinaeast",
+              "chinaeast2",
+              "chinaeast3",
+              "chinanorth",
+              "chinanorth2",
+              "chinanorth3"
             ],
             "storageAccountSku": "[if(contains(variables('gzrsRegions'), parameters('location')), 'Standard_GZRS', if(contains(variables('geoRedundantRegions'), parameters('location')), 'Standard_GRS', if(contains(variables('zrsRegions'), parameters('location')), 'Standard_ZRS', 'Standard_LRS')))]"
           },
@@ -1497,7 +1512,7 @@
               },
               "type": "Microsoft.Authorization/roleAssignments",
               "apiVersion": "2022-04-01",
-              "scope": "[format('Microsoft.Storage/storageAccounts/{0}', parameters('StorageAccountName'))]",
+              "scope": "[resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName'))]",
               "name": "[guid(format('roleAssignment-sa-{0}-tableContributor', parameters('tableContributorPrincipals')[copyIndex()]))]",
               "properties": {
                 "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', '0a9a7e1f-b9d0-4cc4-a60d-0319b160aaa3')]",
