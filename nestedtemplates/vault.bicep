@@ -60,8 +60,8 @@ resource roleAssignment_kv_rbac_roles 'Microsoft.Authorization/roleAssignments@2
 ]
 
 resource privatelink_vaultcore_azure_net 'Microsoft.Network/privateDnsZones@2020-06-01' = if (privateEndpointName != 'None') {
-  name: 'privatelink.vaultcore.azure.net' // The A record is only created if you use this magic name
-                                          // See: https://learn.microsoft.com/en-us/azure/private-link/private-endpoint-dns#security
+  name: 'privatelink.vaultcore.usgovcloudapi.net' // The A record is only created if you use this magic name
+                                          // See: https://learn.microsoft.com/en-us/azure/private-link/private-endpoint-dns#security-1
                                           // It would be preferable to use the environment function (see https://learn.microsoft.com/en-us/azure/azure-resource-manager/templates/template-functions-deployment#environment),
                                           // but presumably it doesn't yet work for this case: https://github.com/Azure/bicep/issues/9839
   location: 'Global'
