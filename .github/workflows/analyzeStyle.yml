@@ -13,12 +13,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout the repo
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
       with:
         path: install
 
     - name: Download ARM TTK
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
       with:
         repository: Azure/arm-ttk
         path: arm-ttk

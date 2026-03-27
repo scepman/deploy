@@ -1,0 +1,7 @@
+# add this file to your config with the following command:
+# git config --local include.path ../.gitconfig
+#
+# This is used if you merge branches and don't want to overwrite your generated ARM templates
+
+[merge "ours"]
+	driver = true

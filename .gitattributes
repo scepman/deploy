@@ -1,0 +1,3 @@
+# Keep our version of the ARM template in each branch, because it is generated from the Bicep.
+# It requires including the .gitconfig
+azuredeploy.json merge=ours
