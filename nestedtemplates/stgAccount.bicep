@@ -49,6 +49,10 @@ var gzrsRegions = [
   'westeurope'
   'westus2'
   'westus3'
+  'usgovvirginia' // Has Availability Zones according to https://cloudsteak.com/azure-us-gov-virginia-availability-zones-now-generally-available/
+                  // Is paired according to https://learn.microsoft.com/en-us/azure/azure-government/documentation-government-welcome#region-pairing
+                  // Name is based on the pattern observed in US Gov regions and specified here (unofficial source): https://www.azurespeed.com/Information/AzureUSGovernmentRegions
+  'chinanorth3'   // Has both Availability Zones and a paired region according to https://learn.microsoft.com/en-us/azure/china/overview-regions
 ]
 
 // Regions where ZRS (Zone Redundant Storage) is supported
@@ -92,6 +96,9 @@ var zrsRegions = [
   'westeurope'
   'westus2'
   'westus3'
+  'usgovvirginia' // Has Availability Zones according to https://cloudsteak.com/azure-us-gov-virginia-availability-zones-now-generally-available/
+                  // Name is based on the pattern observed in US Gov regions and specified here (unofficial source): https://www.azurespeed.com/Information/AzureUSGovernmentRegions
+  'chinanorth3'   // Has Availability Zones according to https://learn.microsoft.com/en-us/azure/china/overview-regions
 ]
 
 // Regions with geo-redundant support (have a Paired Region)
@@ -141,6 +148,22 @@ var geoRedundantRegions = [
   'westus'
   'westus2'
   'westus3'
+                // US Gov names are based on the pattern observed in US Gov regions and specified here (unofficial source): https://www.azurespeed.com/Information/AzureUSGovernmentRegions
+  'usgovvirginia' // Is paired according to https://learn.microsoft.com/en-us/azure/azure-government/documentation-government-welcome#region-pairing
+  'usgovarizona'
+  'usgovtexas'  // I read https://learn.microsoft.com/en-us/azure/azure-government/documentation-government-welcome#region-pairing such that Texas is paired with both other gov regions, but check this: maybe it is actually unpaired or paired with itself?
+
+  'usdodcentral' // supposedly paired with usdodeast, but the official source doesn't say it: https://learn.microsoft.com/en-us/azure/azure-government/documentation-government-overview-dod
+  'usdodeast'    // supposedly paired with usdodcentral
+
+              // Azure in China names are pattern-based, not tested
+              // Here's the list that says whether they are paired: https://learn.microsoft.com/en-us/azure/china/overview-regions
+  'chinaeast'
+  'chinaeast2'
+  'chinaeast3'
+  'chinanorth'
+  'chinanorth2'
+  'chinanorth3'
 ]
 
 // Determine the appropriate storage account SKU based on region support
