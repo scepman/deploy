@@ -24,7 +24,7 @@ var rbac_roles = [
   '4633458b-17de-408a-b874-0445c86b69e6' // Key Vault Secrets User
 ]
 
-resource keyVault 'Microsoft.KeyVault/vaults@2023-07-01' = {
+resource keyVault 'Microsoft.KeyVault/vaults@2025-05-01' = {
   name: keyVaultName
   location: location
   tags: resourceTags
@@ -48,7 +48,7 @@ resource keyVault 'Microsoft.KeyVault/vaults@2023-07-01' = {
   }
 }
 
-resource roleAssignment_kv_rbac_roles 'Microsoft.Authorization/roleAssignments@2022-04-01' = [
+resource roleAssignment_kv_rbac_roles 'Microsoft.Authorization/roleAssignments@2024-11-01' = [
   for item in rbac_roles: {
     scope: keyVault
     name: guid('roleAssignment-kv-${item}-${permittedPrincipalId}')
@@ -59,7 +59,7 @@ resource roleAssignment_kv_rbac_roles 'Microsoft.Authorization/roleAssignments@2
   }
 ]
 
-resource privatelink_vaultcore_azure_net 'Microsoft.Network/privateDnsZones@2020-06-01' = if (privateEndpointName != 'None') {
+resource privatelink_vaultcore_azure_net 'Microsoft.Network/privateDnsZones@2024-04-01' = if (privateEndpointName != 'None') {
   name: 'privatelink.vaultcore.azure.net' // The A record is only created if you use this magic name
                                           // See: https://learn.microsoft.com/en-us/azure/private-link/private-endpoint-dns#security
                                           // It would be preferable to use the environment function (see https://learn.microsoft.com/en-us/azure/azure-resource-manager/templates/template-functions-deployment#environment),
@@ -69,7 +69,7 @@ resource privatelink_vaultcore_azure_net 'Microsoft.Network/privateDnsZones@2020
   properties: {}
 }
 
-resource privateEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = if (privateEndpointName != 'None') {
+resource privateEndpoint 'Microsoft.Network/privateEndpoints@2025-05-01' = if (privateEndpointName != 'None') {
   name: privateEndpointName
   location: location
   tags: resourceTags
@@ -96,7 +96,7 @@ resource privateEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = if (p
   }
 }
 
-resource privateEndpointName_default 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2023-06-01' = if (privateEndpointName != 'None') {
+resource privateEndpointName_default 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2025-05-01' = if (privateEndpointName != 'None') {
   parent: privateEndpoint
   name: 'default'
   properties: {
@@ -111,7 +111,7 @@ resource privateEndpointName_default 'Microsoft.Network/privateEndpoints/private
   }
 }
 
-resource privatelink_vaultcore_azure_net_keyVaultName_link 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = if (privateEndpointName != 'None') {
+resource privatelink_vaultcore_azure_net_keyVaultName_link 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2024-04-01' = if (privateEndpointName != 'None') {
   parent: privatelink_vaultcore_azure_net
   name: '${keyVaultName}-link'
   location: 'global'

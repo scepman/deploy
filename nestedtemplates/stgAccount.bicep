@@ -171,7 +171,7 @@ var geoRedundantRegions = [
 // This ensures the best available redundancy option for each region while maintaining deployment reliability
 var storageAccountSku = contains(gzrsRegions, location) ? 'Standard_GZRS' : (contains(geoRedundantRegions, location) ? 'Standard_GRS' : (contains(zrsRegions, location) ? 'Standard_ZRS' : 'Standard_LRS'))
 
-resource StorageAccount 'Microsoft.Storage/storageAccounts@2023-05-01' = {
+resource StorageAccount 'Microsoft.Storage/storageAccounts@2025-06-01' = {
   name: StorageAccountName
   location: location
   tags: resourceTags
@@ -196,7 +196,7 @@ resource StorageAccount 'Microsoft.Storage/storageAccounts@2023-05-01' = {
   }
 }
 
-resource roleAssignment_sa_tableContributorPrincipals 'Microsoft.Authorization/roleAssignments@2022-04-01' = [
+resource roleAssignment_sa_tableContributorPrincipals 'Microsoft.Authorization/roleAssignments@2024-11-01' = [
   for item in tableContributorPrincipals: {
     scope: StorageAccount
     name: guid('roleAssignment-sa-${item}-tableContributor')
@@ -207,14 +207,14 @@ resource roleAssignment_sa_tableContributorPrincipals 'Microsoft.Authorization/r
   }
 ]
 
-resource privateDnsZone 'Microsoft.Network/privateDnsZones@2020-06-01' = if (privateEndpointName != 'None') {
+resource privateDnsZone 'Microsoft.Network/privateDnsZones@2024-04-01' = if (privateEndpointName != 'None') {
   name: privateDnsZoneName
   location: 'Global'
   tags: resourceTags
   properties: {}
 }
 
-resource privateEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = if (privateEndpointName != 'None') {
+resource privateEndpoint 'Microsoft.Network/privateEndpoints@2025-05-01' = if (privateEndpointName != 'None') {
   name: privateEndpointName
   location: location
   tags: resourceTags
@@ -241,7 +241,7 @@ resource privateEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = if (p
   }
 }
 
-resource privateEndpointName_default 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2023-06-01' = if (privateEndpointName != 'None') {
+resource privateEndpointName_default 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2025-05-01' = if (privateEndpointName != 'None') {
   parent: privateEndpoint
   name: 'default'
   properties: {
@@ -256,7 +256,7 @@ resource privateEndpointName_default 'Microsoft.Network/privateEndpoints/private
   }
 }
 
-resource privateDnsZoneName_StorageAccountName_link 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = if (privateEndpointName != 'None') {
+resource privateDnsZoneName_StorageAccountName_link 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2024-04-01' = if (privateEndpointName != 'None') {
   parent: privateDnsZone
   name: '${StorageAccountName}-link'
   location: 'global'

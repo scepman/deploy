@@ -21,14 +21,14 @@ param subnetIpPrefixDefault string ='10.142.0.0/24'
 @description('Subnet prefix for the subnet that will host the App Services')
 param subnetIpPrefixScepman string = '10.142.1.0/24'
 
-resource subnetNsg 'Microsoft.Network/networkSecurityGroups@2023-06-01' = {
+resource subnetNsg 'Microsoft.Network/networkSecurityGroups@2025-05-01' = {
   name: networkSecurityGroupName
   location: location
   tags: resourceTags
   properties: {}
 }
 
-resource virtualNetwork 'Microsoft.Network/virtualNetworks@2023-06-01' = {
+resource virtualNetwork 'Microsoft.Network/virtualNetworks@2025-05-01' = {
   name: virtualNetworkName
   location: location
   tags: resourceTags

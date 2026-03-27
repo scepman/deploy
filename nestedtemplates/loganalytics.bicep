@@ -7,7 +7,7 @@ param location string
 @description('Tags to be assigned to the created resources')
 param resourceTags object
 
-resource logAnalyticsAccount 'Microsoft.OperationalInsights/workspaces@2022-10-01' = {
+resource logAnalyticsAccount 'Microsoft.OperationalInsights/workspaces@2025-07-01' = {
   name: logAnalyticsAccountName
   location: location
   tags: resourceTags
