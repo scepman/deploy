@@ -4,8 +4,8 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.39.26.7824",
-      "templateHash": "11645714630696138468"
+      "version": "0.41.2.15936",
+      "templateHash": "4629531674655785805"
     }
   },
   "parameters": {
@@ -118,6 +118,14 @@
         "description": "The name of the Virtual Network. This is only applicable if deployPrivateNetwork is chosen."
       }
     },
+    "nsgName": {
+      "type": "string",
+      "defaultValue": "nsg-scepman-UNIQUENAME",
+      "maxLength": 80,
+      "metadata": {
+        "description": "Name of the Network Security Group applied to the subnets. This is only applicable if deployPrivateNetwork is chosen."
+      }
+    },
     "privateEndpointForKeyVaultName": {
       "type": "string",
       "defaultValue": "pep-kv-scepman-UNIQUENAME",
@@ -177,8 +185,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.39.26.7824",
-              "templateHash": "16873125938269548923"
+              "version": "0.41.2.15936",
+              "templateHash": "15050332927029945745"
             }
           },
           "resources": []
@@ -204,6 +212,9 @@
           },
           "resourceTags": {
             "value": "[parameters('resourceTags')]"
+          },
+          "networkSecurityGroupName": {
+            "value": "[parameters('nsgName')]"
           }
         },
         "template": {
@@ -212,8 +223,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.39.26.7824",
-              "templateHash": "17114891096311511446"
+              "version": "0.41.2.15936",
+              "templateHash": "18365080140298033135"
             }
           },
           "parameters": {
@@ -233,6 +244,13 @@
               "type": "object",
               "metadata": {
                 "description": "Tags to be assigned to the created resources."
+              }
+            },
+            "networkSecurityGroupName": {
+              "type": "string",
+              "defaultValue": "[format('nsg-{0}', parameters('virtualNetworkName'))]",
+              "metadata": {
+                "description": "Name of the Network Security Group applied to the subnets."
               }
             },
             "virtualNetworkAddressPrefixes": {
@@ -261,6 +279,14 @@
           },
           "resources": [
             {
+              "type": "Microsoft.Network/networkSecurityGroups",
+              "apiVersion": "2023-06-01",
+              "name": "[parameters('networkSecurityGroupName')]",
+              "location": "[parameters('location')]",
+              "tags": "[parameters('resourceTags')]",
+              "properties": {}
+            },
+            {
               "type": "Microsoft.Network/virtualNetworks",
               "apiVersion": "2023-06-01",
               "name": "[parameters('virtualNetworkName')]",
@@ -282,7 +308,10 @@
                       "addressPrefix": "[parameters('subnetIpPrefixDefault')]",
                       "privateEndpointNetworkPolicies": "Disabled",
                       "privateLinkServiceNetworkPolicies": "Enabled",
-                      "defaultOutboundAccess": true
+                      "defaultOutboundAccess": false,
+                      "networkSecurityGroup": {
+                        "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroupName'))]"
+                      }
                     },
                     "type": "Microsoft.Network/virtualNetworks/subnets"
                   },
@@ -302,13 +331,20 @@
                         }
                       ],
                       "privateEndpointNetworkPolicies": "Disabled",
-                      "privateLinkServiceNetworkPolicies": "Enabled"
+                      "privateLinkServiceNetworkPolicies": "Enabled",
+                      "defaultOutboundAccess": false,
+                      "networkSecurityGroup": {
+                        "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroupName'))]"
+                      }
                     },
                     "type": "Microsoft.Network/virtualNetworks/subnets"
                   }
                 ],
                 "enableDdosProtection": false
-              }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroupName'))]"
+              ]
             }
           ]
         }
@@ -347,8 +383,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.39.26.7824",
-              "templateHash": "10546456521129268348"
+              "version": "0.41.2.15936",
+              "templateHash": "10270763183257662231"
             }
           },
           "parameters": {
@@ -430,8 +466,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.39.26.7824",
-              "templateHash": "7753112418218179036"
+              "version": "0.41.2.15936",
+              "templateHash": "5383047094207400530"
             }
           },
           "parameters": {
@@ -598,8 +634,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.39.26.7824",
-              "templateHash": "3971763333033399141"
+              "version": "0.41.2.15936",
+              "templateHash": "8472121963845397815"
             }
           },
           "parameters": {
@@ -679,8 +715,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.39.26.7824",
-              "templateHash": "7296235052918823860"
+              "version": "0.41.2.15936",
+              "templateHash": "15465879026760450277"
             }
           },
           "parameters": {
@@ -763,7 +799,7 @@
               },
               "type": "Microsoft.Authorization/roleAssignments",
               "apiVersion": "2022-04-01",
-              "scope": "[format('Microsoft.KeyVault/vaults/{0}', parameters('keyVaultName'))]",
+              "scope": "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]",
               "name": "[guid(format('roleAssignment-kv-{0}-{1}', variables('rbac_roles')[copyIndex()], parameters('permittedPrincipalId')))]",
               "properties": {
                 "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', variables('rbac_roles')[copyIndex()])]",
@@ -777,7 +813,7 @@
               "condition": "[not(equals(parameters('privateEndpointName'), 'None'))]",
               "type": "Microsoft.Network/privateDnsZones",
               "apiVersion": "2020-06-01",
-              "name": "privatelink.vaultcore.azure.net",
+              "name": "privatelink.vaultcore.usgovcloudapi.net",
               "location": "Global",
               "tags": "[parameters('resourceTags')]",
               "properties": {}
@@ -824,21 +860,21 @@
                   {
                     "name": "privatelink.vaultcore.azure.net",
                     "properties": {
-                      "privateDnsZoneId": "[resourceId('Microsoft.Network/privateDnsZones', 'privatelink.vaultcore.azure.net')]"
+                      "privateDnsZoneId": "[resourceId('Microsoft.Network/privateDnsZones', 'privatelink.vaultcore.usgovcloudapi.net')]"
                     }
                   }
                 ]
               },
               "dependsOn": [
                 "[resourceId('Microsoft.Network/privateEndpoints', parameters('privateEndpointName'))]",
-                "[resourceId('Microsoft.Network/privateDnsZones', 'privatelink.vaultcore.azure.net')]"
+                "[resourceId('Microsoft.Network/privateDnsZones', 'privatelink.vaultcore.usgovcloudapi.net')]"
               ]
             },
             {
               "condition": "[not(equals(parameters('privateEndpointName'), 'None'))]",
               "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
               "apiVersion": "2020-06-01",
-              "name": "[format('{0}/{1}', 'privatelink.vaultcore.azure.net', format('{0}-link', parameters('keyVaultName')))]",
+              "name": "[format('{0}/{1}', 'privatelink.vaultcore.usgovcloudapi.net', format('{0}-link', parameters('keyVaultName')))]",
               "location": "global",
               "properties": {
                 "registrationEnabled": false,
@@ -847,7 +883,7 @@
                 }
               },
               "dependsOn": [
-                "[resourceId('Microsoft.Network/privateDnsZones', 'privatelink.vaultcore.azure.net')]"
+                "[resourceId('Microsoft.Network/privateDnsZones', 'privatelink.vaultcore.usgovcloudapi.net')]"
               ]
             }
           ],
@@ -920,8 +956,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.39.26.7824",
-              "templateHash": "13394606690483301507"
+              "version": "0.41.2.15936",
+              "templateHash": "14743020513929720157"
             }
           },
           "functions": [
@@ -1130,8 +1166,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.39.26.7824",
-              "templateHash": "3969664798347785002"
+              "version": "0.41.2.15936",
+              "templateHash": "88006259689348258"
             }
           },
           "functions": [
@@ -1280,8 +1316,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.39.26.7824",
-              "templateHash": "15714649874765041271"
+              "version": "0.41.2.15936",
+              "templateHash": "957643914969256383"
             }
           },
           "parameters": {
@@ -1336,37 +1372,10 @@
               "francecentral",
               "germanywestcentral",
               "japaneast",
+              "japanwest",
               "koreacentral",
               "northeurope",
               "norwayeast",
-              "qatarcentral",
-              "southafricanorth",
-              "southcentralus",
-              "southeastasia",
-              "swedencentral",
-              "switzerlandnorth",
-              "uaenorth",
-              "uksouth",
-              "westeurope",
-              "westus2",
-              "westus3"
-            ],
-            "zrsRegions": [
-              "australiaeast",
-              "brazilsouth",
-              "canadacentral",
-              "centralindia",
-              "centralus",
-              "eastasia",
-              "eastus",
-              "eastus2",
-              "francecentral",
-              "germanywestcentral",
-              "japaneast",
-              "koreacentral",
-              "northeurope",
-              "norwayeast",
-              "qatarcentral",
               "southafricanorth",
               "southcentralus",
               "southeastasia",
@@ -1377,19 +1386,107 @@
               "westeurope",
               "westus2",
               "westus3",
-              "australiasoutheast",
-              "canadaeast",
-              "centraluseuap",
-              "eastus2euap",
+              "usgovvirginia",
+              "chinanorth3"
+            ],
+            "zrsRegions": [
+              "australiaeast",
+              "austriaeast",
+              "belgiumcentral",
+              "brazilsouth",
+              "canadacentral",
+              "centralindia",
+              "centralus",
+              "chilecentral",
+              "eastasia",
+              "eastus",
+              "eastus2",
+              "francecentral",
+              "germanywestcentral",
+              "indonesiacentral",
+              "israelcentral",
+              "italynorth",
+              "japaneast",
               "japanwest",
+              "koreacentral",
+              "malaysiawest",
+              "mexicocentral",
+              "newzealandnorth",
+              "northeurope",
+              "norwayeast",
+              "polandcentral",
+              "qatarcentral",
+              "southafricanorth",
+              "southcentralus",
+              "southeastasia",
+              "spaincentral",
+              "swedencentral",
+              "switzerlandnorth",
+              "uaenorth",
+              "uksouth",
+              "westeurope",
+              "westus2",
+              "westus3",
+              "usgovvirginia",
+              "chinanorth3"
+            ],
+            "geoRedundantRegions": [
+              "australiacentral",
+              "australiacentral2",
+              "australiaeast",
+              "australiasoutheast",
+              "brazilsouth",
+              "brazilsoutheast",
+              "canadacentral",
+              "canadaeast",
+              "centralindia",
+              "centralus",
+              "eastasia",
+              "eastus",
+              "eastus2",
+              "francecentral",
+              "francesouth",
+              "germanynorth",
+              "germanywestcentral",
+              "japaneast",
+              "japanwest",
+              "koreacentral",
               "koreasouth",
               "northcentralus",
+              "northeurope",
+              "norwayeast",
+              "norwaywest",
+              "southafricanorth",
+              "southafricawest",
+              "southcentralus",
               "southindia",
+              "southeastasia",
+              "swedencentral",
+              "switzerlandnorth",
+              "switzerlandwest",
+              "uaecentral",
+              "uaenorth",
+              "uksouth",
               "ukwest",
               "westcentralus",
-              "westus"
+              "westeurope",
+              "westindia",
+              "westus",
+              "westus2",
+              "westus3",
+              "usgovvirginia",
+              "usgovarizona",
+              "usgovtexas",
+              "usdodcentral",
+              "usdodeast",
+              "chinaeast",
+              "chinaeast2",
+              "chinaeast3",
+              "chinanorth",
+              "chinanorth2",
+              "chinanorth3"
             ],
-            "storageAccountSku": "[if(contains(variables('gzrsRegions'), parameters('location')), 'Standard_GZRS', if(contains(variables('zrsRegions'), parameters('location')), 'Standard_ZRS', 'Standard_LRS'))]"
+            "storageAccountSku": "[if(contains(variables('gzrsRegions'), parameters('location')), 'Standard_GZRS', if(contains(variables('geoRedundantRegions'), parameters('location')), 'Standard_GRS', if(contains(variables('zrsRegions'), parameters('location')), 'Standard_ZRS', 'Standard_LRS')))]"
           },
           "resources": [
             {
@@ -1425,7 +1522,7 @@
               },
               "type": "Microsoft.Authorization/roleAssignments",
               "apiVersion": "2022-04-01",
-              "scope": "[format('Microsoft.Storage/storageAccounts/{0}', parameters('StorageAccountName'))]",
+              "scope": "[resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName'))]",
               "name": "[guid(format('roleAssignment-sa-{0}-tableContributor', parameters('tableContributorPrincipals')[copyIndex()]))]",
               "properties": {
                 "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', '0a9a7e1f-b9d0-4cc4-a60d-0319b160aaa3')]",
