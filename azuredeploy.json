@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.41.2.15936",
-      "templateHash": "2151213389218041688"
+      "templateHash": "8399119114802701135"
     }
   },
   "parameters": {
@@ -224,7 +224,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.41.2.15936",
-              "templateHash": "18365080140298033135"
+              "templateHash": "2200891563363908764"
             }
           },
           "parameters": {
@@ -280,7 +280,7 @@
           "resources": [
             {
               "type": "Microsoft.Network/networkSecurityGroups",
-              "apiVersion": "2023-06-01",
+              "apiVersion": "2025-05-01",
               "name": "[parameters('networkSecurityGroupName')]",
               "location": "[parameters('location')]",
               "tags": "[parameters('resourceTags')]",
@@ -288,7 +288,7 @@
             },
             {
               "type": "Microsoft.Network/virtualNetworks",
-              "apiVersion": "2023-06-01",
+              "apiVersion": "2025-05-01",
               "name": "[parameters('virtualNetworkName')]",
               "location": "[parameters('location')]",
               "tags": "[parameters('resourceTags')]",
@@ -384,7 +384,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.41.2.15936",
-              "templateHash": "10270763183257662231"
+              "templateHash": "11864849207678215448"
             }
           },
           "parameters": {
@@ -410,13 +410,10 @@
           "resources": [
             {
               "type": "Microsoft.Web/sites",
-              "apiVersion": "2023-01-01",
+              "apiVersion": "2024-11-01",
               "name": "[parameters('appServiceName')]",
               "location": "[parameters('location')]",
               "properties": {
-                "vnetRouteAllEnabled": false,
-                "vnetImagePullEnabled": false,
-                "vnetContentShareEnabled": false,
                 "virtualNetworkSubnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), 'snet-scepman-appservices')]"
               }
             }
@@ -635,7 +632,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.41.2.15936",
-              "templateHash": "8472121963845397815"
+              "templateHash": "10131361067590667248"
             }
           },
           "parameters": {
@@ -661,7 +658,7 @@
           "resources": [
             {
               "type": "Microsoft.OperationalInsights/workspaces",
-              "apiVersion": "2022-10-01",
+              "apiVersion": "2025-07-01",
               "name": "[parameters('logAnalyticsAccountName')]",
               "location": "[parameters('location')]",
               "tags": "[parameters('resourceTags')]",
@@ -676,7 +673,7 @@
           "outputs": {
             "workspaceId": {
               "type": "string",
-              "value": "[reference(resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsAccountName')), '2022-10-01').customerId]"
+              "value": "[reference(resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsAccountName')), '2025-07-01').customerId]"
             }
           }
         }
@@ -716,7 +713,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.41.2.15936",
-              "templateHash": "10276727824310893916"
+              "templateHash": "11715078575511774741"
             }
           },
           "parameters": {
@@ -769,7 +766,7 @@
           "resources": [
             {
               "type": "Microsoft.KeyVault/vaults",
-              "apiVersion": "2023-07-01",
+              "apiVersion": "2025-05-01",
               "name": "[parameters('keyVaultName')]",
               "location": "[parameters('location')]",
               "tags": "[parameters('resourceTags')]",
@@ -798,7 +795,7 @@
                 "count": "[length(variables('rbac_roles'))]"
               },
               "type": "Microsoft.Authorization/roleAssignments",
-              "apiVersion": "2022-04-01",
+              "apiVersion": "2024-11-01",
               "scope": "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]",
               "name": "[guid(format('roleAssignment-kv-{0}-{1}', variables('rbac_roles')[copyIndex()], parameters('permittedPrincipalId')))]",
               "properties": {
@@ -812,7 +809,7 @@
             {
               "condition": "[not(equals(parameters('privateEndpointName'), 'None'))]",
               "type": "Microsoft.Network/privateDnsZones",
-              "apiVersion": "2020-06-01",
+              "apiVersion": "2024-04-01",
               "name": "privatelink.vaultcore.azure.net",
               "location": "Global",
               "tags": "[parameters('resourceTags')]",
@@ -821,7 +818,7 @@
             {
               "condition": "[not(equals(parameters('privateEndpointName'), 'None'))]",
               "type": "Microsoft.Network/privateEndpoints",
-              "apiVersion": "2023-11-01",
+              "apiVersion": "2025-05-01",
               "name": "[parameters('privateEndpointName')]",
               "location": "[parameters('location')]",
               "tags": "[parameters('resourceTags')]",
@@ -853,7 +850,7 @@
             {
               "condition": "[not(equals(parameters('privateEndpointName'), 'None'))]",
               "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
-              "apiVersion": "2023-06-01",
+              "apiVersion": "2025-05-01",
               "name": "[format('{0}/{1}', parameters('privateEndpointName'), 'default')]",
               "properties": {
                 "privateDnsZoneConfigs": [
@@ -873,7 +870,7 @@
             {
               "condition": "[not(equals(parameters('privateEndpointName'), 'None'))]",
               "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
-              "apiVersion": "2020-06-01",
+              "apiVersion": "2024-04-01",
               "name": "[format('{0}/{1}', 'privatelink.vaultcore.azure.net', format('{0}-link', parameters('keyVaultName')))]",
               "location": "global",
               "properties": {
@@ -890,7 +887,7 @@
           "outputs": {
             "keyVaultURL": {
               "type": "string",
-              "value": "[reference(resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName')), '2023-07-01').vaultUri]"
+              "value": "[reference(resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName')), '2025-05-01').vaultUri]"
             }
           }
         }
@@ -1307,7 +1304,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.41.2.15936",
-              "templateHash": "957643914969256383"
+              "templateHash": "11875959797971595803"
             }
           },
           "parameters": {
@@ -1481,7 +1478,7 @@
           "resources": [
             {
               "type": "Microsoft.Storage/storageAccounts",
-              "apiVersion": "2023-05-01",
+              "apiVersion": "2025-06-01",
               "name": "[parameters('StorageAccountName')]",
               "location": "[parameters('location')]",
               "tags": "[parameters('resourceTags')]",
@@ -1511,7 +1508,7 @@
                 "count": "[length(parameters('tableContributorPrincipals'))]"
               },
               "type": "Microsoft.Authorization/roleAssignments",
-              "apiVersion": "2022-04-01",
+              "apiVersion": "2024-11-01",
               "scope": "[resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName'))]",
               "name": "[guid(format('roleAssignment-sa-{0}-tableContributor', parameters('tableContributorPrincipals')[copyIndex()]))]",
               "properties": {
@@ -1525,7 +1522,7 @@
             {
               "condition": "[not(equals(parameters('privateEndpointName'), 'None'))]",
               "type": "Microsoft.Network/privateDnsZones",
-              "apiVersion": "2020-06-01",
+              "apiVersion": "2024-04-01",
               "name": "[variables('privateDnsZoneName')]",
               "location": "Global",
               "tags": "[parameters('resourceTags')]",
@@ -1534,7 +1531,7 @@
             {
               "condition": "[not(equals(parameters('privateEndpointName'), 'None'))]",
               "type": "Microsoft.Network/privateEndpoints",
-              "apiVersion": "2023-11-01",
+              "apiVersion": "2025-05-01",
               "name": "[parameters('privateEndpointName')]",
               "location": "[parameters('location')]",
               "tags": "[parameters('resourceTags')]",
@@ -1566,7 +1563,7 @@
             {
               "condition": "[not(equals(parameters('privateEndpointName'), 'None'))]",
               "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
-              "apiVersion": "2023-06-01",
+              "apiVersion": "2025-05-01",
               "name": "[format('{0}/{1}', parameters('privateEndpointName'), 'default')]",
               "properties": {
                 "privateDnsZoneConfigs": [
@@ -1586,7 +1583,7 @@
             {
               "condition": "[not(equals(parameters('privateEndpointName'), 'None'))]",
               "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
-              "apiVersion": "2020-06-01",
+              "apiVersion": "2024-04-01",
               "name": "[format('{0}/{1}', variables('privateDnsZoneName'), format('{0}-link', parameters('StorageAccountName')))]",
               "location": "global",
               "properties": {
@@ -1603,7 +1600,7 @@
           "outputs": {
             "storageAccountTableUrl": {
               "type": "string",
-              "value": "[reference(resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName')), '2023-05-01').primaryEndpoints.table]"
+              "value": "[reference(resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName')), '2025-06-01').primaryEndpoints.table]"
             }
           }
         }
