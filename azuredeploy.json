@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.41.2.15936",
-      "templateHash": "8399119114802701135"
+      "templateHash": "18250898283137906994"
     }
   },
   "parameters": {
@@ -713,7 +713,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.41.2.15936",
-              "templateHash": "11715078575511774741"
+              "templateHash": "4578674048240313234"
             }
           },
           "parameters": {
@@ -795,7 +795,7 @@
                 "count": "[length(variables('rbac_roles'))]"
               },
               "type": "Microsoft.Authorization/roleAssignments",
-              "apiVersion": "2024-11-01",
+              "apiVersion": "2022-04-01",
               "scope": "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]",
               "name": "[guid(format('roleAssignment-kv-{0}-{1}', variables('rbac_roles')[copyIndex()], parameters('permittedPrincipalId')))]",
               "properties": {
@@ -809,7 +809,7 @@
             {
               "condition": "[not(equals(parameters('privateEndpointName'), 'None'))]",
               "type": "Microsoft.Network/privateDnsZones",
-              "apiVersion": "2024-04-01",
+              "apiVersion": "2024-06-01",
               "name": "privatelink.vaultcore.azure.net",
               "location": "Global",
               "tags": "[parameters('resourceTags')]",
@@ -870,7 +870,7 @@
             {
               "condition": "[not(equals(parameters('privateEndpointName'), 'None'))]",
               "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
-              "apiVersion": "2024-04-01",
+              "apiVersion": "2024-06-01",
               "name": "[format('{0}/{1}', 'privatelink.vaultcore.azure.net', format('{0}-link', parameters('keyVaultName')))]",
               "location": "global",
               "properties": {
@@ -954,7 +954,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.41.2.15936",
-              "templateHash": "9125955007972002040"
+              "templateHash": "10311715145442585266"
             }
           },
           "functions": [
@@ -1086,7 +1086,7 @@
                 "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:CRL:Source', parameters('deployOnLinux')))]": "Storage",
                 "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:EnableCertificateStorage', parameters('deployOnLinux')))]": "true",
                 "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:LoggingConfig:WorkspaceId', parameters('deployOnLinux')))]": "[parameters('logAnalyticsWorkspaceId')]",
-                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:LoggingConfig:SharedKey', parameters('deployOnLinux')))]": "[listKeys(resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName')), '2022-10-01').primarySharedKey]",
+                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:LoggingConfig:SharedKey', parameters('deployOnLinux')))]": "[listKeys(resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName')), '2025-07-01').primarySharedKey]",
                 "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:KeyVaultConfig:KeyVaultURL', parameters('deployOnLinux')))]": "[parameters('keyVaultURL')]",
                 "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:CertificateStorage:TableStorageEndpoint', parameters('deployOnLinux')))]": "[parameters('StorageAccountTableUrl')]",
                 "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:KeyVaultConfig:RootCertificateConfig:CertificateName', parameters('deployOnLinux')))]": "SCEPman-Root-CA-V1",
@@ -1159,7 +1159,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.41.2.15936",
-              "templateHash": "1595035704628613273"
+              "templateHash": "10009939816769082358"
             }
           },
           "functions": [
@@ -1246,7 +1246,7 @@
                 "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:SCEPman:URL', parameters('deployOnLinux')))]": "[parameters('scepmanUrl')]",
                 "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:AuthConfig:TenantId', parameters('deployOnLinux')))]": "[subscription().tenantId]",
                 "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:LoggingConfig:WorkspaceId', parameters('deployOnLinux')))]": "[parameters('logAnalyticsWorkspaceId')]",
-                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:LoggingConfig:SharedKey', parameters('deployOnLinux')))]": "[listKeys(resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName')), '2022-10-01').primarySharedKey]"
+                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:LoggingConfig:SharedKey', parameters('deployOnLinux')))]": "[listKeys(resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName')), '2025-07-01').primarySharedKey]"
               }
             },
             "appServiceName_websettings": {
@@ -1304,7 +1304,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.41.2.15936",
-              "templateHash": "11875959797971595803"
+              "templateHash": "9268726593796951249"
             }
           },
           "parameters": {
@@ -1508,7 +1508,7 @@
                 "count": "[length(parameters('tableContributorPrincipals'))]"
               },
               "type": "Microsoft.Authorization/roleAssignments",
-              "apiVersion": "2024-11-01",
+              "apiVersion": "2022-04-01",
               "scope": "[resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName'))]",
               "name": "[guid(format('roleAssignment-sa-{0}-tableContributor', parameters('tableContributorPrincipals')[copyIndex()]))]",
               "properties": {
@@ -1522,7 +1522,7 @@
             {
               "condition": "[not(equals(parameters('privateEndpointName'), 'None'))]",
               "type": "Microsoft.Network/privateDnsZones",
-              "apiVersion": "2024-04-01",
+              "apiVersion": "2024-06-01",
               "name": "[variables('privateDnsZoneName')]",
               "location": "Global",
               "tags": "[parameters('resourceTags')]",
@@ -1583,7 +1583,7 @@
             {
               "condition": "[not(equals(parameters('privateEndpointName'), 'None'))]",
               "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
-              "apiVersion": "2024-04-01",
+              "apiVersion": "2024-06-01",
               "name": "[format('{0}/{1}', variables('privateDnsZoneName'), format('{0}-link', parameters('StorageAccountName')))]",
               "location": "global",
               "properties": {

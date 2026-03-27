@@ -207,7 +207,7 @@ resource roleAssignment_sa_tableContributorPrincipals 'Microsoft.Authorization/r
   }
 ]
 
-resource privateDnsZone 'Microsoft.Network/privateDnsZones@2024-04-01' = if (privateEndpointName != 'None') {
+resource privateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if (privateEndpointName != 'None') {
   name: privateDnsZoneName
   location: 'Global'
   tags: resourceTags
@@ -256,7 +256,7 @@ resource privateEndpointName_default 'Microsoft.Network/privateEndpoints/private
   }
 }
 
-resource privateDnsZoneName_StorageAccountName_link 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2024-04-01' = if (privateEndpointName != 'None') {
+resource privateDnsZoneName_StorageAccountName_link 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2024-06-01' = if (privateEndpointName != 'None') {
   parent: privateDnsZone
   name: '${StorageAccountName}-link'
   location: 'global'

@@ -59,7 +59,7 @@ resource roleAssignment_kv_rbac_roles 'Microsoft.Authorization/roleAssignments@2
   }
 ]
 
-resource privatelink_vaultcore_azure_net 'Microsoft.Network/privateDnsZones@2024-04-01' = if (privateEndpointName != 'None') {
+resource privatelink_vaultcore_azure_net 'Microsoft.Network/privateDnsZones@2024-06-01' = if (privateEndpointName != 'None') {
   name: 'privatelink.vaultcore.azure.net' // The A record is only created if you use this magic name
                                           // See: https://learn.microsoft.com/en-us/azure/private-link/private-endpoint-dns#security
                                           // It would be preferable to use the environment function (see https://learn.microsoft.com/en-us/azure/azure-resource-manager/templates/template-functions-deployment#environment),
@@ -111,7 +111,7 @@ resource privateEndpointName_default 'Microsoft.Network/privateEndpoints/private
   }
 }
 
-resource privatelink_vaultcore_azure_net_keyVaultName_link 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2024-04-01' = if (privateEndpointName != 'None') {
+resource privatelink_vaultcore_azure_net_keyVaultName_link 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2024-06-01' = if (privateEndpointName != 'None') {
   parent: privatelink_vaultcore_azure_net
   name: '${keyVaultName}-link'
   location: 'global'
