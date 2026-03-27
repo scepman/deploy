@@ -63,7 +63,7 @@ resource appServiceName_appsettings 'Microsoft.Web/sites/config@2024-04-01' = {
     '${convertVariableNameToLinux('AppConfig:LoggingConfig:WorkspaceId', deployOnLinux)}': logAnalyticsWorkspaceId
     '${convertVariableNameToLinux('AppConfig:LoggingConfig:SharedKey', deployOnLinux)}': listKeys(
       resourceId('Microsoft.OperationalInsights/workspaces', logAnalyticsWorkspaceName),
-      '2022-10-01'
+      '2025-07-01'
     ).primarySharedKey
     '${convertVariableNameToLinux('AppConfig:KeyVaultConfig:KeyVaultURL', deployOnLinux)}': keyVaultURL
     '${convertVariableNameToLinux('AppConfig:CertificateStorage:TableStorageEndpoint', deployOnLinux)}': StorageAccountTableUrl

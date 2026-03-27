@@ -196,7 +196,7 @@ resource StorageAccount 'Microsoft.Storage/storageAccounts@2025-06-01' = {
   }
 }
 
-resource roleAssignment_sa_tableContributorPrincipals 'Microsoft.Authorization/roleAssignments@2024-11-01' = [
+resource roleAssignment_sa_tableContributorPrincipals 'Microsoft.Authorization/roleAssignments@2022-04-01' = [
   for item in tableContributorPrincipals: {
     scope: StorageAccount
     name: guid('roleAssignment-sa-${item}-tableContributor')

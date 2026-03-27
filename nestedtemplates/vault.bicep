@@ -48,7 +48,7 @@ resource keyVault 'Microsoft.KeyVault/vaults@2025-05-01' = {
   }
 }
 
-resource roleAssignment_kv_rbac_roles 'Microsoft.Authorization/roleAssignments@2024-11-01' = [
+resource roleAssignment_kv_rbac_roles 'Microsoft.Authorization/roleAssignments@2022-04-01' = [
   for item in rbac_roles: {
     scope: keyVault
     name: guid('roleAssignment-kv-${item}-${permittedPrincipalId}')
