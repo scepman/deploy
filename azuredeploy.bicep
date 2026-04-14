@@ -56,7 +56,7 @@ param virtualNetworkName string = 'vnet-scepman-${uniqueString(resourceGroup().i
 
 @description('Name of the Network Security Group applied to the subnets. This is only applicable if deployPrivateNetwork is chosen.')
 @maxLength(80)
-param nsgName string = 'nsg-scepman-UNIQUENAME'
+param nsgName string = 'nsg-scepman-${uniqueString(resourceGroup().id)}'
 
 @description('Name of the Private Endpoint for the Key Vault. This is only applicable if deployPrivateNetwork is chosen.')
 @minLength(4)
