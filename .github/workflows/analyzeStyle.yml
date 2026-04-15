@@ -2,27 +2,32 @@ name: Analyze Links and Style
 
 on: push
 
+permissions:
+  contents: read
+
 jobs:
   filter:
     runs-on: ubuntu-latest
     outputs:
-      bicep: ${{ steps.filter.outputs.bicep }}
-      json: ${{ steps.filter.outputs.json }}
+      bicep: ${{ steps.changes.outputs.bicep }}
+      json: ${{ steps.changes.outputs.json }}
     steps:
-    - uses: dorny/paths-filter@v3
-      id: filter
-      with:
-        filters: |
-          bicep:
-            - '**/*.bicep'
-          json:
-            - '**/*.json'
+    - uses: actions/checkout@v6
+    - name: Check for changed files
+      id: changes
+      run: |
+        BICEP_CHANGED=$(git diff --name-only ${{ github.event.before }}..HEAD | grep -E '\.bicep$' | wc -l)
+        JSON_CHANGED=$(git diff --name-only ${{ github.event.before }}..HEAD | grep -E '\.json$' | wc -l)
+        echo "bicep=$([ $BICEP_CHANGED -gt 0 ] && echo 'true' || echo 'false')" >> $GITHUB_OUTPUT
+        echo "json=$([ $JSON_CHANGED -gt 0 ] && echo 'true' || echo 'false')" >> $GITHUB_OUTPUT
 
   markdown-link-check:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@master
-    - uses: gaurav-nelson/github-action-markdown-link-check@v1
+    - uses: actions/checkout@v6
+    - uses: tcort/github-action-markdown-link-check@e7c7a18363c842693fadde5d41a3bd3573a7a225 # v1
+      with:
+        use-quiet-mode: 'yes'
 
   lint-bicep:
     needs: filter
