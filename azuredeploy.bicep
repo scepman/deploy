@@ -35,7 +35,7 @@ param deployOnLinux bool = true
 @maxLength(60)
 param primaryAppServiceName string = 'app-scepman-UNIQUENAME'
 
-@description('The Log Analytics Workspace with log data. Alphanumerics and hyphens are allowed.')
+@description('The Log Analytics Workspace for SCEPman\'s logging. Alphanumerics and hyphens are allowed.')
 @minLength(4)
 @maxLength(63)
 param logAnalyticsWorkspaceName string = 'log-scepman-UNIQUENAME'
