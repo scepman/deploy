@@ -44,7 +44,7 @@ param enableHealthCheck bool
 // Function to convert colon-style variable names to underscore-separated variable names if deployOnLinux is true
 func convertVariableNameToLinux(variableName string, deployOnLinux bool) string => deployOnLinux ? replace(variableName, ':', '__') : variableName
 
-resource appServiceName_appsettings 'Microsoft.Web/sites/config@2024-04-01' = {
+resource appServiceName_appsettings 'Microsoft.Web/sites/config@2025-03-01' = {
   name: '${appServiceName}/appsettings'
   properties: {
     WEBSITE_RUN_FROM_PACKAGE: WebsiteArtifactsUri
@@ -75,7 +75,7 @@ resource appServiceName_appsettings 'Microsoft.Web/sites/config@2024-04-01' = {
   }
 }
 
-resource appServiceName_websettings 'Microsoft.Web/sites/config@2024-04-01' = if (enableHealthCheck) {
+resource appServiceName_websettings 'Microsoft.Web/sites/config@2025-03-01' = if (enableHealthCheck) {
   name: '${appServiceName}/web'
   properties: {
     healthCheckPath: '/probe'
