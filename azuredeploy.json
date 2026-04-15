@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.42.1.51946",
-      "templateHash": "15200979157121996459"
+      "templateHash": "14584968001333433928"
     }
   },
   "parameters": {
@@ -224,7 +224,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.42.1.51946",
-              "templateHash": "1230457505896270742"
+              "templateHash": "13998662900123416704"
             }
           },
           "parameters": {
@@ -303,7 +303,6 @@
                 "subnets": [
                   {
                     "name": "default",
-                    "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), 'default')]",
                     "properties": {
                       "addressPrefix": "[parameters('subnetIpPrefixDefault')]",
                       "privateEndpointNetworkPolicies": "Disabled",
@@ -312,22 +311,18 @@
                       "networkSecurityGroup": {
                         "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroupName'))]"
                       }
-                    },
-                    "type": "Microsoft.Network/virtualNetworks/subnets"
+                    }
                   },
                   {
                     "name": "snet-scepman-appservices",
-                    "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), 'snet-scepman-appservices')]",
                     "properties": {
                       "addressPrefix": "[parameters('subnetIpPrefixScepman')]",
                       "delegations": [
                         {
                           "name": "delegation",
-                          "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets/delegations', parameters('virtualNetworkName'), 'snet-scepman-appservices', 'delegation')]",
                           "properties": {
                             "serviceName": "Microsoft.Web/serverfarms"
-                          },
-                          "type": "Microsoft.Network/virtualNetworks/subnets/delegations"
+                          }
                         }
                       ],
                       "privateEndpointNetworkPolicies": "Disabled",
@@ -336,8 +331,7 @@
                       "networkSecurityGroup": {
                         "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroupName'))]"
                       }
-                    },
-                    "type": "Microsoft.Network/virtualNetworks/subnets"
+                    }
                   }
                 ],
                 "enableDdosProtection": false
@@ -353,14 +347,14 @@
     {
       "copy": {
         "name": "AppService_ConnectionToVirtualNetwork",
-        "count": "[length(range(0, 2))]",
+        "count": "[length(variables('appServiceNames'))]",
         "mode": "serial",
         "batchSize": 1
       },
       "condition": "[parameters('deployPrivateNetwork')]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2025-04-01",
-      "name": "[format('AppService-{0}-ConnectionToVirtualNetwork', range(0, 2)[copyIndex()])]",
+      "name": "[format('AppSvc-{0}-{1}-VnetConn', take(variables('appServiceNames')[copyIndex()], 42), copyIndex())]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -374,7 +368,7 @@
             "value": "[parameters('location')]"
           },
           "appServiceName": {
-            "value": "[variables('appServiceNames')[range(0, 2)[copyIndex()]]]"
+            "value": "[variables('appServiceNames')[copyIndex()]]"
           }
         },
         "template": {
@@ -464,7 +458,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.42.1.51946",
-              "templateHash": "4628206727042087640"
+              "templateHash": "2001782051647466213"
             }
           },
           "parameters": {
@@ -591,11 +585,11 @@
             },
             "scepmanPrincipalID": {
               "type": "string",
-              "value": "[reference(parameters('appServiceName'), '2022-03-01', 'Full').identity.principalId]"
+              "value": "[reference(resourceId('Microsoft.Web/sites', parameters('appServiceName')), '2025-03-01', 'full').identity.principalId]"
             },
             "certmasterPrincipalID": {
               "type": "string",
-              "value": "[reference(parameters('appServiceName2'), '2022-03-01', 'Full').identity.principalId]"
+              "value": "[reference(resourceId('Microsoft.Web/sites', parameters('appServiceName2')), '2025-03-01', 'full').identity.principalId]"
             },
             "appServicePlanID": {
               "type": "string",
@@ -954,7 +948,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.42.1.51946",
-              "templateHash": "12532651895477698227"
+              "templateHash": "11930724196470352158"
             }
           },
           "functions": [
@@ -975,6 +969,11 @@
                   "output": {
                     "type": "string",
                     "value": "[if(parameters('deployOnLinux'), replace(parameters('variableName'), ':', '__'), parameters('variableName'))]"
+                  },
+                  "metadata": {
+                    "__bicep_imported_from!": {
+                      "sourceTemplate": "utils.bicep"
+                    }
                   }
                 }
               }
@@ -1068,6 +1067,12 @@
             }
           },
           "resources": {
+            "logAnalyticsWorkspace": {
+              "existing": true,
+              "type": "Microsoft.OperationalInsights/workspaces",
+              "apiVersion": "2025-07-01",
+              "name": "[parameters('logAnalyticsWorkspaceName')]"
+            },
             "appServiceName_appsettings": {
               "type": "Microsoft.Web/sites/config",
               "apiVersion": "2025-03-01",
@@ -1086,7 +1091,7 @@
                 "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:CRL:Source', parameters('deployOnLinux')))]": "Storage",
                 "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:EnableCertificateStorage', parameters('deployOnLinux')))]": "true",
                 "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:LoggingConfig:WorkspaceId', parameters('deployOnLinux')))]": "[parameters('logAnalyticsWorkspaceId')]",
-                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:LoggingConfig:SharedKey', parameters('deployOnLinux')))]": "[listKeys(resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName')), '2025-07-01').primarySharedKey]",
+                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:LoggingConfig:SharedKey', parameters('deployOnLinux')))]": "[listKeys('logAnalyticsWorkspace', '2025-07-01').primarySharedKey]",
                 "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:KeyVaultConfig:KeyVaultURL', parameters('deployOnLinux')))]": "[parameters('keyVaultURL')]",
                 "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:CertificateStorage:TableStorageEndpoint', parameters('deployOnLinux')))]": "[parameters('StorageAccountTableUrl')]",
                 "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:KeyVaultConfig:RootCertificateConfig:CertificateName', parameters('deployOnLinux')))]": "SCEPman-Root-CA-V1",
@@ -1159,7 +1164,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.42.1.51946",
-              "templateHash": "14887489843336179593"
+              "templateHash": "4831775418888795303"
             }
           },
           "functions": [
@@ -1180,6 +1185,11 @@
                   "output": {
                     "type": "string",
                     "value": "[if(parameters('deployOnLinux'), replace(parameters('variableName'), ':', '__'), parameters('variableName'))]"
+                  },
+                  "metadata": {
+                    "__bicep_imported_from!": {
+                      "sourceTemplate": "utils.bicep"
+                    }
                   }
                 }
               }
@@ -1236,6 +1246,12 @@
             }
           },
           "resources": {
+            "logAnalyticsWorkspace": {
+              "existing": true,
+              "type": "Microsoft.OperationalInsights/workspaces",
+              "apiVersion": "2025-07-01",
+              "name": "[parameters('logAnalyticsWorkspaceName')]"
+            },
             "appServiceName_appsettings": {
               "type": "Microsoft.Web/sites/config",
               "apiVersion": "2025-03-01",
@@ -1246,7 +1262,7 @@
                 "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:SCEPman:URL', parameters('deployOnLinux')))]": "[parameters('scepmanUrl')]",
                 "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:AuthConfig:TenantId', parameters('deployOnLinux')))]": "[subscription().tenantId]",
                 "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:LoggingConfig:WorkspaceId', parameters('deployOnLinux')))]": "[parameters('logAnalyticsWorkspaceId')]",
-                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:LoggingConfig:SharedKey', parameters('deployOnLinux')))]": "[listKeys(resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName')), '2025-07-01').primarySharedKey]"
+                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:LoggingConfig:SharedKey', parameters('deployOnLinux')))]": "[listKeys('logAnalyticsWorkspace', '2025-07-01').primarySharedKey]"
               }
             },
             "appServiceName_websettings": {
