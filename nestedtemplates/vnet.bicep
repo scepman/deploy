@@ -43,7 +43,6 @@ resource virtualNetwork 'Microsoft.Network/virtualNetworks@2025-05-01' = {
     subnets: [
       {
         name: 'default'
-        id: resourceId('Microsoft.Network/virtualNetworks/subnets', virtualNetworkName, 'default')
         properties: {
           addressPrefix: subnetIpPrefixDefault
           privateEndpointNetworkPolicies: 'Disabled'
@@ -53,26 +52,17 @@ resource virtualNetwork 'Microsoft.Network/virtualNetworks@2025-05-01' = {
             id: subnetNsg.id
           }
         }
-        type: 'Microsoft.Network/virtualNetworks/subnets'
       }
       {
         name: 'snet-scepman-appservices'
-        id: resourceId('Microsoft.Network/virtualNetworks/subnets', virtualNetworkName, 'snet-scepman-appservices')
         properties: {
           addressPrefix: subnetIpPrefixScepman
           delegations: [
             {
               name: 'delegation'
-              id: resourceId(
-                'Microsoft.Network/virtualNetworks/subnets/delegations',
-                virtualNetworkName,
-                'snet-scepman-appservices',
-                'delegation'
-              )
               properties: {
                 serviceName: 'Microsoft.Web/serverfarms'
               }
-              type: 'Microsoft.Network/virtualNetworks/subnets/delegations'
             }
           ]
           privateEndpointNetworkPolicies: 'Disabled'
@@ -82,7 +72,6 @@ resource virtualNetwork 'Microsoft.Network/virtualNetworks@2025-05-01' = {
             id: subnetNsg.id
           }
         }
-        type: 'Microsoft.Network/virtualNetworks/subnets'
       }
     ]
     enableDdosProtection: false

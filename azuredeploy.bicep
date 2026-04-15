@@ -99,12 +99,12 @@ module CreateVirtualNetwork 'nestedtemplates/vnet.bicep' = if (deployPrivateNetw
 
 @batchSize(1)
 module AppService_ConnectionToVirtualNetwork 'nestedtemplates/vnet-to-appservices.bicep' = [
-  for i in range(0, 2): if (deployPrivateNetwork) {
-    name: 'AppService-${i}-ConnectionToVirtualNetwork'
+  for (appServiceName, i) in appServiceNames: if (deployPrivateNetwork) {
+    name: 'AppSvc-${take(appServiceName, 42)}-${i}-VnetConn' // App Service names can be up to 60 characters long, but the connection resource name can only be 63 characters long. Therefore, we take only the first 42 characters of the app service name to ensure we do not exceed the limit when appending other strings.
     params: {
       virtualNetworkName: virtualNetworkName
       location: location
-      appServiceName: appServiceNames[i]
+      appServiceName: appServiceName
     }
     dependsOn: [
       CreateVirtualNetwork

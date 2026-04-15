@@ -80,6 +80,6 @@ resource appService2 'Microsoft.Web/sites@2025-03-01' = {
 }
 
 output scepmanURL string = uri('https://${appService.properties.defaultHostName}', '/')
-output scepmanPrincipalID string = reference(appServiceName, '2022-03-01', 'Full').identity.principalId
-output certmasterPrincipalID string = reference(appServiceName2, '2022-03-01', 'Full').identity.principalId
+output scepmanPrincipalID string = appService.identity.principalId
+output certmasterPrincipalID string = appService2.identity.principalId
 output appServicePlanID string = ((existingAppServicePlanID == 'none') ? AppServicePlan.id : existingAppServicePlanID)

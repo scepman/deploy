@@ -41,8 +41,11 @@ param deployOnLinux bool
 @description('Enable health check')
 param enableHealthCheck bool
 
-// Function to convert colon-style variable names to underscore-separated variable names if deployOnLinux is true
-func convertVariableNameToLinux(variableName string, deployOnLinux bool) string => deployOnLinux ? replace(variableName, ':', '__') : variableName
+import { convertVariableNameToLinux } from './utils.bicep'
+
+resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2025-07-01' existing = {
+  name: logAnalyticsWorkspaceName
+}
 
 resource appServiceName_appsettings 'Microsoft.Web/sites/config@2025-03-01' = {
   name: '${appServiceName}/appsettings'
@@ -60,10 +63,7 @@ resource appServiceName_appsettings 'Microsoft.Web/sites/config@2025-03-01' = {
     '${convertVariableNameToLinux('AppConfig:CRL:Source', deployOnLinux)}': 'Storage'
     '${convertVariableNameToLinux('AppConfig:EnableCertificateStorage', deployOnLinux)}': 'true'
     '${convertVariableNameToLinux('AppConfig:LoggingConfig:WorkspaceId', deployOnLinux)}': logAnalyticsWorkspaceId
-    '${convertVariableNameToLinux('AppConfig:LoggingConfig:SharedKey', deployOnLinux)}': listKeys(
-      resourceId('Microsoft.OperationalInsights/workspaces', logAnalyticsWorkspaceName),
-      '2025-07-01'
-    ).primarySharedKey
+    '${convertVariableNameToLinux('AppConfig:LoggingConfig:SharedKey', deployOnLinux)}': logAnalyticsWorkspace.listKeys().primarySharedKey
     '${convertVariableNameToLinux('AppConfig:KeyVaultConfig:KeyVaultURL', deployOnLinux)}': keyVaultURL
     '${convertVariableNameToLinux('AppConfig:CertificateStorage:TableStorageEndpoint', deployOnLinux)}': StorageAccountTableUrl
     '${convertVariableNameToLinux('AppConfig:KeyVaultConfig:RootCertificateConfig:CertificateName', deployOnLinux)}': 'SCEPman-Root-CA-V1'
