@@ -13,11 +13,29 @@ jobs:
       json: ${{ steps.changes.outputs.json }}
     steps:
     - uses: actions/checkout@v6
+      with:
+        fetch-depth: 10
     - name: Check for changed files
       id: changes
       run: |
-        BICEP_CHANGED=$(git diff --name-only ${{ github.event.before }}..HEAD | grep -E '\.bicep$' | wc -l)
-        JSON_CHANGED=$(git diff --name-only ${{ github.event.before }}..HEAD | grep -E '\.json$' | wc -l)
+        BASE_SHA="${{ github.event.before }}"
+        if [ -z "$BASE_SHA" ] || [ "$BASE_SHA" = "0000000000000000000000000000000000000000" ]; then
+          if git rev-parse --verify HEAD^ >/dev/null 2>&1; then
+            BASE_SHA=$(git rev-parse HEAD^)
+          else
+            BASE_SHA=$(git rev-list --max-parents=0 HEAD)
+          fi
+        fi
+
+        if git cat-file -e "$BASE_SHA^{commit}" 2>/dev/null; then
+          DIFF_FILES=$(git diff --name-only "$BASE_SHA..HEAD")
+        else
+          echo "Base SHA '$BASE_SHA' not found; falling back to current commit file list."
+          DIFF_FILES=$(git show --name-only --pretty=format: HEAD)
+        fi
+
+        BICEP_CHANGED=$(printf '%s\n' "$DIFF_FILES" | grep -E '\.bicep$' | wc -l)
+        JSON_CHANGED=$(printf '%s\n' "$DIFF_FILES" | grep -E '\.json$' | wc -l)
         echo "bicep=$([ $BICEP_CHANGED -gt 0 ] && echo 'true' || echo 'false')" >> $GITHUB_OUTPUT
         echo "json=$([ $JSON_CHANGED -gt 0 ] && echo 'true' || echo 'false')" >> $GITHUB_OUTPUT
 
