@@ -4,8 +4,8 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.41.2.15936",
-      "templateHash": "1163612596131484209"
+      "version": "0.42.1.51946",
+      "templateHash": "15200979157121996459"
     }
   },
   "parameters": {
@@ -185,8 +185,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.41.2.15936",
-              "templateHash": "15050332927029945745"
+              "version": "0.42.1.51946",
+              "templateHash": "17652621533509635022"
             }
           },
           "resources": []
@@ -223,8 +223,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.41.2.15936",
-              "templateHash": "2200891563363908764"
+              "version": "0.42.1.51946",
+              "templateHash": "1230457505896270742"
             }
           },
           "parameters": {
@@ -383,8 +383,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.41.2.15936",
-              "templateHash": "11864849207678215448"
+              "version": "0.42.1.51946",
+              "templateHash": "12014117568308864640"
             }
           },
           "parameters": {
@@ -463,8 +463,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.41.2.15936",
-              "templateHash": "5383047094207400530"
+              "version": "0.42.1.51946",
+              "templateHash": "4628206727042087640"
             }
           },
           "parameters": {
@@ -516,7 +516,7 @@
             {
               "condition": "[equals(parameters('existingAppServicePlanID'), 'none')]",
               "type": "Microsoft.Web/serverfarms",
-              "apiVersion": "2024-04-01",
+              "apiVersion": "2025-03-01",
               "name": "[parameters('AppServicePlanName')]",
               "location": "[parameters('location')]",
               "sku": {
@@ -532,7 +532,7 @@
             },
             {
               "type": "Microsoft.Web/sites",
-              "apiVersion": "2024-04-01",
+              "apiVersion": "2025-03-01",
               "name": "[parameters('appServiceName')]",
               "location": "[parameters('location')]",
               "identity": {
@@ -559,7 +559,7 @@
             },
             {
               "type": "Microsoft.Web/sites",
-              "apiVersion": "2024-04-01",
+              "apiVersion": "2025-03-01",
               "name": "[parameters('appServiceName2')]",
               "location": "[parameters('location')]",
               "identity": {
@@ -587,7 +587,7 @@
           "outputs": {
             "scepmanURL": {
               "type": "string",
-              "value": "[uri(format('https://{0}', reference(resourceId('Microsoft.Web/sites', parameters('appServiceName')), '2024-04-01').defaultHostName), '/')]"
+              "value": "[uri(format('https://{0}', reference(resourceId('Microsoft.Web/sites', parameters('appServiceName')), '2025-03-01').defaultHostName), '/')]"
             },
             "scepmanPrincipalID": {
               "type": "string",
@@ -631,8 +631,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.41.2.15936",
-              "templateHash": "10131361067590667248"
+              "version": "0.42.1.51946",
+              "templateHash": "11693882475512812359"
             }
           },
           "parameters": {
@@ -712,8 +712,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.41.2.15936",
-              "templateHash": "4578674048240313234"
+              "version": "0.42.1.51946",
+              "templateHash": "15133531850865498457"
             }
           },
           "parameters": {
@@ -953,8 +953,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.41.2.15936",
-              "templateHash": "2939008030622145436"
+              "version": "0.42.1.51946",
+              "templateHash": "12532651895477698227"
             }
           },
           "functions": [
@@ -1070,7 +1070,7 @@
           "resources": {
             "appServiceName_appsettings": {
               "type": "Microsoft.Web/sites/config",
-              "apiVersion": "2024-04-01",
+              "apiVersion": "2025-03-01",
               "name": "[format('{0}/appsettings', parameters('appServiceName'))]",
               "properties": {
                 "WEBSITE_RUN_FROM_PACKAGE": "[parameters('WebsiteArtifactsUri')]",
@@ -1100,7 +1100,7 @@
             "appServiceName_websettings": {
               "condition": "[parameters('enableHealthCheck')]",
               "type": "Microsoft.Web/sites/config",
-              "apiVersion": "2024-04-01",
+              "apiVersion": "2025-03-01",
               "name": "[format('{0}/web', parameters('appServiceName'))]",
               "properties": {
                 "healthCheckPath": "/probe"
@@ -1158,8 +1158,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.41.2.15936",
-              "templateHash": "10009939816769082358"
+              "version": "0.42.1.51946",
+              "templateHash": "14887489843336179593"
             }
           },
           "functions": [
@@ -1238,7 +1238,7 @@
           "resources": {
             "appServiceName_appsettings": {
               "type": "Microsoft.Web/sites/config",
-              "apiVersion": "2024-04-01",
+              "apiVersion": "2025-03-01",
               "name": "[format('{0}/appsettings', parameters('appServiceName'))]",
               "properties": {
                 "WEBSITE_RUN_FROM_PACKAGE": "[parameters('WebsiteArtifactsUri')]",
@@ -1252,7 +1252,7 @@
             "appServiceName_websettings": {
               "condition": "[parameters('enableHealthCheck')]",
               "type": "Microsoft.Web/sites/config",
-              "apiVersion": "2024-04-01",
+              "apiVersion": "2025-03-01",
               "name": "[format('{0}/web', parameters('appServiceName'))]",
               "properties": {
                 "healthCheckPath": "/probe"
@@ -1303,8 +1303,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.41.2.15936",
-              "templateHash": "9268726593796951249"
+              "version": "0.42.1.51946",
+              "templateHash": "78023155813616126"
             }
           },
           "parameters": {
