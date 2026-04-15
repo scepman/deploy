@@ -27,3 +27,7 @@ jobs:
         git add azuredeploy.json
         git commit -m 'Generate ARM template from Bicep'
         git push
+
+  check-arm-template:
+    needs: build-and-push
+    uses: ./.github/workflows/check-arm-template.yml

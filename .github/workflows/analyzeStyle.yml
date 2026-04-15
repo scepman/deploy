@@ -3,31 +3,37 @@ name: Analyze Links and Style
 on: push
 
 jobs:
+  filter:
+    runs-on: ubuntu-latest
+    outputs:
+      bicep: ${{ steps.filter.outputs.bicep }}
+      json: ${{ steps.filter.outputs.json }}
+    steps:
+    - uses: dorny/paths-filter@v3
+      id: filter
+      with:
+        filters: |
+          bicep:
+            - '**/*.bicep'
+          json:
+            - '**/*.json'
+
   markdown-link-check:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
     - uses: gaurav-nelson/github-action-markdown-link-check@v1
 
-  check-arm-templates:
+  lint-bicep:
+    needs: filter
+    if: needs.filter.outputs.bicep == 'true'
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout the repo
-      uses: actions/checkout@v6
-      with:
-        path: install
+    - uses: actions/checkout@v6
+    - name: Lint Bicep files
+      run: az bicep lint --file azuredeploy.bicep
 
-    - name: Download ARM TTK
-      uses: actions/checkout@v6
-      with:
-        repository: Azure/arm-ttk
-        path: arm-ttk
-
-    - name: Test ARM Template
-      shell: pwsh
-      run: |
-        Import-Module ./arm-ttk/arm-ttk/arm-ttk.psd1
-        Test-AzTemplate -TemplatePath ./install -ErrorAction Continue
-        if ($Error.Count -gt 0) {
-          exit 1
-        }
+  check-arm-templates:
+    needs: filter
+    if: needs.filter.outputs.json == 'true'
+    uses: ./.github/workflows/check-arm-template.yml
