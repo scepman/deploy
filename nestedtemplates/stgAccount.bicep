@@ -49,6 +49,10 @@ var gzrsRegions = [
   'westeurope'
   'westus2'
   'westus3'
+  'usgovvirginia' // Has Availability Zones according to https://cloudsteak.com/azure-us-gov-virginia-availability-zones-now-generally-available/
+                  // Is paired according to https://learn.microsoft.com/en-us/azure/azure-government/documentation-government-welcome#region-pairing
+                  // Name is based on the pattern observed in US Gov regions and specified here (unofficial source): https://www.azurespeed.com/Information/AzureUSGovernmentRegions
+  'chinanorth3'   // Has both Availability Zones and a paired region according to https://learn.microsoft.com/en-us/azure/china/overview-regions
 ]
 
 // Regions where ZRS (Zone Redundant Storage) is supported
@@ -92,6 +96,9 @@ var zrsRegions = [
   'westeurope'
   'westus2'
   'westus3'
+  'usgovvirginia' // Has Availability Zones according to https://cloudsteak.com/azure-us-gov-virginia-availability-zones-now-generally-available/
+                  // Name is based on the pattern observed in US Gov regions and specified here (unofficial source): https://www.azurespeed.com/Information/AzureUSGovernmentRegions
+  'chinanorth3'   // Has Availability Zones according to https://learn.microsoft.com/en-us/azure/china/overview-regions
 ]
 
 // Regions with geo-redundant support (have a Paired Region)
@@ -141,6 +148,22 @@ var geoRedundantRegions = [
   'westus'
   'westus2'
   'westus3'
+                // US Gov names are based on the pattern observed in US Gov regions and specified here (unofficial source): https://www.azurespeed.com/Information/AzureUSGovernmentRegions
+  'usgovvirginia' // Is paired according to https://learn.microsoft.com/en-us/azure/azure-government/documentation-government-welcome#region-pairing
+  'usgovarizona'
+  'usgovtexas'  // I read https://learn.microsoft.com/en-us/azure/azure-government/documentation-government-welcome#region-pairing such that Texas is paired with both other gov regions, but check this: maybe it is actually unpaired or paired with itself?
+
+  'usdodcentral' // supposedly paired with usdodeast, but the official source doesn't say it: https://learn.microsoft.com/en-us/azure/azure-government/documentation-government-overview-dod
+  'usdodeast'    // supposedly paired with usdodcentral
+
+              // Azure in China names are pattern-based, not tested
+              // Here's the list that says whether they are paired: https://learn.microsoft.com/en-us/azure/china/overview-regions
+  'chinaeast'
+  'chinaeast2'
+  'chinaeast3'
+  'chinanorth'
+  'chinanorth2'
+  'chinanorth3'
 ]
 
 // Determine the appropriate storage account SKU based on region support
@@ -148,7 +171,7 @@ var geoRedundantRegions = [
 // This ensures the best available redundancy option for each region while maintaining deployment reliability
 var storageAccountSku = contains(gzrsRegions, location) ? 'Standard_GZRS' : (contains(geoRedundantRegions, location) ? 'Standard_GRS' : (contains(zrsRegions, location) ? 'Standard_ZRS' : 'Standard_LRS'))
 
-resource StorageAccount 'Microsoft.Storage/storageAccounts@2023-05-01' = {
+resource StorageAccount 'Microsoft.Storage/storageAccounts@2025-06-01' = {
   name: StorageAccountName
   location: location
   tags: resourceTags
@@ -184,14 +207,14 @@ resource roleAssignment_sa_tableContributorPrincipals 'Microsoft.Authorization/r
   }
 ]
 
-resource privateDnsZone 'Microsoft.Network/privateDnsZones@2020-06-01' = if (privateEndpointName != 'None') {
+resource privateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if (privateEndpointName != 'None') {
   name: privateDnsZoneName
   location: 'Global'
   tags: resourceTags
   properties: {}
 }
 
-resource privateEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = if (privateEndpointName != 'None') {
+resource privateEndpoint 'Microsoft.Network/privateEndpoints@2025-05-01' = if (privateEndpointName != 'None') {
   name: privateEndpointName
   location: location
   tags: resourceTags
@@ -218,7 +241,7 @@ resource privateEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = if (p
   }
 }
 
-resource privateEndpointName_default 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2023-06-01' = if (privateEndpointName != 'None') {
+resource privateEndpointName_default 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2025-05-01' = if (privateEndpointName != 'None') {
   parent: privateEndpoint
   name: 'default'
   properties: {
@@ -233,7 +256,7 @@ resource privateEndpointName_default 'Microsoft.Network/privateEndpoints/private
   }
 }
 
-resource privateDnsZoneName_StorageAccountName_link 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = if (privateEndpointName != 'None') {
+resource privateDnsZoneName_StorageAccountName_link 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2024-06-01' = if (privateEndpointName != 'None') {
   parent: privateDnsZone
   name: '${StorageAccountName}-link'
   location: 'global'

@@ -1,0 +1,29 @@
+name: Check ARM Template with TTK
+
+on:
+  workflow_call:
+
+jobs:
+  check-arm-templates:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout the repo
+      uses: actions/checkout@v6
+      with:
+        ref: ${{ github.ref }}
+        path: install
+
+    - name: Download ARM TTK
+      uses: actions/checkout@v6
+      with:
+        repository: Azure/arm-ttk
+        path: arm-ttk
+
+    - name: Test ARM Template
+      shell: pwsh
+      run: |
+        Import-Module ./arm-ttk/arm-ttk/arm-ttk.psd1
+        Test-AzTemplate -TemplatePath ./install -ErrorAction Continue
+        if ($Error.Count -gt 0) {
+          exit 1
+        }

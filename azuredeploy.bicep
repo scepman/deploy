@@ -25,7 +25,7 @@ param storageAccountName string = 'stscepman${uniqueString(resourceGroup().id)}'
 @maxLength(40)
 param appServicePlanName string = 'asp-scepman-${uniqueString(resourceGroup().id)}'
 
-@description('Provide the Resource ID of an existing App Service Plan (the long string displayed in the properties tab). Keep default value \'none\' if you want to create a new one.')
+@description('Provide the Resource ID of an existing App Service Plan (the long string displayed in the properties tab). Keep default value "none" if you want to create a new one.')
 param existingAppServicePlanID string = 'none'
 
 @description('Use Linux App Service Plan')
@@ -35,7 +35,7 @@ param deployOnLinux bool = true
 @maxLength(60)
 param primaryAppServiceName string = 'app-scepman-${uniqueString(resourceGroup().id)}'
 
-@description('The Log Analytics Workspace with log data. Alphanumerics and hyphens are allowed.')
+@description('The Log Analytics Workspace for SCEPman’s logging. Alphanumerics and hyphens are allowed.')
 @minLength(4)
 @maxLength(63)
 param logAnalyticsWorkspaceName string = 'log-scepman-${uniqueString(resourceGroup().id)}'
@@ -47,7 +47,7 @@ param certificateMasterAppServiceName string = 'app-scepman-${uniqueString(resou
 @description('Enable the App Service health check.')
 param enableHealthCheck bool = true
 
-@description('Choose \'true\' to deploy SCEPman with a Virtual Network. In this case, you must also provide names for the parameters virtualNetworkName, privateEndpointForTableStorage, and privateEndpointForKeyVaultName.')
+@description('Choose "true" to deploy SCEPman with a Virtual Network. In this case, you must also provide names for the parameters virtualNetworkName, privateEndpointForTableStorage, and privateEndpointForKeyVaultName.')
 param deployPrivateNetwork bool = true
 
 @description('The name of the Virtual Network. This is only applicable if deployPrivateNetwork is chosen.')
@@ -99,12 +99,12 @@ module CreateVirtualNetwork 'nestedtemplates/vnet.bicep' = if (deployPrivateNetw
 
 @batchSize(1)
 module AppService_ConnectionToVirtualNetwork 'nestedtemplates/vnet-to-appservices.bicep' = [
-  for i in range(0, 2): if (deployPrivateNetwork) {
-    name: 'AppService-${i}-ConnectionToVirtualNetwork'
+  for (appServiceName, i) in appServiceNames: if (deployPrivateNetwork) {
+    name: 'AppSvc-${take(appServiceName, 42)}-${i}-VnetConn' // App Service names can be up to 60 characters long, but the connection resource name can only be 63 characters long. Therefore, we take only the first 42 characters of the app service name to ensure we do not exceed the limit when appending other strings.
     params: {
       virtualNetworkName: virtualNetworkName
       location: location
-      appServiceName: appServiceNames[i]
+      appServiceName: appServiceName
     }
     dependsOn: [
       CreateVirtualNetwork
