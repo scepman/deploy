@@ -1,4 +1,4 @@
-@description('Provide the AppServicePlan ID of an existing App Service Plan. Keep default value \'none\' if you want to create a new one.')
+@description('Provide the AppServicePlan ID of an existing App Service Plan. Keep default value "none" if you want to create a new one.')
 param existingAppServicePlanID string = 'none'
 
 @description('Name of the App Service Plan to be created')

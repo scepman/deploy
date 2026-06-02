@@ -4,8 +4,8 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.42.1.51946",
-      "templateHash": "4114301618180548983"
+      "version": "0.43.8.12551",
+      "templateHash": "118190418332015468"
     }
   },
   "parameters": {
@@ -61,7 +61,7 @@
       "type": "string",
       "defaultValue": "none",
       "metadata": {
-        "description": "Provide the Resource ID of an existing App Service Plan (the long string displayed in the properties tab). Keep default value 'none' if you want to create a new one."
+        "description": "Provide the Resource ID of an existing App Service Plan (the long string displayed in the properties tab). Keep default value \"none\" if you want to create a new one."
       }
     },
     "deployOnLinux": {
@@ -85,7 +85,7 @@
       "minLength": 4,
       "maxLength": 63,
       "metadata": {
-        "description": "The Log Analytics Workspace for SCEPman's logging. Alphanumerics and hyphens are allowed."
+        "description": "The Log Analytics Workspace for SCEPman’s logging. Alphanumerics and hyphens are allowed."
       }
     },
     "certificateMasterAppServiceName": {
@@ -107,7 +107,7 @@
       "type": "bool",
       "defaultValue": true,
       "metadata": {
-        "description": "Choose 'true' to deploy SCEPman with a Virtual Network. In this case, you must also provide names for the parameters virtualNetworkName, privateEndpointForTableStorage, and privateEndpointForKeyVaultName."
+        "description": "Choose \"true\" to deploy SCEPman with a Virtual Network. In this case, you must also provide names for the parameters virtualNetworkName, privateEndpointForTableStorage, and privateEndpointForKeyVaultName."
       }
     },
     "virtualNetworkName": {
@@ -185,8 +185,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.42.1.51946",
-              "templateHash": "17652621533509635022"
+              "version": "0.43.8.12551",
+              "templateHash": "7180033327865698493"
             }
           },
           "resources": []
@@ -223,8 +223,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.42.1.51946",
-              "templateHash": "13998662900123416704"
+              "version": "0.43.8.12551",
+              "templateHash": "5916472929786551089"
             }
           },
           "parameters": {
@@ -377,8 +377,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.42.1.51946",
-              "templateHash": "12014117568308864640"
+              "version": "0.43.8.12551",
+              "templateHash": "10819671750443806579"
             }
           },
           "parameters": {
@@ -457,8 +457,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.42.1.51946",
-              "templateHash": "2001782051647466213"
+              "version": "0.43.8.12551",
+              "templateHash": "15750770904913950803"
             }
           },
           "parameters": {
@@ -466,7 +466,7 @@
               "type": "string",
               "defaultValue": "none",
               "metadata": {
-                "description": "Provide the AppServicePlan ID of an existing App Service Plan. Keep default value 'none' if you want to create a new one."
+                "description": "Provide the AppServicePlan ID of an existing App Service Plan. Keep default value \"none\" if you want to create a new one."
               }
             },
             "AppServicePlanName": {
@@ -625,8 +625,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.42.1.51946",
-              "templateHash": "11693882475512812359"
+              "version": "0.43.8.12551",
+              "templateHash": "10746318683995637450"
             }
           },
           "parameters": {
@@ -706,8 +706,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.42.1.51946",
-              "templateHash": "15133531850865498457"
+              "version": "0.43.8.12551",
+              "templateHash": "16684463389255768629"
             }
           },
           "parameters": {
@@ -947,8 +947,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.42.1.51946",
-              "templateHash": "11930724196470352158"
+              "version": "0.43.8.12551",
+              "templateHash": "894918832446088149"
             }
           },
           "functions": [
@@ -1163,8 +1163,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.42.1.51946",
-              "templateHash": "4831775418888795303"
+              "version": "0.43.8.12551",
+              "templateHash": "7062863906074944868"
             }
           },
           "functions": [
@@ -1319,8 +1319,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.42.1.51946",
-              "templateHash": "78023155813616126"
+              "version": "0.43.8.12551",
+              "templateHash": "12926206839176750103"
             }
           },
           "parameters": {
