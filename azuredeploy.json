@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.43.8.12551",
-      "templateHash": "10935746738006651107"
+      "templateHash": "17911117720329482015"
     }
   },
   "parameters": {
@@ -61,7 +61,7 @@
       "type": "string",
       "defaultValue": "none",
       "metadata": {
-        "description": "Provide the Resource ID of an existing App Service Plan (the long string displayed in the properties tab). Keep default value \"none\" if you want to create a new one."
+        "description": "Provide the Resource ID of an existing App Service Plan (the long string displayed in the properties tab). Keep default value “none” if you want to create a new one."
       }
     },
     "deployOnLinux": {
@@ -107,7 +107,7 @@
       "type": "bool",
       "defaultValue": true,
       "metadata": {
-        "description": "Choose \"true\" to deploy SCEPman with a Virtual Network. In this case, you must also provide names for the parameters virtualNetworkName, privateEndpointForTableStorage, and privateEndpointForKeyVaultName."
+        "description": "Choose “true” to deploy SCEPman with a Virtual Network. In this case, you must also provide names for the parameters virtualNetworkName, privateEndpointForTableStorage, and privateEndpointForKeyVaultName."
       }
     },
     "virtualNetworkName": {
@@ -458,7 +458,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.43.8.12551",
-              "templateHash": "11233958733525245208"
+              "templateHash": "213987241777966084"
             }
           },
           "parameters": {
@@ -466,7 +466,7 @@
               "type": "string",
               "defaultValue": "none",
               "metadata": {
-                "description": "Provide the AppServicePlan ID of an existing App Service Plan. Keep default value \"none\" if you want to create a new one."
+                "description": "Provide the AppServicePlan ID of an existing App Service Plan. Keep default value “none” if you want to create a new one."
               }
             },
             "AppServicePlanName": {
