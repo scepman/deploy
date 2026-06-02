@@ -4,8 +4,8 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.39.26.7824",
-      "templateHash": "8864301656293879319"
+      "version": "0.43.8.12551",
+      "templateHash": "2457177726088533379"
     }
   },
   "parameters": {
@@ -85,7 +85,7 @@
       "minLength": 4,
       "maxLength": 63,
       "metadata": {
-        "description": "The Log Analytics Workspace with log data. Alphanumerics and hyphens are allowed."
+        "description": "The Log Analytics Workspace for SCEPman's logging. Alphanumerics and hyphens are allowed."
       }
     },
     "certificateMasterAppServiceName": {
@@ -116,6 +116,14 @@
       "maxLength": 80,
       "metadata": {
         "description": "The name of the Virtual Network. This is only applicable if deployPrivateNetwork is chosen."
+      }
+    },
+    "nsgName": {
+      "type": "string",
+      "defaultValue": "nsg-scepman-UNIQUENAME",
+      "maxLength": 80,
+      "metadata": {
+        "description": "Name of the Network Security Group applied to the subnets. This is only applicable if deployPrivateNetwork is chosen."
       }
     },
     "privateEndpointForKeyVaultName": {
@@ -177,8 +185,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.39.26.7824",
-              "templateHash": "16873125938269548923"
+              "version": "0.43.8.12551",
+              "templateHash": "7180033327865698493"
             }
           },
           "resources": []
@@ -204,6 +212,9 @@
           },
           "resourceTags": {
             "value": "[parameters('resourceTags')]"
+          },
+          "networkSecurityGroupName": {
+            "value": "[parameters('nsgName')]"
           }
         },
         "template": {
@@ -212,8 +223,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.39.26.7824",
-              "templateHash": "17114891096311511446"
+              "version": "0.43.8.12551",
+              "templateHash": "5916472929786551089"
             }
           },
           "parameters": {
@@ -233,6 +244,13 @@
               "type": "object",
               "metadata": {
                 "description": "Tags to be assigned to the created resources."
+              }
+            },
+            "networkSecurityGroupName": {
+              "type": "string",
+              "defaultValue": "[format('nsg-{0}', parameters('virtualNetworkName'))]",
+              "metadata": {
+                "description": "Name of the Network Security Group applied to the subnets."
               }
             },
             "virtualNetworkAddressPrefixes": {
@@ -261,8 +279,16 @@
           },
           "resources": [
             {
+              "type": "Microsoft.Network/networkSecurityGroups",
+              "apiVersion": "2025-05-01",
+              "name": "[parameters('networkSecurityGroupName')]",
+              "location": "[parameters('location')]",
+              "tags": "[parameters('resourceTags')]",
+              "properties": {}
+            },
+            {
               "type": "Microsoft.Network/virtualNetworks",
-              "apiVersion": "2023-06-01",
+              "apiVersion": "2025-05-01",
               "name": "[parameters('virtualNetworkName')]",
               "location": "[parameters('location')]",
               "tags": "[parameters('resourceTags')]",
@@ -277,38 +303,42 @@
                 "subnets": [
                   {
                     "name": "default",
-                    "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), 'default')]",
                     "properties": {
                       "addressPrefix": "[parameters('subnetIpPrefixDefault')]",
                       "privateEndpointNetworkPolicies": "Disabled",
                       "privateLinkServiceNetworkPolicies": "Enabled",
-                      "defaultOutboundAccess": true
-                    },
-                    "type": "Microsoft.Network/virtualNetworks/subnets"
+                      "defaultOutboundAccess": false,
+                      "networkSecurityGroup": {
+                        "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroupName'))]"
+                      }
+                    }
                   },
                   {
                     "name": "snet-scepman-appservices",
-                    "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), 'snet-scepman-appservices')]",
                     "properties": {
                       "addressPrefix": "[parameters('subnetIpPrefixScepman')]",
                       "delegations": [
                         {
                           "name": "delegation",
-                          "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets/delegations', parameters('virtualNetworkName'), 'snet-scepman-appservices', 'delegation')]",
                           "properties": {
                             "serviceName": "Microsoft.Web/serverfarms"
-                          },
-                          "type": "Microsoft.Network/virtualNetworks/subnets/delegations"
+                          }
                         }
                       ],
                       "privateEndpointNetworkPolicies": "Disabled",
-                      "privateLinkServiceNetworkPolicies": "Enabled"
-                    },
-                    "type": "Microsoft.Network/virtualNetworks/subnets"
+                      "privateLinkServiceNetworkPolicies": "Enabled",
+                      "defaultOutboundAccess": false,
+                      "networkSecurityGroup": {
+                        "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroupName'))]"
+                      }
+                    }
                   }
                 ],
                 "enableDdosProtection": false
-              }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroupName'))]"
+              ]
             }
           ]
         }
@@ -317,14 +347,14 @@
     {
       "copy": {
         "name": "AppService_ConnectionToVirtualNetwork",
-        "count": "[length(range(0, 2))]",
+        "count": "[length(variables('appServiceNames'))]",
         "mode": "serial",
         "batchSize": 1
       },
       "condition": "[parameters('deployPrivateNetwork')]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2025-04-01",
-      "name": "[format('AppService-{0}-ConnectionToVirtualNetwork', range(0, 2)[copyIndex()])]",
+      "name": "[format('AppSvc-{0}-{1}-VnetConn', take(variables('appServiceNames')[copyIndex()], 42), copyIndex())]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -338,7 +368,7 @@
             "value": "[parameters('location')]"
           },
           "appServiceName": {
-            "value": "[variables('appServiceNames')[range(0, 2)[copyIndex()]]]"
+            "value": "[variables('appServiceNames')[copyIndex()]]"
           }
         },
         "template": {
@@ -347,8 +377,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.39.26.7824",
-              "templateHash": "10546456521129268348"
+              "version": "0.43.8.12551",
+              "templateHash": "10819671750443806579"
             }
           },
           "parameters": {
@@ -374,13 +404,10 @@
           "resources": [
             {
               "type": "Microsoft.Web/sites",
-              "apiVersion": "2023-01-01",
+              "apiVersion": "2024-11-01",
               "name": "[parameters('appServiceName')]",
               "location": "[parameters('location')]",
               "properties": {
-                "vnetRouteAllEnabled": false,
-                "vnetImagePullEnabled": false,
-                "vnetContentShareEnabled": false,
                 "virtualNetworkSubnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), 'snet-scepman-appservices')]"
               }
             }
@@ -430,8 +457,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.39.26.7824",
-              "templateHash": "7753112418218179036"
+              "version": "0.43.8.12551",
+              "templateHash": "12972111386235071157"
             }
           },
           "parameters": {
@@ -483,7 +510,7 @@
             {
               "condition": "[equals(parameters('existingAppServicePlanID'), 'none')]",
               "type": "Microsoft.Web/serverfarms",
-              "apiVersion": "2024-04-01",
+              "apiVersion": "2025-03-01",
               "name": "[parameters('AppServicePlanName')]",
               "location": "[parameters('location')]",
               "sku": {
@@ -499,7 +526,7 @@
             },
             {
               "type": "Microsoft.Web/sites",
-              "apiVersion": "2024-04-01",
+              "apiVersion": "2025-03-01",
               "name": "[parameters('appServiceName')]",
               "location": "[parameters('location')]",
               "identity": {
@@ -526,7 +553,7 @@
             },
             {
               "type": "Microsoft.Web/sites",
-              "apiVersion": "2024-04-01",
+              "apiVersion": "2025-03-01",
               "name": "[parameters('appServiceName2')]",
               "location": "[parameters('location')]",
               "identity": {
@@ -554,15 +581,15 @@
           "outputs": {
             "scepmanURL": {
               "type": "string",
-              "value": "[uri(format('https://{0}', reference(resourceId('Microsoft.Web/sites', parameters('appServiceName')), '2024-04-01').defaultHostName), '/')]"
+              "value": "[uri(format('https://{0}', reference(resourceId('Microsoft.Web/sites', parameters('appServiceName')), '2025-03-01').defaultHostName), '/')]"
             },
             "scepmanPrincipalID": {
               "type": "string",
-              "value": "[reference(parameters('appServiceName'), '2022-03-01', 'Full').identity.principalId]"
+              "value": "[reference(resourceId('Microsoft.Web/sites', parameters('appServiceName')), '2025-03-01', 'full').identity.principalId]"
             },
             "certmasterPrincipalID": {
               "type": "string",
-              "value": "[reference(parameters('appServiceName2'), '2022-03-01', 'Full').identity.principalId]"
+              "value": "[reference(resourceId('Microsoft.Web/sites', parameters('appServiceName2')), '2025-03-01', 'full').identity.principalId]"
             },
             "appServicePlanID": {
               "type": "string",
@@ -598,8 +625,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.39.26.7824",
-              "templateHash": "3971763333033399141"
+              "version": "0.43.8.12551",
+              "templateHash": "10746318683995637450"
             }
           },
           "parameters": {
@@ -625,7 +652,7 @@
           "resources": [
             {
               "type": "Microsoft.OperationalInsights/workspaces",
-              "apiVersion": "2022-10-01",
+              "apiVersion": "2025-07-01",
               "name": "[parameters('logAnalyticsAccountName')]",
               "location": "[parameters('location')]",
               "tags": "[parameters('resourceTags')]",
@@ -640,7 +667,7 @@
           "outputs": {
             "workspaceId": {
               "type": "string",
-              "value": "[reference(resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsAccountName')), '2022-10-01').customerId]"
+              "value": "[reference(resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsAccountName')), '2025-07-01').customerId]"
             }
           }
         }
@@ -679,8 +706,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.39.26.7824",
-              "templateHash": "7296235052918823860"
+              "version": "0.43.8.12551",
+              "templateHash": "16684463389255768629"
             }
           },
           "parameters": {
@@ -733,7 +760,7 @@
           "resources": [
             {
               "type": "Microsoft.KeyVault/vaults",
-              "apiVersion": "2023-07-01",
+              "apiVersion": "2025-05-01",
               "name": "[parameters('keyVaultName')]",
               "location": "[parameters('location')]",
               "tags": "[parameters('resourceTags')]",
@@ -763,7 +790,7 @@
               },
               "type": "Microsoft.Authorization/roleAssignments",
               "apiVersion": "2022-04-01",
-              "scope": "[format('Microsoft.KeyVault/vaults/{0}', parameters('keyVaultName'))]",
+              "scope": "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]",
               "name": "[guid(format('roleAssignment-kv-{0}-{1}', variables('rbac_roles')[copyIndex()], parameters('permittedPrincipalId')))]",
               "properties": {
                 "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', variables('rbac_roles')[copyIndex()])]",
@@ -776,7 +803,7 @@
             {
               "condition": "[not(equals(parameters('privateEndpointName'), 'None'))]",
               "type": "Microsoft.Network/privateDnsZones",
-              "apiVersion": "2020-06-01",
+              "apiVersion": "2024-06-01",
               "name": "privatelink.vaultcore.azure.net",
               "location": "Global",
               "tags": "[parameters('resourceTags')]",
@@ -785,7 +812,7 @@
             {
               "condition": "[not(equals(parameters('privateEndpointName'), 'None'))]",
               "type": "Microsoft.Network/privateEndpoints",
-              "apiVersion": "2023-11-01",
+              "apiVersion": "2025-05-01",
               "name": "[parameters('privateEndpointName')]",
               "location": "[parameters('location')]",
               "tags": "[parameters('resourceTags')]",
@@ -817,7 +844,7 @@
             {
               "condition": "[not(equals(parameters('privateEndpointName'), 'None'))]",
               "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
-              "apiVersion": "2023-06-01",
+              "apiVersion": "2025-05-01",
               "name": "[format('{0}/{1}', parameters('privateEndpointName'), 'default')]",
               "properties": {
                 "privateDnsZoneConfigs": [
@@ -837,7 +864,7 @@
             {
               "condition": "[not(equals(parameters('privateEndpointName'), 'None'))]",
               "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
-              "apiVersion": "2020-06-01",
+              "apiVersion": "2024-06-01",
               "name": "[format('{0}/{1}', 'privatelink.vaultcore.azure.net', format('{0}-link', parameters('keyVaultName')))]",
               "location": "global",
               "properties": {
@@ -854,7 +881,7 @@
           "outputs": {
             "keyVaultURL": {
               "type": "string",
-              "value": "[reference(resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName')), '2023-07-01').vaultUri]"
+              "value": "[reference(resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName')), '2025-05-01').vaultUri]"
             }
           }
         }
@@ -920,8 +947,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.39.26.7824",
-              "templateHash": "10677728227586191960"
+              "version": "0.43.8.12551",
+              "templateHash": "894918832446088149"
             }
           },
           "functions": [
@@ -942,6 +969,11 @@
                   "output": {
                     "type": "string",
                     "value": "[if(parameters('deployOnLinux'), replace(parameters('variableName'), ':', '__'), parameters('variableName'))]"
+                  },
+                  "metadata": {
+                    "__bicep_imported_from!": {
+                      "sourceTemplate": "utils.bicep"
+                    }
                   }
                 }
               }
@@ -1035,9 +1067,15 @@
             }
           },
           "resources": {
+            "logAnalyticsWorkspace": {
+              "existing": true,
+              "type": "Microsoft.OperationalInsights/workspaces",
+              "apiVersion": "2025-07-01",
+              "name": "[parameters('logAnalyticsWorkspaceName')]"
+            },
             "appServiceName_appsettings": {
               "type": "Microsoft.Web/sites/config",
-              "apiVersion": "2024-04-01",
+              "apiVersion": "2025-03-01",
               "name": "[format('{0}/appsettings', parameters('appServiceName'))]",
               "properties": {
                 "WEBSITE_RUN_FROM_PACKAGE": "[parameters('WebsiteArtifactsUri')]",
@@ -1053,21 +1091,21 @@
                 "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:CRL:Source', parameters('deployOnLinux')))]": "Storage",
                 "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:EnableCertificateStorage', parameters('deployOnLinux')))]": "true",
                 "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:LoggingConfig:WorkspaceId', parameters('deployOnLinux')))]": "[parameters('logAnalyticsWorkspaceId')]",
-                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:LoggingConfig:SharedKey', parameters('deployOnLinux')))]": "[listKeys(resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName')), '2022-10-01').primarySharedKey]",
+                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:LoggingConfig:SharedKey', parameters('deployOnLinux')))]": "[listKeys('logAnalyticsWorkspace', '2025-07-01').primarySharedKey]",
                 "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:KeyVaultConfig:KeyVaultURL', parameters('deployOnLinux')))]": "[parameters('keyVaultURL')]",
                 "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:CertificateStorage:TableStorageEndpoint', parameters('deployOnLinux')))]": "[parameters('StorageAccountTableUrl')]",
                 "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:KeyVaultConfig:RootCertificateConfig:CertificateName', parameters('deployOnLinux')))]": "SCEPman-Root-CA-V1",
                 "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:KeyVaultConfig:RootCertificateConfig:KeyType', parameters('deployOnLinux')))]": "[parameters('caKeyType')]",
                 "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:KeyVaultConfig:RootCertificateConfig:KeySize', parameters('deployOnLinux')))]": "[parameters('caKeySize')]",
+                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:KeyVaultConfig:RootCertificateConfig:Subject', parameters('deployOnLinux')))]": "[format('CN=SCEPman-Root-CA-V1, OU={0}, O=\"{1}\"', subscription().tenantId, parameters('OrgName'))]",
                 "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:OCSP:UseAuthorizedResponder', parameters('deployOnLinux')))]": "true",
-                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:ValidityClockSkewMinutes', parameters('deployOnLinux')))]": "1440",
-                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:KeyVaultConfig:RootCertificateConfig:Subject', parameters('deployOnLinux')))]": "[format('CN=SCEPman-Root-CA-V1, OU={0}, O=\"{1}\"', subscription().tenantId, parameters('OrgName'))]"
+                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:ValidityClockSkewMinutes', parameters('deployOnLinux')))]": "1440"
               }
             },
             "appServiceName_websettings": {
               "condition": "[parameters('enableHealthCheck')]",
               "type": "Microsoft.Web/sites/config",
-              "apiVersion": "2024-04-01",
+              "apiVersion": "2025-03-01",
               "name": "[format('{0}/web', parameters('appServiceName'))]",
               "properties": {
                 "healthCheckPath": "/probe"
@@ -1125,8 +1163,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.39.26.7824",
-              "templateHash": "1481677744462222338"
+              "version": "0.43.8.12551",
+              "templateHash": "7062863906074944868"
             }
           },
           "functions": [
@@ -1147,6 +1185,11 @@
                   "output": {
                     "type": "string",
                     "value": "[if(parameters('deployOnLinux'), replace(parameters('variableName'), ':', '__'), parameters('variableName'))]"
+                  },
+                  "metadata": {
+                    "__bicep_imported_from!": {
+                      "sourceTemplate": "utils.bicep"
+                    }
                   }
                 }
               }
@@ -1203,9 +1246,15 @@
             }
           },
           "resources": {
+            "logAnalyticsWorkspace": {
+              "existing": true,
+              "type": "Microsoft.OperationalInsights/workspaces",
+              "apiVersion": "2025-07-01",
+              "name": "[parameters('logAnalyticsWorkspaceName')]"
+            },
             "appServiceName_appsettings": {
               "type": "Microsoft.Web/sites/config",
-              "apiVersion": "2024-04-01",
+              "apiVersion": "2025-03-01",
               "name": "[format('{0}/appsettings', parameters('appServiceName'))]",
               "properties": {
                 "WEBSITE_RUN_FROM_PACKAGE": "[parameters('WebsiteArtifactsUri')]",
@@ -1213,13 +1262,13 @@
                 "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:SCEPman:URL', parameters('deployOnLinux')))]": "[parameters('scepmanUrl')]",
                 "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:AuthConfig:TenantId', parameters('deployOnLinux')))]": "[subscription().tenantId]",
                 "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:LoggingConfig:WorkspaceId', parameters('deployOnLinux')))]": "[parameters('logAnalyticsWorkspaceId')]",
-                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:LoggingConfig:SharedKey', parameters('deployOnLinux')))]": "[listKeys(resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName')), '2022-10-01').primarySharedKey]"
+                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:LoggingConfig:SharedKey', parameters('deployOnLinux')))]": "[listKeys('logAnalyticsWorkspace', '2025-07-01').primarySharedKey]"
               }
             },
             "appServiceName_websettings": {
               "condition": "[parameters('enableHealthCheck')]",
               "type": "Microsoft.Web/sites/config",
-              "apiVersion": "2024-04-01",
+              "apiVersion": "2025-03-01",
               "name": "[format('{0}/web', parameters('appServiceName'))]",
               "properties": {
                 "healthCheckPath": "/probe"
@@ -1270,8 +1319,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.39.26.7824",
-              "templateHash": "4722436582661142344"
+              "version": "0.43.8.12551",
+              "templateHash": "12926206839176750103"
             }
           },
           "parameters": {
@@ -1339,7 +1388,9 @@
               "uksouth",
               "westeurope",
               "westus2",
-              "westus3"
+              "westus3",
+              "usgovvirginia",
+              "chinanorth3"
             ],
             "zrsRegions": [
               "australiaeast",
@@ -1378,7 +1429,9 @@
               "uksouth",
               "westeurope",
               "westus2",
-              "westus3"
+              "westus3",
+              "usgovvirginia",
+              "chinanorth3"
             ],
             "geoRedundantRegions": [
               "australiacentral",
@@ -1423,14 +1476,25 @@
               "westindia",
               "westus",
               "westus2",
-              "westus3"
+              "westus3",
+              "usgovvirginia",
+              "usgovarizona",
+              "usgovtexas",
+              "usdodcentral",
+              "usdodeast",
+              "chinaeast",
+              "chinaeast2",
+              "chinaeast3",
+              "chinanorth",
+              "chinanorth2",
+              "chinanorth3"
             ],
             "storageAccountSku": "[if(contains(variables('gzrsRegions'), parameters('location')), 'Standard_GZRS', if(contains(variables('geoRedundantRegions'), parameters('location')), 'Standard_GRS', if(contains(variables('zrsRegions'), parameters('location')), 'Standard_ZRS', 'Standard_LRS')))]"
           },
           "resources": [
             {
               "type": "Microsoft.Storage/storageAccounts",
-              "apiVersion": "2023-05-01",
+              "apiVersion": "2025-06-01",
               "name": "[parameters('StorageAccountName')]",
               "location": "[parameters('location')]",
               "tags": "[parameters('resourceTags')]",
@@ -1461,7 +1525,7 @@
               },
               "type": "Microsoft.Authorization/roleAssignments",
               "apiVersion": "2022-04-01",
-              "scope": "[format('Microsoft.Storage/storageAccounts/{0}', parameters('StorageAccountName'))]",
+              "scope": "[resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName'))]",
               "name": "[guid(format('roleAssignment-sa-{0}-tableContributor', parameters('tableContributorPrincipals')[copyIndex()]))]",
               "properties": {
                 "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', '0a9a7e1f-b9d0-4cc4-a60d-0319b160aaa3')]",
@@ -1474,7 +1538,7 @@
             {
               "condition": "[not(equals(parameters('privateEndpointName'), 'None'))]",
               "type": "Microsoft.Network/privateDnsZones",
-              "apiVersion": "2020-06-01",
+              "apiVersion": "2024-06-01",
               "name": "[variables('privateDnsZoneName')]",
               "location": "Global",
               "tags": "[parameters('resourceTags')]",
@@ -1483,7 +1547,7 @@
             {
               "condition": "[not(equals(parameters('privateEndpointName'), 'None'))]",
               "type": "Microsoft.Network/privateEndpoints",
-              "apiVersion": "2023-11-01",
+              "apiVersion": "2025-05-01",
               "name": "[parameters('privateEndpointName')]",
               "location": "[parameters('location')]",
               "tags": "[parameters('resourceTags')]",
@@ -1515,7 +1579,7 @@
             {
               "condition": "[not(equals(parameters('privateEndpointName'), 'None'))]",
               "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
-              "apiVersion": "2023-06-01",
+              "apiVersion": "2025-05-01",
               "name": "[format('{0}/{1}', parameters('privateEndpointName'), 'default')]",
               "properties": {
                 "privateDnsZoneConfigs": [
@@ -1535,7 +1599,7 @@
             {
               "condition": "[not(equals(parameters('privateEndpointName'), 'None'))]",
               "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
-              "apiVersion": "2020-06-01",
+              "apiVersion": "2024-06-01",
               "name": "[format('{0}/{1}', variables('privateDnsZoneName'), format('{0}-link', parameters('StorageAccountName')))]",
               "location": "global",
               "properties": {
@@ -1552,7 +1616,7 @@
           "outputs": {
             "storageAccountTableUrl": {
               "type": "string",
-              "value": "[reference(resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName')), '2023-05-01').primaryEndpoints.table]"
+              "value": "[reference(resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName')), '2025-06-01').primaryEndpoints.table]"
             }
           }
         }
