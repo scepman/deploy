@@ -35,7 +35,7 @@ param deployOnLinux bool = true
 @maxLength(60)
 param primaryAppServiceName string = 'app-scepman-UNIQUENAME'
 
-@description('The Log Analytics Workspace with log data. Alphanumerics and hyphens are allowed.')
+@description('The Log Analytics Workspace for SCEPman\'s logging. Alphanumerics and hyphens are allowed.')
 @minLength(4)
 @maxLength(63)
 param logAnalyticsWorkspaceName string = 'log-scepman-UNIQUENAME'
@@ -53,6 +53,10 @@ param deployPrivateNetwork bool = true
 @description('The name of the Virtual Network. This is only applicable if deployPrivateNetwork is chosen.')
 @maxLength(80)
 param virtualNetworkName string = 'vnet-scepman-UNIQUENAME'
+
+@description('Name of the Network Security Group applied to the subnets. This is only applicable if deployPrivateNetwork is chosen.')
+@maxLength(80)
+param nsgName string = 'nsg-scepman-UNIQUENAME'
 
 @description('Name of the Private Endpoint for the Key Vault. This is only applicable if deployPrivateNetwork is chosen.')
 @minLength(4)
@@ -89,17 +93,18 @@ module CreateVirtualNetwork 'nestedtemplates/vnet.bicep' = if (deployPrivateNetw
     virtualNetworkName: virtualNetworkName
     location: location
     resourceTags: resourceTags
+    networkSecurityGroupName: nsgName
   }
 }
 
 @batchSize(1)
 module AppService_ConnectionToVirtualNetwork 'nestedtemplates/vnet-to-appservices.bicep' = [
-  for i in range(0, 2): if (deployPrivateNetwork) {
-    name: 'AppService-${i}-ConnectionToVirtualNetwork'
+  for (appServiceName, i) in appServiceNames: if (deployPrivateNetwork) {
+    name: 'AppSvc-${take(appServiceName, 42)}-${i}-VnetConn' // App Service names can be up to 60 characters long, but the connection resource name can only be 63 characters long. Therefore, we take only the first 42 characters of the app service name to ensure we do not exceed the limit when appending other strings.
     params: {
       virtualNetworkName: virtualNetworkName
       location: location
-      appServiceName: appServiceNames[i]
+      appServiceName: appServiceName
     }
     dependsOn: [
       CreateVirtualNetwork
