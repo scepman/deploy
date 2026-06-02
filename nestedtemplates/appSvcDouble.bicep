@@ -52,7 +52,7 @@ resource appService 'Microsoft.Web/sites@2025-03-01' = {
       http20Enabled: false
       ftpsState: 'Disabled'
       use32BitWorkerProcess: false
-      linuxFxVersion: deployOnLinux ? 'DOTNETCORE|8.0' : null
+      linuxFxVersion: deployOnLinux ? 'DOTNETCORE|10.0' : null
     }
   }
 }
@@ -74,7 +74,7 @@ resource appService2 'Microsoft.Web/sites@2025-03-01' = {
       ftpsState: 'Disabled'
       use32BitWorkerProcess: false
       minTlsVersion: '1.3'
-      linuxFxVersion: deployOnLinux ? 'DOTNETCORE|8.0' : null
+      linuxFxVersion: deployOnLinux ? 'DOTNETCORE|10.0' : null
     }
   }
 }
