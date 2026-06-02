@@ -25,7 +25,7 @@ param storageAccountName string = 'stscepmanuniquename'
 @maxLength(40)
 param appServicePlanName string = 'asp-scepman-UNIQUENAME'
 
-@description('Provide the Resource ID of an existing App Service Plan (the long string displayed in the properties tab). Keep default value "none" if you want to create a new one.')
+@description('Provide the Resource ID of an existing App Service Plan (the long string displayed in the properties tab). Keep default value “none” if you want to create a new one.')
 param existingAppServicePlanID string = 'none'
 
 @description('Use Linux App Service Plan')
@@ -47,7 +47,7 @@ param certificateMasterAppServiceName string = 'app-scepman-UNIQUENAME-cm'
 @description('Enable the App Service health check.')
 param enableHealthCheck bool = true
 
-@description('Choose "true" to deploy SCEPman with a Virtual Network. In this case, you must also provide names for the parameters virtualNetworkName, privateEndpointForTableStorage, and privateEndpointForKeyVaultName.')
+@description('Choose “true” to deploy SCEPman with a Virtual Network. In this case, you must also provide names for the parameters virtualNetworkName, privateEndpointForTableStorage, and privateEndpointForKeyVaultName.')
 param deployPrivateNetwork bool = true
 
 @description('The name of the Virtual Network. This is only applicable if deployPrivateNetwork is chosen.')
