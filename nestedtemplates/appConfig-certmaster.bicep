@@ -22,10 +22,13 @@ param deployOnLinux bool
 @description('Enable health check')
 param enableHealthCheck bool
 
-// Function to convert colon-style variable names to underscore-separated variable names if deployOnLinux is true
-func convertVariableNameToLinux(variableName string, deployOnLinux bool) string => deployOnLinux ? replace(variableName, ':', '__') : variableName
+import { convertVariableNameToLinux } from './utils.bicep'
 
-resource appServiceName_appsettings 'Microsoft.Web/sites/config@2024-04-01' = {
+resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2025-07-01' existing = {
+  name: logAnalyticsWorkspaceName
+}
+
+resource appServiceName_appsettings 'Microsoft.Web/sites/config@2025-03-01' = {
   name: '${appServiceName}/appsettings'
   properties: {
     WEBSITE_RUN_FROM_PACKAGE: WebsiteArtifactsUri
@@ -33,14 +36,11 @@ resource appServiceName_appsettings 'Microsoft.Web/sites/config@2024-04-01' = {
     '${convertVariableNameToLinux('AppConfig:SCEPman:URL', deployOnLinux)}': scepmanUrl
     '${convertVariableNameToLinux('AppConfig:AuthConfig:TenantId', deployOnLinux)}': subscription().tenantId
     '${convertVariableNameToLinux('AppConfig:LoggingConfig:WorkspaceId', deployOnLinux)}': logAnalyticsWorkspaceId
-    '${convertVariableNameToLinux('AppConfig:LoggingConfig:SharedKey', deployOnLinux)}': listKeys(
-      resourceId('Microsoft.OperationalInsights/workspaces', logAnalyticsWorkspaceName),
-      '2022-10-01'
-    ).primarySharedKey
+    '${convertVariableNameToLinux('AppConfig:LoggingConfig:SharedKey', deployOnLinux)}': logAnalyticsWorkspace.listKeys().primarySharedKey
   }
 }
 
-resource appServiceName_websettings 'Microsoft.Web/sites/config@2024-04-01' = if (enableHealthCheck) {
+resource appServiceName_websettings 'Microsoft.Web/sites/config@2025-03-01' = if (enableHealthCheck) {
   name: '${appServiceName}/web'
   properties: {
     healthCheckPath: '/probe'

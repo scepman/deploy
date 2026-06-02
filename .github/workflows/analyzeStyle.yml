@@ -2,32 +2,61 @@ name: Analyze Links and Style
 
 on: push
 
+permissions:
+  contents: read
+
 jobs:
+  filter:
+    runs-on: ubuntu-latest
+    outputs:
+      bicep: ${{ steps.changes.outputs.bicep }}
+      json: ${{ steps.changes.outputs.json }}
+    steps:
+    - uses: actions/checkout@v6
+      with:
+        fetch-depth: 10
+    - name: Check for changed files
+      id: changes
+      run: |
+        BASE_SHA="${{ github.event.before }}"
+        if [ -z "$BASE_SHA" ] || [ "$BASE_SHA" = "0000000000000000000000000000000000000000" ]; then
+          if git rev-parse --verify HEAD^ >/dev/null 2>&1; then
+            BASE_SHA=$(git rev-parse HEAD^)
+          else
+            BASE_SHA=$(git rev-list --max-parents=0 HEAD)
+          fi
+        fi
+
+        if git cat-file -e "$BASE_SHA^{commit}" 2>/dev/null; then
+          DIFF_FILES=$(git diff --name-only "$BASE_SHA..HEAD")
+        else
+          echo "Base SHA '$BASE_SHA' not found; falling back to current commit file list."
+          DIFF_FILES=$(git show --name-only --pretty=format: HEAD)
+        fi
+
+        BICEP_CHANGED=$(printf '%s\n' "$DIFF_FILES" | grep -E '\.bicep$' | wc -l)
+        JSON_CHANGED=$(printf '%s\n' "$DIFF_FILES" | grep -E '\.json$' | wc -l)
+        echo "bicep=$([ $BICEP_CHANGED -gt 0 ] && echo 'true' || echo 'false')" >> $GITHUB_OUTPUT
+        echo "json=$([ $JSON_CHANGED -gt 0 ] && echo 'true' || echo 'false')" >> $GITHUB_OUTPUT
+
   markdown-link-check:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@master
-    - uses: gaurav-nelson/github-action-markdown-link-check@v1
+    - uses: actions/checkout@v6
+    - uses: tcort/github-action-markdown-link-check@e7c7a18363c842693fadde5d41a3bd3573a7a225 # v1
+      with:
+        use-quiet-mode: 'yes'
 
-  check-arm-templates:
+  lint-bicep:
+    needs: filter
+    if: needs.filter.outputs.bicep == 'true'
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout the repo
-      uses: actions/checkout@v6
-      with:
-        path: install
+    - uses: actions/checkout@v6
+    - name: Lint Bicep files
+      run: az bicep lint --file azuredeploy.bicep
 
-    - name: Download ARM TTK
-      uses: actions/checkout@v6
-      with:
-        repository: Azure/arm-ttk
-        path: arm-ttk
-
-    - name: Test ARM Template
-      shell: pwsh
-      run: |
-        Import-Module ./arm-ttk/arm-ttk/arm-ttk.psd1
-        Test-AzTemplate -TemplatePath ./install -ErrorAction Continue
-        if ($Error.Count -gt 0) {
-          exit 1
-        }
+  check-arm-templates:
+    needs: filter
+    if: needs.filter.outputs.json == 'true'
+    uses: ./.github/workflows/check-arm-template.yml

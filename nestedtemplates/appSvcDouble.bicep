@@ -19,7 +19,7 @@ param location string
 @description('Tags to be assigned to the created resources')
 param resourceTags object
 
-resource AppServicePlan 'Microsoft.Web/serverfarms@2024-04-01' = if (existingAppServicePlanID == 'none') {
+resource AppServicePlan 'Microsoft.Web/serverfarms@2025-03-01' = if (existingAppServicePlanID == 'none') {
   name: AppServicePlanName
   location: location
   sku: {
@@ -34,7 +34,7 @@ resource AppServicePlan 'Microsoft.Web/serverfarms@2024-04-01' = if (existingApp
   }
 }
 
-resource appService 'Microsoft.Web/sites@2024-04-01' = {
+resource appService 'Microsoft.Web/sites@2025-03-01' = {
   name: appServiceName
   location: location
   identity: {
@@ -57,7 +57,7 @@ resource appService 'Microsoft.Web/sites@2024-04-01' = {
   }
 }
 
-resource appService2 'Microsoft.Web/sites@2024-04-01' = {
+resource appService2 'Microsoft.Web/sites@2025-03-01' = {
   name: appServiceName2
   location: location
   identity: {
@@ -80,6 +80,6 @@ resource appService2 'Microsoft.Web/sites@2024-04-01' = {
 }
 
 output scepmanURL string = uri('https://${appService.properties.defaultHostName}', '/')
-output scepmanPrincipalID string = reference(appServiceName, '2022-03-01', 'Full').identity.principalId
-output certmasterPrincipalID string = reference(appServiceName2, '2022-03-01', 'Full').identity.principalId
+output scepmanPrincipalID string = appService.identity.principalId
+output certmasterPrincipalID string = appService2.identity.principalId
 output appServicePlanID string = ((existingAppServicePlanID == 'none') ? AppServicePlan.id : existingAppServicePlanID)
