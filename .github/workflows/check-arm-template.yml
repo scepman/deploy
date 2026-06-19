@@ -8,13 +8,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout the repo
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
       with:
         ref: ${{ github.ref }}
         path: install
 
     - name: Download ARM TTK
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
       with:
         repository: Azure/arm-ttk
         path: arm-ttk
