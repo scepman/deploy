@@ -12,7 +12,7 @@ jobs:
       bicep: ${{ steps.changes.outputs.bicep }}
       json: ${{ steps.changes.outputs.json }}
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
       with:
         fetch-depth: 10
     - name: Check for changed files
@@ -42,7 +42,7 @@ jobs:
   markdown-link-check:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
     - uses: tcort/github-action-markdown-link-check@e7c7a18363c842693fadde5d41a3bd3573a7a225 # v1
       with:
         use-quiet-mode: 'yes'
@@ -52,7 +52,7 @@ jobs:
     if: needs.filter.outputs.bicep == 'true'
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
     - name: Lint Bicep files
       run: az bicep lint --file azuredeploy.bicep
 
