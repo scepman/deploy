@@ -15,7 +15,7 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
 
     - name: Generate ARM template
       run: az bicep build --file azuredeploy.bicep
@@ -27,3 +27,7 @@ jobs:
         git add azuredeploy.json
         git commit -m 'Generate ARM template from Bicep'
         git push
+
+  check-arm-template:
+    needs: build-and-push
+    uses: ./.github/workflows/check-arm-template.yml
