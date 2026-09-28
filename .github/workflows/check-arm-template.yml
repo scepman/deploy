@@ -12,12 +12,14 @@ jobs:
       with:
         ref: ${{ github.ref }}
         path: install
+        persist-credentials: false
 
     - name: Download ARM TTK
       uses: actions/checkout@v7
       with:
         repository: Azure/arm-ttk
         path: arm-ttk
+        persist-credentials: false
 
     - name: Test ARM Template
       shell: pwsh
