@@ -7,11 +7,14 @@ on:
     paths:
       - '**/*.bicep'
 
+permissions:
+  contents: read
+
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-    permissions:                # Job-level permissions configuration starts here
-      contents: write           # 'write' access to repository contents
+    permissions:
+      contents: write # pushes the generated ARM template back to master
 
     steps:
     - name: Checkout repository
@@ -32,4 +35,6 @@ jobs:
 
   check-arm-template:
     needs: build-and-push
+    permissions:
+      contents: read
     uses: $/.github/workflows/check-arm-template.yml

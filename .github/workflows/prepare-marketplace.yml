@@ -6,6 +6,9 @@ name: Create Artifacts for Marketplace
 on:
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   prepare-marketplace:
     runs-on: ubuntu-latest
