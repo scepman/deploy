@@ -4,8 +4,8 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.43.8.12551",
-      "templateHash": "17911117720329482015"
+      "version": "0.48.1.52935",
+      "templateHash": "16690560428202216907"
     }
   },
   "parameters": {
@@ -185,8 +185,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.43.8.12551",
-              "templateHash": "7180033327865698493"
+              "version": "0.48.1.52935",
+              "templateHash": "15369115908105907048"
             }
           },
           "resources": []
@@ -223,8 +223,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.43.8.12551",
-              "templateHash": "5916472929786551089"
+              "version": "0.48.1.52935",
+              "templateHash": "3733146743388441171"
             }
           },
           "parameters": {
@@ -377,8 +377,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.43.8.12551",
-              "templateHash": "10819671750443806579"
+              "version": "0.48.1.52935",
+              "templateHash": "1719199695767812966"
             }
           },
           "parameters": {
@@ -457,8 +457,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.43.8.12551",
-              "templateHash": "213987241777966084"
+              "version": "0.48.1.52935",
+              "templateHash": "2007431999067000774"
             }
           },
           "parameters": {
@@ -544,6 +544,7 @@
                   "http20Enabled": false,
                   "ftpsState": "Disabled",
                   "use32BitWorkerProcess": false,
+                  "phpVersion": "[if(parameters('deployOnLinux'), null(), 'OFF')]",
                   "linuxFxVersion": "[if(parameters('deployOnLinux'), 'DOTNETCORE|10.0', null())]"
                 }
               },
@@ -570,6 +571,7 @@
                   "ftpsState": "Disabled",
                   "use32BitWorkerProcess": false,
                   "minTlsVersion": "1.3",
+                  "phpVersion": "[if(parameters('deployOnLinux'), null(), 'OFF')]",
                   "linuxFxVersion": "[if(parameters('deployOnLinux'), 'DOTNETCORE|10.0', null())]"
                 }
               },
@@ -625,8 +627,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.43.8.12551",
-              "templateHash": "10746318683995637450"
+              "version": "0.48.1.52935",
+              "templateHash": "6299591164278778863"
             }
           },
           "parameters": {
@@ -706,8 +708,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.43.8.12551",
-              "templateHash": "16684463389255768629"
+              "version": "0.48.1.52935",
+              "templateHash": "4373199118164214244"
             }
           },
           "parameters": {
@@ -947,8 +949,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.43.8.12551",
-              "templateHash": "894918832446088149"
+              "version": "0.48.1.52935",
+              "templateHash": "16305978032582640296"
             }
           },
           "functions": [
@@ -1098,6 +1100,7 @@
                 "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:KeyVaultConfig:RootCertificateConfig:KeyType', parameters('deployOnLinux')))]": "[parameters('caKeyType')]",
                 "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:KeyVaultConfig:RootCertificateConfig:KeySize', parameters('deployOnLinux')))]": "[parameters('caKeySize')]",
                 "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:KeyVaultConfig:RootCertificateConfig:Subject', parameters('deployOnLinux')))]": "[format('CN=SCEPman-Root-CA-V1, OU={0}, O=\"{1}\"', subscription().tenantId, parameters('OrgName'))]",
+                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:KeyVaultConfig:RootCertificateConfig:CaRsaSignatureAlgorithm', parameters('deployOnLinux')))]": "RS384",
                 "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:OCSP:UseAuthorizedResponder', parameters('deployOnLinux')))]": "true",
                 "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:ValidityClockSkewMinutes', parameters('deployOnLinux')))]": "1440"
               }
@@ -1163,8 +1166,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.43.8.12551",
-              "templateHash": "7062863906074944868"
+              "version": "0.48.1.52935",
+              "templateHash": "7503975684646397852"
             }
           },
           "functions": [
@@ -1319,8 +1322,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.43.8.12551",
-              "templateHash": "12926206839176750103"
+              "version": "0.48.1.52935",
+              "templateHash": "16677155702232074191"
             }
           },
           "parameters": {
