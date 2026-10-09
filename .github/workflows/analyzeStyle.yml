@@ -12,9 +12,10 @@ jobs:
       bicep: ${{ steps.changes.outputs.bicep }}
       json: ${{ steps.changes.outputs.json }}
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       with:
         fetch-depth: 10
+        persist-credentials: false
     - name: Check for changed files
       id: changes
       run: |
@@ -42,8 +43,10 @@ jobs:
   markdown-link-check:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v6
-    - uses: tcort/github-action-markdown-link-check@e7c7a18363c842693fadde5d41a3bd3573a7a225 # v1
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      with:
+        persist-credentials: false
+    - uses: tcort/github-action-markdown-link-check@e047c5b37f24ab722bbef1a27b6fab7f96bc4068 # v1
       with:
         use-quiet-mode: 'yes'
 
@@ -52,11 +55,13 @@ jobs:
     if: needs.filter.outputs.bicep == 'true'
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      with:
+        persist-credentials: false
     - name: Lint Bicep files
       run: az bicep lint --file azuredeploy.bicep
 
   check-arm-templates:
     needs: filter
     if: needs.filter.outputs.json == 'true'
-    uses: ./.github/workflows/check-arm-template.yml
+    uses: $/.github/workflows/check-arm-template.yml

@@ -7,15 +7,20 @@ on:
     paths:
       - '**/*.bicep'
 
+permissions:
+  contents: read
+
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-    permissions:                # Job-level permissions configuration starts here
-      contents: write           # 'write' access to repository contents
+    permissions:
+      contents: write # pushes the generated ARM template back to master
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v6
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      with:
+        persist-credentials: true # we persist credentials, so we can push the generated ARM template
 
     - name: Generate ARM template
       run: az bicep build --file azuredeploy.bicep
@@ -30,4 +35,6 @@ jobs:
 
   check-arm-template:
     needs: build-and-push
-    uses: ./.github/workflows/check-arm-template.yml
+    permissions:
+      contents: read
+    uses: $/.github/workflows/check-arm-template.yml
