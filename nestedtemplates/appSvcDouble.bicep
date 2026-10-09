@@ -75,6 +75,7 @@ resource appService2 'Microsoft.Web/sites@2025-03-01' = {
       ftpsState: 'Disabled'
       use32BitWorkerProcess: false
       minTlsVersion: '1.3'
+      phpVersion: deployOnLinux ? null : 'OFF'
       linuxFxVersion: deployOnLinux ? 'DOTNETCORE|10.0' : null
     }
   }
