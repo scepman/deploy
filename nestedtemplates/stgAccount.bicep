@@ -171,7 +171,7 @@ var geoRedundantRegions = [
 // This ensures the best available redundancy option for each region while maintaining deployment reliability
 var storageAccountSku = contains(gzrsRegions, location) ? 'Standard_GZRS' : (contains(geoRedundantRegions, location) ? 'Standard_GRS' : (contains(zrsRegions, location) ? 'Standard_ZRS' : 'Standard_LRS'))
 
-resource StorageAccount 'Microsoft.Storage/storageAccounts@2025-06-01' = {
+resource StorageAccount 'Microsoft.Storage/storageAccounts@2026-06-01' = {
   name: StorageAccountName
   location: location
   tags: resourceTags
@@ -214,7 +214,7 @@ resource privateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if (pri
   properties: {}
 }
 
-resource privateEndpoint 'Microsoft.Network/privateEndpoints@2025-05-01' = if (privateEndpointName != 'None') {
+resource privateEndpoint 'Microsoft.Network/privateEndpoints@2026-01-01' = if (privateEndpointName != 'None') {
   name: privateEndpointName
   location: location
   tags: resourceTags
@@ -241,7 +241,7 @@ resource privateEndpoint 'Microsoft.Network/privateEndpoints@2025-05-01' = if (p
   }
 }
 
-resource privateEndpointName_default 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2025-05-01' = if (privateEndpointName != 'None') {
+resource privateEndpointName_default 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2026-01-01' = if (privateEndpointName != 'None') {
   parent: privateEndpoint
   name: 'default'
   properties: {
