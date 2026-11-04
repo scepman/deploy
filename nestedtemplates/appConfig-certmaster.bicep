@@ -24,7 +24,7 @@ param enableHealthCheck bool
 
 import { convertVariableNameToLinux } from './utils.bicep'
 
-resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2025-07-01' existing = {
+resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2026-03-01' existing = {
   name: logAnalyticsWorkspaceName
 }
 

@@ -24,7 +24,7 @@ var rbac_roles = [
   '4633458b-17de-408a-b874-0445c86b69e6' // Key Vault Secrets User
 ]
 
-resource keyVault 'Microsoft.KeyVault/vaults@2025-05-01' = {
+resource keyVault 'Microsoft.KeyVault/vaults@2026-05-15' = {
   name: keyVaultName
   location: location
   tags: resourceTags
@@ -69,7 +69,7 @@ resource privatelink_vaultcore_azure_net 'Microsoft.Network/privateDnsZones@2024
   properties: {}
 }
 
-resource privateEndpoint 'Microsoft.Network/privateEndpoints@2025-05-01' = if (privateEndpointName != 'None') {
+resource privateEndpoint 'Microsoft.Network/privateEndpoints@2026-01-01' = if (privateEndpointName != 'None') {
   name: privateEndpointName
   location: location
   tags: resourceTags
@@ -96,7 +96,7 @@ resource privateEndpoint 'Microsoft.Network/privateEndpoints@2025-05-01' = if (p
   }
 }
 
-resource privateEndpointName_default 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2025-05-01' = if (privateEndpointName != 'None') {
+resource privateEndpointName_default 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2026-01-01' = if (privateEndpointName != 'None') {
   parent: privateEndpoint
   name: 'default'
   properties: {
