@@ -11,7 +11,13 @@ permissions:
 jobs:
   auto-merge-actions:
     runs-on: ubuntu-latest
-    if: github.event.pull_request.user.login == 'dependabot[bot]' && github.event.pull_request.user.type == 'Bot' && github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.user.login == 'dependabot[bot]'
+    # pull_request.user.login: PR author; unspoofable, since humans cannot register names ending in "[bot]".
+    # pull_request.user.type: defense in depth, the author must be a Bot account.
+    # head.repo.full_name: rejects PRs from forks.
+    # github.actor: whoever caused this event, i.e. the last pusher; rejects humans pushing onto a Dependabot PR.
+    # github.triggering_actor: whoever started this run; rejects re-runs by humans.
+    # zizmor flags actor checks as spoofable when used ALONE; here they only add to the author check, hence the ignore.
+    if: github.event.pull_request.user.login == 'dependabot[bot]' && github.event.pull_request.user.type == 'Bot' && github.event.pull_request.head.repo.full_name == github.repository && github.actor == 'dependabot[bot]' && github.triggering_actor == 'dependabot[bot]' # zizmor: ignore[bot-conditions]
     steps:
       - name: Fetch Dependabot metadata
         id: metadata
@@ -21,9 +27,12 @@ jobs:
 
       - name: Approve and auto-merge GitHub Actions updates
         if: steps.metadata.outputs.package-ecosystem == 'github_actions'
+        # Approve and merge only the exact commit checked above, so a commit pushed in the meantime is never merged.
         run: |
-          gh pr review --approve "$PR_URL"
-          gh pr merge --auto --merge "$PR_URL"
+          gh api --method POST "repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER/reviews" -f event=APPROVE -f commit_id="$HEAD_SHA"
+          gh pr merge --auto --merge --match-head-commit "$HEAD_SHA" "$PR_URL"
         env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
           PR_URL: ${{ github.event.pull_request.html_url }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
