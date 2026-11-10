@@ -262,7 +262,7 @@
                   "value": "default"
                 },
                 {
-                  "label": "Manually",
+                  "label": "Choose manually",
                   "description": "Enter a custom distinguished name",
                   "value": "custom"
                 }
