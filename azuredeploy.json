@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.49.2.45890",
-      "templateHash": "13981752475599351285"
+      "templateHash": "4295594821567111326"
     }
   },
   "parameters": {
@@ -129,6 +129,97 @@
         "description": "Enable the App Service health check."
       }
     },
+    "enableStaticValidation": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "Enable the static SCEP endpoint (/static) for third-party MDM solutions."
+      }
+    },
+    "staticValidationRequestPassword": {
+      "type": "securestring",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Challenge password for the static SCEP endpoint. It is stored as a Key Vault secret. Leave empty to keep an existing secret."
+      }
+    },
+    "enableStaticAADValidation": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "Enable the static AAD SCEP endpoint (/static/aad), e.g. for Kandji or Google Workspace. Requires SCEPman Enterprise Edition."
+      }
+    },
+    "staticAADValidationRequestPassword": {
+      "type": "securestring",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Challenge password for the static AAD SCEP endpoint. It is stored as a Key Vault secret. Leave empty to keep an existing secret."
+      }
+    },
+    "enableDCValidation": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "Enable the Domain Controller SCEP endpoint (/dc). Requires SCEPman Enterprise Edition."
+      }
+    },
+    "dcValidationRequestPassword": {
+      "type": "securestring",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Challenge password for the Domain Controller SCEP endpoint. It is stored as a Key Vault secret. Leave empty to keep an existing secret."
+      }
+    },
+    "enableJamfValidation": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "Enable the Jamf SCEP endpoint (/jamf)."
+      }
+    },
+    "jamfUrl": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "URL of your Jamf Pro instance, e.g. https://example.jamfcloud.com/. Only applicable if enableJamfValidation is chosen."
+      }
+    },
+    "jamfClientId": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Client ID of the Jamf Pro API client. Only applicable if enableJamfValidation is chosen."
+      }
+    },
+    "jamfClientSecret": {
+      "type": "securestring",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Client secret of the Jamf Pro API client. It is stored as a Key Vault secret. Leave empty to keep an existing secret."
+      }
+    },
+    "jamfValidationRequestPassword": {
+      "type": "securestring",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Challenge password for the Jamf SCEP endpoint (max. 32 characters). It is stored as a Key Vault secret. Leave empty to keep an existing secret."
+      }
+    },
+    "enableEnrollmentApi": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "Enable the Enrollment REST API (/api/csr). Requires SCEPman Enterprise Edition and app role assignments on the SCEPman-api app registration."
+      }
+    },
+    "enableEnrollmentApiRenewals": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "Allow certificate renewals via EST (simplereenroll) for certificates issued via the Enrollment REST API. Only applicable if enableEnrollmentApi is chosen."
+      }
+    },
     "deployPrivateNetwork": {
       "type": "bool",
       "defaultValue": true,
@@ -204,7 +295,15 @@
     "appServiceNames": [
       "[parameters('primaryAppServiceName')]",
       "[parameters('certificateMasterAppServiceName')]"
-    ]
+    ],
+    "scepEndpointAppSettings": "[union(if(parameters('enableStaticValidation'), createObject('AppConfig:StaticValidation:Enabled', 'true'), createObject()), if(parameters('enableStaticAADValidation'), createObject('AppConfig:StaticAADValidation:Enabled', 'true'), createObject()), if(parameters('enableDCValidation'), createObject('AppConfig:DCValidation:Enabled', 'true'), createObject()), if(parameters('enableJamfValidation'), createObject('AppConfig:JamfValidation:Enabled', 'true', 'AppConfig:JamfValidation:URL', parameters('jamfUrl'), 'AppConfig:JamfValidation:ClientID', parameters('jamfClientId')), createObject()), if(parameters('enableEnrollmentApi'), createObject('AppConfig:DbCSRValidation:Enabled', 'true', 'AppConfig:DbCSRValidation:AllowRenewals', string(parameters('enableEnrollmentApiRenewals'))), createObject()))]",
+    "scepEndpointSecrets": {
+      "AppConfig--StaticValidation--RequestPassword": "[if(parameters('enableStaticValidation'), parameters('staticValidationRequestPassword'), '')]",
+      "AppConfig--StaticAADValidation--RequestPassword": "[if(parameters('enableStaticAADValidation'), parameters('staticAADValidationRequestPassword'), '')]",
+      "AppConfig--DCValidation--RequestPassword": "[if(parameters('enableDCValidation'), parameters('dcValidationRequestPassword'), '')]",
+      "AppConfig--JamfValidation--RequestPassword": "[if(parameters('enableJamfValidation'), parameters('jamfValidationRequestPassword'), '')]",
+      "AppConfig--JamfValidation--ClientSecret": "[if(parameters('enableJamfValidation'), parameters('jamfClientSecret'), '')]"
+    }
   },
   "resources": [
     {
@@ -732,6 +831,9 @@
           "permittedPrincipalId": {
             "value": "[reference(resourceId('Microsoft.Resources/deployments', 'SCEPmanAppServices'), '2025-04-01').outputs.scepmanPrincipalID.value]"
           },
+          "secrets": {
+            "value": "[variables('scepEndpointSecrets')]"
+          },
           "location": {
             "value": "[parameters('location')]"
           },
@@ -750,7 +852,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.49.2.45890",
-              "templateHash": "4185892495803801222"
+              "templateHash": "8905425188157448842"
             }
           },
           "parameters": {
@@ -773,6 +875,13 @@
               "type": "string",
               "metadata": {
                 "description": "ID of SCEPman app service principal, whom will be assigned permissions to the KV"
+              }
+            },
+            "secrets": {
+              "type": "secureObject",
+              "defaultValue": {},
+              "metadata": {
+                "description": "Secrets to store in the key vault as name-value pairs. Secrets with empty values are skipped."
               }
             },
             "location": {
@@ -846,6 +955,21 @@
               "properties": {
                 "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', variables('rbac_roles')[copyIndex()])]",
                 "principalId": "[parameters('permittedPrincipalId')]"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
+              ]
+            },
+            {
+              "copy": {
+                "name": "keyVaultSecrets",
+                "count": "[length(filter(items(parameters('secrets')), lambda('secret', not(empty(lambdaVariables('secret').value)))))]"
+              },
+              "type": "Microsoft.KeyVault/vaults/secrets",
+              "apiVersion": "2026-05-15",
+              "name": "[format('{0}/{1}', parameters('keyVaultName'), filter(items(parameters('secrets')), lambda('secret', not(empty(lambdaVariables('secret').value))))[copyIndex()].key)]",
+              "properties": {
+                "value": "[filter(items(parameters('secrets')), lambda('secret', not(empty(lambdaVariables('secret').value))))[copyIndex()].value]"
               },
               "dependsOn": [
                 "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
@@ -987,6 +1111,9 @@
           },
           "enableHealthCheck": {
             "value": "[parameters('enableHealthCheck')]"
+          },
+          "additionalAppSettings": {
+            "value": "[variables('scepEndpointAppSettings')]"
           }
         },
         "template": {
@@ -997,7 +1124,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.49.2.45890",
-              "templateHash": "15464569428311684334"
+              "templateHash": "2407430987837945802"
             }
           },
           "functions": [
@@ -1113,7 +1240,17 @@
               "metadata": {
                 "description": "Enable health check"
               }
+            },
+            "additionalAppSettings": {
+              "type": "object",
+              "defaultValue": {},
+              "metadata": {
+                "description": "Additional app settings with colon-style names, e.g. for enabling SCEP endpoints"
+              }
             }
+          },
+          "variables": {
+            "linuxCompatibleAdditionalAppSettings": "[toObject(items(parameters('additionalAppSettings')), lambda('setting', __bicep.convertVariableNameToLinux(lambdaVariables('setting').key, parameters('deployOnLinux'))), lambda('setting', lambdaVariables('setting').value))]"
           },
           "resources": {
             "logAnalyticsWorkspace": {
@@ -1126,31 +1263,7 @@
               "type": "Microsoft.Web/sites/config",
               "apiVersion": "2025-03-01",
               "name": "[format('{0}/appsettings', parameters('appServiceName'))]",
-              "properties": {
-                "WEBSITE_RUN_FROM_PACKAGE": "[parameters('WebsiteArtifactsUri')]",
-                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:BaseUrl', parameters('deployOnLinux')))]": "[parameters('scepManBaseURL')]",
-                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:LicenseKey', parameters('deployOnLinux')))]": "[parameters('license')]",
-                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:AuthConfig:TenantId', parameters('deployOnLinux')))]": "[subscription().tenantId]",
-                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:UseRequestedKeyUsages', parameters('deployOnLinux')))]": "true",
-                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:ValidityPeriodDays', parameters('deployOnLinux')))]": "730",
-                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:IntuneValidation:ValidityPeriodDays', parameters('deployOnLinux')))]": "365",
-                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:DirectCSRValidation:Enabled', parameters('deployOnLinux')))]": "true",
-                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:DbCSRValidation:ReenrollmentAllowedCertificateTypes', parameters('deployOnLinux')))]": "Static",
-                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:IntuneValidation:DeviceDirectory', parameters('deployOnLinux')))]": "AADAndIntune",
-                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:CRL:Source', parameters('deployOnLinux')))]": "Storage",
-                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:EnableCertificateStorage', parameters('deployOnLinux')))]": "true",
-                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:LoggingConfig:WorkspaceId', parameters('deployOnLinux')))]": "[parameters('logAnalyticsWorkspaceId')]",
-                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:LoggingConfig:SharedKey', parameters('deployOnLinux')))]": "[listKeys('logAnalyticsWorkspace', '2026-03-01').primarySharedKey]",
-                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:KeyVaultConfig:KeyVaultURL', parameters('deployOnLinux')))]": "[parameters('keyVaultURL')]",
-                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:CertificateStorage:TableStorageEndpoint', parameters('deployOnLinux')))]": "[parameters('StorageAccountTableUrl')]",
-                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:KeyVaultConfig:RootCertificateConfig:CertificateName', parameters('deployOnLinux')))]": "SCEPman-Root-CA-V1",
-                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:KeyVaultConfig:RootCertificateConfig:KeyType', parameters('deployOnLinux')))]": "[parameters('caKeyType')]",
-                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:KeyVaultConfig:RootCertificateConfig:KeySize', parameters('deployOnLinux')))]": "[parameters('caKeySize')]",
-                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:KeyVaultConfig:RootCertificateConfig:Subject', parameters('deployOnLinux')))]": "[format('CN=SCEPman-Root-CA-V1, OU={0}, O=\"{1}\"', subscription().tenantId, parameters('OrgName'))]",
-                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:KeyVaultConfig:RootCertificateConfig:CaRsaSignatureAlgorithm', parameters('deployOnLinux')))]": "RS384",
-                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:OCSP:UseAuthorizedResponder', parameters('deployOnLinux')))]": "true",
-                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:ValidityClockSkewMinutes', parameters('deployOnLinux')))]": "1440"
-              }
+              "properties": "[union(createObject('WEBSITE_RUN_FROM_PACKAGE', parameters('WebsiteArtifactsUri'), format('{0}', __bicep.convertVariableNameToLinux('AppConfig:BaseUrl', parameters('deployOnLinux'))), parameters('scepManBaseURL'), format('{0}', __bicep.convertVariableNameToLinux('AppConfig:LicenseKey', parameters('deployOnLinux'))), parameters('license'), format('{0}', __bicep.convertVariableNameToLinux('AppConfig:AuthConfig:TenantId', parameters('deployOnLinux'))), subscription().tenantId, format('{0}', __bicep.convertVariableNameToLinux('AppConfig:UseRequestedKeyUsages', parameters('deployOnLinux'))), 'true', format('{0}', __bicep.convertVariableNameToLinux('AppConfig:ValidityPeriodDays', parameters('deployOnLinux'))), '730', format('{0}', __bicep.convertVariableNameToLinux('AppConfig:IntuneValidation:ValidityPeriodDays', parameters('deployOnLinux'))), '365', format('{0}', __bicep.convertVariableNameToLinux('AppConfig:DirectCSRValidation:Enabled', parameters('deployOnLinux'))), 'true', format('{0}', __bicep.convertVariableNameToLinux('AppConfig:DbCSRValidation:ReenrollmentAllowedCertificateTypes', parameters('deployOnLinux'))), 'Static', format('{0}', __bicep.convertVariableNameToLinux('AppConfig:IntuneValidation:DeviceDirectory', parameters('deployOnLinux'))), 'AADAndIntune', format('{0}', __bicep.convertVariableNameToLinux('AppConfig:CRL:Source', parameters('deployOnLinux'))), 'Storage', format('{0}', __bicep.convertVariableNameToLinux('AppConfig:EnableCertificateStorage', parameters('deployOnLinux'))), 'true', format('{0}', __bicep.convertVariableNameToLinux('AppConfig:LoggingConfig:WorkspaceId', parameters('deployOnLinux'))), parameters('logAnalyticsWorkspaceId'), format('{0}', __bicep.convertVariableNameToLinux('AppConfig:LoggingConfig:SharedKey', parameters('deployOnLinux'))), listKeys('logAnalyticsWorkspace', '2026-03-01').primarySharedKey, format('{0}', __bicep.convertVariableNameToLinux('AppConfig:KeyVaultConfig:KeyVaultURL', parameters('deployOnLinux'))), parameters('keyVaultURL'), format('{0}', __bicep.convertVariableNameToLinux('AppConfig:CertificateStorage:TableStorageEndpoint', parameters('deployOnLinux'))), parameters('StorageAccountTableUrl'), format('{0}', __bicep.convertVariableNameToLinux('AppConfig:KeyVaultConfig:RootCertificateConfig:CertificateName', parameters('deployOnLinux'))), 'SCEPman-Root-CA-V1', format('{0}', __bicep.convertVariableNameToLinux('AppConfig:KeyVaultConfig:RootCertificateConfig:KeyType', parameters('deployOnLinux'))), parameters('caKeyType'), format('{0}', __bicep.convertVariableNameToLinux('AppConfig:KeyVaultConfig:RootCertificateConfig:KeySize', parameters('deployOnLinux'))), parameters('caKeySize'), format('{0}', __bicep.convertVariableNameToLinux('AppConfig:KeyVaultConfig:RootCertificateConfig:Subject', parameters('deployOnLinux'))), format('CN=SCEPman-Root-CA-V1, OU={0}, O=\"{1}\"', subscription().tenantId, parameters('OrgName')), format('{0}', __bicep.convertVariableNameToLinux('AppConfig:KeyVaultConfig:RootCertificateConfig:CaRsaSignatureAlgorithm', parameters('deployOnLinux'))), 'RS384', format('{0}', __bicep.convertVariableNameToLinux('AppConfig:OCSP:UseAuthorizedResponder', parameters('deployOnLinux'))), 'true', format('{0}', __bicep.convertVariableNameToLinux('AppConfig:ValidityClockSkewMinutes', parameters('deployOnLinux'))), '1440'), variables('linuxCompatibleAdditionalAppSettings'))]"
             },
             "appServiceName_websettings": {
               "condition": "[parameters('enableHealthCheck')]",

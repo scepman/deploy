@@ -417,6 +417,232 @@
             }
           }
         ]
+      },
+      {
+        "name": "scepmanSettings",
+        "label": "SCEPman Settings",
+        "elements": [
+          {
+            "name": "scepmanSettingsInfo",
+            "type": "Microsoft.Common.InfoBox",
+            "options": {
+              "icon": "Info",
+              "text": "Optionally enable additional SCEPman endpoints. The Intune endpoint is always enabled. Challenge passwords and client secrets are stored as secrets in SCEPman's Key Vault, not as app settings. Endpoints marked with Enterprise require a SCEPman Enterprise Edition license.",
+              "uri": "https://docs.scepman.com/scepman-configuration/application-settings"
+            }
+          },
+          {
+            "name": "staticSection",
+            "type": "Microsoft.Common.Section",
+            "label": "Static Endpoint (third-party MDM solutions)",
+            "elements": [
+              {
+                "name": "enableStaticValidation",
+                "type": "Microsoft.Common.CheckBox",
+                "label": "Enable static endpoint (/static)",
+                "defaultValue": false,
+                "toolTip": "Enables certificate enrollment via a static challenge password, e.g. for Workspace ONE, Ivanti, or other MDM solutions."
+              },
+              {
+                "name": "staticValidationRequestPassword",
+                "type": "Microsoft.Common.PasswordBox",
+                "label": {
+                  "password": "Challenge password",
+                  "confirmPassword": "Confirm challenge password"
+                },
+                "toolTip": "Challenge password that you configure in the SCEP profile of your MDM solution.",
+                "visible": "[steps('scepmanSettings').staticSection.enableStaticValidation]",
+                "constraints": {
+                  "required": true,
+                  "regex": "^\\S{12,128}$",
+                  "validationMessage": "Must be 12-128 characters without whitespace."
+                },
+                "options": {
+                  "hideConfirmation": false
+                }
+              }
+            ]
+          },
+          {
+            "name": "staticAADSection",
+            "type": "Microsoft.Common.Section",
+            "label": "Static AAD Endpoint (Enterprise)",
+            "elements": [
+              {
+                "name": "enableStaticAADValidation",
+                "type": "Microsoft.Common.CheckBox",
+                "label": "Enable static AAD endpoint (/static/aad)",
+                "defaultValue": false,
+                "toolTip": "Enables certificate enrollment via a static challenge password for devices and users validated against Entra ID, e.g. for Kandji or Google Workspace."
+              },
+              {
+                "name": "staticAADValidationRequestPassword",
+                "type": "Microsoft.Common.PasswordBox",
+                "label": {
+                  "password": "Challenge password",
+                  "confirmPassword": "Confirm challenge password"
+                },
+                "toolTip": "Challenge password that you configure in the SCEP profile of your MDM solution.",
+                "visible": "[steps('scepmanSettings').staticAADSection.enableStaticAADValidation]",
+                "constraints": {
+                  "required": true,
+                  "regex": "^\\S{12,128}$",
+                  "validationMessage": "Must be 12-128 characters without whitespace."
+                },
+                "options": {
+                  "hideConfirmation": false
+                }
+              }
+            ]
+          },
+          {
+            "name": "dcSection",
+            "type": "Microsoft.Common.Section",
+            "label": "Domain Controller Endpoint (Enterprise)",
+            "elements": [
+              {
+                "name": "enableDCValidation",
+                "type": "Microsoft.Common.CheckBox",
+                "label": "Enable Domain Controller endpoint (/dc)",
+                "defaultValue": false,
+                "toolTip": "Enables certificate enrollment for Domain Controllers using the SCEPman ScepClient."
+              },
+              {
+                "name": "dcValidationRequestPassword",
+                "type": "Microsoft.Common.PasswordBox",
+                "label": {
+                  "password": "Challenge password",
+                  "confirmPassword": "Confirm challenge password"
+                },
+                "toolTip": "Challenge password that the ScepClient on your Domain Controllers uses.",
+                "visible": "[steps('scepmanSettings').dcSection.enableDCValidation]",
+                "constraints": {
+                  "required": true,
+                  "regex": "^\\S{12,128}$",
+                  "validationMessage": "Must be 12-128 characters without whitespace."
+                },
+                "options": {
+                  "hideConfirmation": false
+                }
+              }
+            ]
+          },
+          {
+            "name": "jamfSection",
+            "type": "Microsoft.Common.Section",
+            "label": "Jamf Endpoint",
+            "elements": [
+              {
+                "name": "enableJamfValidation",
+                "type": "Microsoft.Common.CheckBox",
+                "label": "Enable Jamf endpoint (/jamf)",
+                "defaultValue": false,
+                "toolTip": "Enables certificate enrollment for devices and users managed by Jamf Pro."
+              },
+              {
+                "name": "jamfUrl",
+                "type": "Microsoft.Common.TextBox",
+                "label": "Jamf Pro URL",
+                "placeholder": "https://example.jamfcloud.com/",
+                "toolTip": "URL of your Jamf Pro instance.",
+                "visible": "[steps('scepmanSettings').jamfSection.enableJamfValidation]",
+                "constraints": {
+                  "required": true,
+                  "validations": [
+                    {
+                      "regex": "^https://[^\\s/]{1,253}/?$",
+                      "message": "Must be an https URL of your Jamf Pro instance, e.g. https://example.jamfcloud.com/."
+                    }
+                  ]
+                }
+              },
+              {
+                "name": "jamfClientId",
+                "type": "Microsoft.Common.TextBox",
+                "label": "Jamf API Client ID",
+                "toolTip": "Client ID of a Jamf Pro API client with read access to computers, mobile devices, and users.",
+                "visible": "[steps('scepmanSettings').jamfSection.enableJamfValidation]",
+                "constraints": {
+                  "required": true,
+                  "validations": [
+                    {
+                      "regex": "^\\S{1,128}$",
+                      "message": "Must be 1-128 characters without whitespace."
+                    }
+                  ]
+                }
+              },
+              {
+                "name": "jamfClientSecret",
+                "type": "Microsoft.Common.PasswordBox",
+                "label": {
+                  "password": "Jamf API Client Secret",
+                  "confirmPassword": "Confirm Jamf API Client Secret"
+                },
+                "toolTip": "Client secret of the Jamf Pro API client.",
+                "visible": "[steps('scepmanSettings').jamfSection.enableJamfValidation]",
+                "constraints": {
+                  "required": true,
+                  "regex": "^\\S{12,}$",
+                  "validationMessage": "Must be at least 12 characters without whitespace."
+                },
+                "options": {
+                  "hideConfirmation": false
+                }
+              },
+              {
+                "name": "jamfValidationRequestPassword",
+                "type": "Microsoft.Common.PasswordBox",
+                "label": {
+                  "password": "Challenge password",
+                  "confirmPassword": "Confirm challenge password"
+                },
+                "toolTip": "Challenge password that you configure in the SCEP profile in Jamf Pro.",
+                "visible": "[steps('scepmanSettings').jamfSection.enableJamfValidation]",
+                "constraints": {
+                  "required": true,
+                  "regex": "^\\S{12,32}$",
+                  "validationMessage": "Must be 12-32 characters without whitespace."
+                },
+                "options": {
+                  "hideConfirmation": false
+                }
+              }
+            ]
+          },
+          {
+            "name": "enrollmentApiSection",
+            "type": "Microsoft.Common.Section",
+            "label": "Enrollment REST API (Enterprise)",
+            "elements": [
+              {
+                "name": "enableEnrollmentApi",
+                "type": "Microsoft.Common.CheckBox",
+                "label": "Enable Enrollment REST API",
+                "defaultValue": false,
+                "toolTip": "Enables certificate enrollment via the SCEPman REST API, e.g. for automation, servers, or self-service enrollment."
+              },
+              {
+                "name": "enableEnrollmentApiRenewals",
+                "type": "Microsoft.Common.CheckBox",
+                "label": "Allow renewals via EST",
+                "defaultValue": false,
+                "toolTip": "Allows clients to renew certificates issued via the Enrollment REST API using the EST simplereenroll endpoint.",
+                "visible": "[steps('scepmanSettings').enrollmentApiSection.enableEnrollmentApi]"
+              },
+              {
+                "name": "enrollmentApiInfo",
+                "type": "Microsoft.Common.InfoBox",
+                "visible": "[steps('scepmanSettings').enrollmentApiSection.enableEnrollmentApi]",
+                "options": {
+                  "icon": "Info",
+                  "text": "After running Complete-SCEPmanInstallation, assign the app role CSR.Request.Db (service principals) or CSR.SelfService (users) of the SCEPman-api app registration to the clients that shall use the API.",
+                  "uri": "https://docs.scepman.com/certificate-management/api-certificates"
+                }
+              }
+            ]
+          }
+        ]
       }
     ],
     "outputs": {
@@ -440,7 +666,20 @@
       "virtualNetworkName": "[if(equals(steps('networkConfig').deployPrivateNetwork, true), steps('networkConfig').virtualNetworkName, 'not-used')]",
       "nsgName": "[if(equals(steps('networkConfig').deployPrivateNetwork, true), steps('networkConfig').nsgName, 'not-used')]",
       "privateEndpointForKeyVaultName": "[if(and(equals(steps('networkConfig').deployPrivateNetwork, true), not(steps('keyVaultConfig').useExistingKeyVault)), steps('networkConfig').privateEndpointForKeyVaultName, 'not-used')]",
-      "privateEndpointForTableStorage": "[if(and(equals(steps('networkConfig').deployPrivateNetwork, true), not(steps('storageAndMonitoring').useExistingStorage)), steps('networkConfig').privateEndpointForTableStorage, 'not-used')]"
+      "privateEndpointForTableStorage": "[if(and(equals(steps('networkConfig').deployPrivateNetwork, true), not(steps('storageAndMonitoring').useExistingStorage)), steps('networkConfig').privateEndpointForTableStorage, 'not-used')]",
+      "enableStaticValidation": "[steps('scepmanSettings').staticSection.enableStaticValidation]",
+      "staticValidationRequestPassword": "[if(steps('scepmanSettings').staticSection.enableStaticValidation, steps('scepmanSettings').staticSection.staticValidationRequestPassword, '')]",
+      "enableStaticAADValidation": "[steps('scepmanSettings').staticAADSection.enableStaticAADValidation]",
+      "staticAADValidationRequestPassword": "[if(steps('scepmanSettings').staticAADSection.enableStaticAADValidation, steps('scepmanSettings').staticAADSection.staticAADValidationRequestPassword, '')]",
+      "enableDCValidation": "[steps('scepmanSettings').dcSection.enableDCValidation]",
+      "dcValidationRequestPassword": "[if(steps('scepmanSettings').dcSection.enableDCValidation, steps('scepmanSettings').dcSection.dcValidationRequestPassword, '')]",
+      "enableJamfValidation": "[steps('scepmanSettings').jamfSection.enableJamfValidation]",
+      "jamfUrl": "[if(steps('scepmanSettings').jamfSection.enableJamfValidation, steps('scepmanSettings').jamfSection.jamfUrl, '')]",
+      "jamfClientId": "[if(steps('scepmanSettings').jamfSection.enableJamfValidation, steps('scepmanSettings').jamfSection.jamfClientId, '')]",
+      "jamfClientSecret": "[if(steps('scepmanSettings').jamfSection.enableJamfValidation, steps('scepmanSettings').jamfSection.jamfClientSecret, '')]",
+      "jamfValidationRequestPassword": "[if(steps('scepmanSettings').jamfSection.enableJamfValidation, steps('scepmanSettings').jamfSection.jamfValidationRequestPassword, '')]",
+      "enableEnrollmentApi": "[steps('scepmanSettings').enrollmentApiSection.enableEnrollmentApi]",
+      "enableEnrollmentApiRenewals": "[and(steps('scepmanSettings').enrollmentApiSection.enableEnrollmentApi, steps('scepmanSettings').enrollmentApiSection.enableEnrollmentApiRenewals)]"
     }
   }
 }

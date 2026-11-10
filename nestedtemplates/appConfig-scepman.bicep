@@ -41,7 +41,16 @@ param deployOnLinux bool
 @description('Enable health check')
 param enableHealthCheck bool
 
+@description('Additional app settings with colon-style names, e.g. for enabling SCEP endpoints')
+param additionalAppSettings object = {}
+
 import { convertVariableNameToLinux } from './utils.bicep'
+
+var linuxCompatibleAdditionalAppSettings = toObject(
+  items(additionalAppSettings),
+  setting => convertVariableNameToLinux(setting.key, deployOnLinux),
+  setting => setting.value
+)
 
 resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2026-03-01' existing = {
   name: logAnalyticsWorkspaceName
@@ -49,7 +58,7 @@ resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2026-03
 
 resource appServiceName_appsettings 'Microsoft.Web/sites/config@2025-03-01' = {
   name: '${appServiceName}/appsettings'
-  properties: {
+  properties: union({
     WEBSITE_RUN_FROM_PACKAGE: WebsiteArtifactsUri
     '${convertVariableNameToLinux('AppConfig:BaseUrl', deployOnLinux)}': scepManBaseURL
     '${convertVariableNameToLinux('AppConfig:LicenseKey', deployOnLinux)}': license
@@ -73,7 +82,7 @@ resource appServiceName_appsettings 'Microsoft.Web/sites/config@2025-03-01' = {
     '${convertVariableNameToLinux('AppConfig:KeyVaultConfig:RootCertificateConfig:CaRsaSignatureAlgorithm', deployOnLinux)}': 'RS384'
     '${convertVariableNameToLinux('AppConfig:OCSP:UseAuthorizedResponder', deployOnLinux)}': 'true'
     '${convertVariableNameToLinux('AppConfig:ValidityClockSkewMinutes', deployOnLinux)}': '1440'
-  }
+  }, linuxCompatibleAdditionalAppSettings)
 }
 
 resource appServiceName_websettings 'Microsoft.Web/sites/config@2025-03-01' = if (enableHealthCheck) {

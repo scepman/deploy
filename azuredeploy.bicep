@@ -61,6 +61,50 @@ param certificateMasterAppServiceName string = 'app-scepman-UNIQUENAME-cm'
 @description('Enable the App Service health check.')
 param enableHealthCheck bool = true
 
+@description('Enable the static SCEP endpoint (/static) for third-party MDM solutions.')
+param enableStaticValidation bool = false
+
+@description('Challenge password for the static SCEP endpoint. It is stored as a Key Vault secret. Leave empty to keep an existing secret.')
+@secure()
+param staticValidationRequestPassword string = ''
+
+@description('Enable the static AAD SCEP endpoint (/static/aad), e.g. for Kandji or Google Workspace. Requires SCEPman Enterprise Edition.')
+param enableStaticAADValidation bool = false
+
+@description('Challenge password for the static AAD SCEP endpoint. It is stored as a Key Vault secret. Leave empty to keep an existing secret.')
+@secure()
+param staticAADValidationRequestPassword string = ''
+
+@description('Enable the Domain Controller SCEP endpoint (/dc). Requires SCEPman Enterprise Edition.')
+param enableDCValidation bool = false
+
+@description('Challenge password for the Domain Controller SCEP endpoint. It is stored as a Key Vault secret. Leave empty to keep an existing secret.')
+@secure()
+param dcValidationRequestPassword string = ''
+
+@description('Enable the Jamf SCEP endpoint (/jamf).')
+param enableJamfValidation bool = false
+
+@description('URL of your Jamf Pro instance, e.g. https://example.jamfcloud.com/. Only applicable if enableJamfValidation is chosen.')
+param jamfUrl string = ''
+
+@description('Client ID of the Jamf Pro API client. Only applicable if enableJamfValidation is chosen.')
+param jamfClientId string = ''
+
+@description('Client secret of the Jamf Pro API client. It is stored as a Key Vault secret. Leave empty to keep an existing secret.')
+@secure()
+param jamfClientSecret string = ''
+
+@description('Challenge password for the Jamf SCEP endpoint (max. 32 characters). It is stored as a Key Vault secret. Leave empty to keep an existing secret.')
+@secure()
+param jamfValidationRequestPassword string = ''
+
+@description('Enable the Enrollment REST API (/api/csr). Requires SCEPman Enterprise Edition and app role assignments on the SCEPman-api app registration.')
+param enableEnrollmentApi bool = false
+
+@description('Allow certificate renewals via EST (simplereenroll) for certificates issued via the Enrollment REST API. Only applicable if enableEnrollmentApi is chosen.')
+param enableEnrollmentApiRenewals bool = false
+
 @description('Choose “true” to deploy SCEPman with a Virtual Network. In this case, you must also provide names for the parameters virtualNetworkName, privateEndpointForTableStorage, and privateEndpointForKeyVaultName.')
 param deployPrivateNetwork bool = true
 
@@ -128,6 +172,34 @@ var appServiceNames = [
   certificateMasterAppServiceName
 ]
 
+var scepEndpointAppSettings = union(
+  enableStaticValidation ? { 'AppConfig:StaticValidation:Enabled': 'true' } : {},
+  enableStaticAADValidation ? { 'AppConfig:StaticAADValidation:Enabled': 'true' } : {},
+  enableDCValidation ? { 'AppConfig:DCValidation:Enabled': 'true' } : {},
+  enableJamfValidation
+    ? {
+        'AppConfig:JamfValidation:Enabled': 'true'
+        'AppConfig:JamfValidation:URL': jamfUrl
+        'AppConfig:JamfValidation:ClientID': jamfClientId
+      }
+    : {},
+  enableEnrollmentApi
+    ? {
+        'AppConfig:DbCSRValidation:Enabled': 'true'
+        'AppConfig:DbCSRValidation:AllowRenewals': string(enableEnrollmentApiRenewals)
+      }
+    : {}
+)
+
+// SCEPman reads these from its Key Vault; Key Vault values take precedence over app settings
+var scepEndpointSecrets = {
+  'AppConfig--StaticValidation--RequestPassword': enableStaticValidation ? staticValidationRequestPassword : ''
+  'AppConfig--StaticAADValidation--RequestPassword': enableStaticAADValidation ? staticAADValidationRequestPassword : ''
+  'AppConfig--DCValidation--RequestPassword': enableDCValidation ? dcValidationRequestPassword : ''
+  'AppConfig--JamfValidation--RequestPassword': enableJamfValidation ? jamfValidationRequestPassword : ''
+  'AppConfig--JamfValidation--ClientSecret': enableJamfValidation ? jamfClientSecret : ''
+}
+
 module pid_a262352f_52a9_4ed9_a9ba_6a2b2478d19b_partnercenter './empty.bicep' = {
   name: 'pid-a262352f-52a9-4ed9-a9ba-6a2b2478d19b-partnercenter'
   params: {}
@@ -188,6 +260,7 @@ module SCEPmanVault 'nestedtemplates/vault.bicep' = {
     keyVaultName: effectiveKeyVaultName
     useExistingKeyVault: useExistingKeyVault
     permittedPrincipalId: SCEPmanAppServices.outputs.scepmanPrincipalID
+    secrets: scepEndpointSecrets
     location: location
     resourceTags: resourceTags
     virtualNetworkName: virtualNetworkName
@@ -219,6 +292,7 @@ module DeploymentSCEPmanConfig 'nestedtemplates/appConfig-scepman.bicep' = {
     WebsiteArtifactsUri: ArtifactsLocationSCEPman
     license: license
     enableHealthCheck: enableHealthCheck
+    additionalAppSettings: scepEndpointAppSettings
   }
 }
 
