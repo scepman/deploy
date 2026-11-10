@@ -344,7 +344,7 @@
             "visible": "[steps('storageAndMonitoring').useExistingStorage]",
             "options": {
               "icon": "Warning",
-              "text": "The managed identities of SCEPman and Certificate Master are assigned the role Storage Table Data Contributor on the Storage Account, so you need permissions to assign roles on it. No private endpoint is created for an existing Storage Account, so make sure SCEPman and Certificate Master can reach its table service."
+              "text": "The Storage Account must support Table storage, i.e. a Standard general-purpose v2 account (Premium accounts are not supported). The managed identities of SCEPman and Certificate Master are assigned the role Storage Table Data Contributor on the Storage Account, so you need permissions to assign roles on it. No private endpoint is created for an existing Storage Account, so make sure SCEPman and Certificate Master can reach its table service."
             }
           },
           {
