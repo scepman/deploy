@@ -1,6 +1,9 @@
 @description('Name of the storage account')
 param StorageAccountName string
 
+@description('Use an existing storage account with the given name in the target resource group instead of creating a new one.')
+param useExistingStorageAccount bool = false
+
 @description('Location where the resources will be deployed')
 param location string
 
@@ -171,7 +174,7 @@ var geoRedundantRegions = [
 // This ensures the best available redundancy option for each region while maintaining deployment reliability
 var storageAccountSku = contains(gzrsRegions, location) ? 'Standard_GZRS' : (contains(geoRedundantRegions, location) ? 'Standard_GRS' : (contains(zrsRegions, location) ? 'Standard_ZRS' : 'Standard_LRS'))
 
-resource StorageAccount 'Microsoft.Storage/storageAccounts@2026-06-01' = {
+resource newStorageAccount 'Microsoft.Storage/storageAccounts@2026-06-01' = if (!useExistingStorageAccount) {
   name: StorageAccountName
   location: location
   tags: resourceTags
@@ -196,6 +199,10 @@ resource StorageAccount 'Microsoft.Storage/storageAccounts@2026-06-01' = {
   }
 }
 
+resource StorageAccount 'Microsoft.Storage/storageAccounts@2026-06-01' existing = {
+  name: StorageAccountName
+}
+
 resource roleAssignment_sa_tableContributorPrincipals 'Microsoft.Authorization/roleAssignments@2022-04-01' = [
   for item in tableContributorPrincipals: {
     scope: StorageAccount
@@ -204,6 +211,9 @@ resource roleAssignment_sa_tableContributorPrincipals 'Microsoft.Authorization/r
       roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', '0a9a7e1f-b9d0-4cc4-a60d-0319b160aaa3') //0a9a7e1f-b9d0-4cc4-a60d-0319b160aaa3 is Storage Table Data Contributor
       principalId: item
     }
+    dependsOn: [
+      newStorageAccount
+    ]
   }
 ]
 
@@ -226,7 +236,7 @@ resource privateEndpoint 'Microsoft.Network/privateEndpoints@2026-01-01' = if (p
       {
         name: 'tableStorageConnection'
         properties: {
-          privateLinkServiceId: StorageAccount.id
+          privateLinkServiceId: newStorageAccount.id
           groupIds: [
             'table'
           ]
@@ -268,4 +278,4 @@ resource privateDnsZoneName_StorageAccountName_link 'Microsoft.Network/privateDn
   }
 }
 
-output storageAccountTableUrl string = StorageAccount.properties.primaryEndpoints.table
+output storageAccountTableUrl string = useExistingStorageAccount ? StorageAccount.properties.primaryEndpoints.table : newStorageAccount!.properties.primaryEndpoints.table

@@ -5,10 +5,21 @@ param OrgName string
 @description('License Key for SCEPman')
 param license string = 'trial'
 
-@description('Specifies the name of the Azure Key Vault. The name of a Key Vault must be globally unique and contain only DNS-compatible characters (letters, numbers, and hyphens).')
+@description('Update channel of SCEPman and Certificate Master. \'prod\' is recommended for production use.')
+@allowed([
+  'prod'
+  'beta'
+  'internal'
+])
+param updateChannel string = 'prod'
+
+@description('Specifies the name of the Azure Key Vault. The name of a Key Vault must be globally unique and contain only DNS-compatible characters (letters, numbers, and hyphens). Ignored if existingKeyVaultID is set.')
 @minLength(3)
 @maxLength(24)
 param keyVaultName string = 'kv-scepman-UNIQUENAME'
+
+@description('Provide the Resource ID of an existing Key Vault using the Azure RBAC permission model. Keep default value “none” if you want to create a new one. No private endpoint is created for an existing Key Vault.')
+param existingKeyVaultID string = 'none'
 
 @description('When generating the SCEPman CA certificate, which kind of key pair shall be created? RSA is a software-protected RSA key; RSA-HSM is HSM-protected.')
 @allowed([
@@ -17,18 +28,21 @@ param keyVaultName string = 'kv-scepman-UNIQUENAME'
 ])
 param caKeyType string = 'RSA-HSM'
 
-@description('Choose a globally unique name for your storage account. Storage account names must be between 3 and 24 characters in length and may contain numbers and lowercase letters only.')
+@description('Choose a globally unique name for your storage account. Storage account names must be between 3 and 24 characters in length and may contain numbers and lowercase letters only. Ignored if existingStorageAccountID is set.')
 @minLength(3)
 @maxLength(24)
 param storageAccountName string = 'stscepmanuniquename'
 
+@description('Provide the Resource ID of an existing Storage Account. Keep default value “none” if you want to create a new one. No private endpoint is created for an existing Storage Account.')
+param existingStorageAccountID string = 'none'
+
 @maxLength(40)
 param appServicePlanName string = 'asp-scepman-UNIQUENAME'
 
-@description('Provide the Resource ID of an existing App Service Plan (the long string displayed in the properties tab). Keep default value “none” if you want to create a new one.')
+@description('Provide the Resource ID of an existing App Service Plan (the long string displayed in the properties tab). Keep default value “none” if you want to create a new one. The plan must be in the same subscription and region as the deployment.')
 param existingAppServicePlanID string = 'none'
 
-@description('Use Linux App Service Plan')
+@description('Use Linux App Service Plan. Ignored if existingAppServicePlanID is set, as the operating system is then taken from the existing plan.')
 param deployOnLinux bool = true
 
 @description('The SCEPman App Service and part of the default FQDN. Therefore, it must be globally unique and contain only DNS-compatible characters.')
@@ -74,9 +88,41 @@ param location string = resourceGroup().location
 @description('Tags to be assigned to all created resources. Use JSON syntax, e.g. if you want to add tags env with value dev and project with value scepman, then write { "env":"dev", "project":"scepman"}.')
 param resourceTags object = {}
 
+var useExistingAppServicePlan = existingAppServicePlanID != 'none'
+var existingAppServicePlanIdSegments = split(existingAppServicePlanID, '/')
+var appServicePlanSubscriptionId = useExistingAppServicePlan ? existingAppServicePlanIdSegments[2] : subscription().subscriptionId
+var appServicePlanResourceGroupName = useExistingAppServicePlan ? existingAppServicePlanIdSegments[4] : resourceGroup().name
+
+resource existingAppServicePlan 'Microsoft.Web/serverfarms@2025-03-01' existing = if (useExistingAppServicePlan) {
+  scope: resourceGroup(appServicePlanSubscriptionId, appServicePlanResourceGroupName)
+  name: last(existingAppServicePlanIdSegments)
+}
+
+// 'reserved' is true for Linux App Service Plans
+var effectiveDeployOnLinux = useExistingAppServicePlan ? existingAppServicePlan!.properties.reserved : deployOnLinux
+
+var useExistingKeyVault = existingKeyVaultID != 'none'
+var existingKeyVaultIdSegments = split(existingKeyVaultID, '/')
+var effectiveKeyVaultName = useExistingKeyVault ? last(existingKeyVaultIdSegments) : keyVaultName
+var keyVaultSubscriptionId = useExistingKeyVault ? existingKeyVaultIdSegments[2] : subscription().subscriptionId
+var keyVaultResourceGroupName = useExistingKeyVault ? existingKeyVaultIdSegments[4] : resourceGroup().name
+
+var useExistingStorageAccount = existingStorageAccountID != 'none'
+var existingStorageAccountIdSegments = split(existingStorageAccountID, '/')
+var effectiveStorageAccountName = useExistingStorageAccount ? last(existingStorageAccountIdSegments) : storageAccountName
+var storageAccountSubscriptionId = useExistingStorageAccount ? existingStorageAccountIdSegments[2] : subscription().subscriptionId
+var storageAccountResourceGroupName = useExistingStorageAccount ? existingStorageAccountIdSegments[4] : resourceGroup().name
+
 var artifactsRepositoryUrl = 'https://raw.githubusercontent.com/scepman/install/master/'
-var ArtifactsLocationSCEPman = uri(artifactsRepositoryUrl, deployOnLinux ? 'dist/Artifacts-Linux.zip' : 'dist/Artifacts.zip')
-var ArtifactsLocationCertMaster = uri(artifactsRepositoryUrl, deployOnLinux ? 'dist-certmaster/CertMaster-Artifacts-Linux.zip' : 'dist-certmaster/CertMaster-Artifacts.zip')
+// The artifact names of the internal channel differ between Windows and Linux
+var artifactsChannelSuffix = {
+  prod: ''
+  beta: '-Beta'
+  internal: effectiveDeployOnLinux ? '-Internal' : '-Intern'
+}
+var artifactsPlatformSuffix = effectiveDeployOnLinux ? '-Linux' : ''
+var ArtifactsLocationSCEPman = uri(artifactsRepositoryUrl, 'dist/Artifacts${artifactsPlatformSuffix}${artifactsChannelSuffix[updateChannel]}.zip')
+var ArtifactsLocationCertMaster = uri(artifactsRepositoryUrl, 'dist-certmaster/CertMaster-Artifacts${artifactsPlatformSuffix}${artifactsChannelSuffix[updateChannel]}.zip')
 var appServiceNames = [
   primaryAppServiceName
   certificateMasterAppServiceName
@@ -118,7 +164,7 @@ module SCEPmanAppServices 'nestedtemplates/appSvcDouble.bicep' = {
   params: {
     AppServicePlanName: appServicePlanName
     existingAppServicePlanID: existingAppServicePlanID
-    deployOnLinux: deployOnLinux
+    deployOnLinux: effectiveDeployOnLinux
     appServiceName: primaryAppServiceName
     appServiceName2: certificateMasterAppServiceName
     location: location
@@ -137,13 +183,15 @@ module AzureMonitor 'nestedtemplates/loganalytics.bicep' = {
 
 module SCEPmanVault 'nestedtemplates/vault.bicep' = {
   name: 'SCEPmanVault'
+  scope: resourceGroup(keyVaultSubscriptionId, keyVaultResourceGroupName)
   params: {
-    keyVaultName: keyVaultName
+    keyVaultName: effectiveKeyVaultName
+    useExistingKeyVault: useExistingKeyVault
     permittedPrincipalId: SCEPmanAppServices.outputs.scepmanPrincipalID
     location: location
     resourceTags: resourceTags
     virtualNetworkName: virtualNetworkName
-    privateEndpointName: (deployPrivateNetwork ? privateEndpointForKeyVaultName : 'None')
+    privateEndpointName: (deployPrivateNetwork && !useExistingKeyVault ? privateEndpointForKeyVaultName : 'None')
   }
   dependsOn: [
     CreateVirtualNetwork
@@ -152,14 +200,18 @@ module SCEPmanVault 'nestedtemplates/vault.bicep' = {
   ]
 }
 
+// Cross-scope module outputs compile to format(); uri() keeps ARM TTK's "URIs Should Be Properly Constructed" check passing
+var keyVaultURL = uri(SCEPmanVault.outputs.keyVaultURL, '/')
+var storageAccountTableUrl = uri(SCEPmanStorageAccount.outputs.storageAccountTableUrl, '/')
+
 module DeploymentSCEPmanConfig 'nestedtemplates/appConfig-scepman.bicep' = {
   name: 'DeploymentSCEPmanConfig'
   params: {
-    StorageAccountTableUrl: SCEPmanStorageAccount.outputs.storageAccountTableUrl
+    StorageAccountTableUrl: storageAccountTableUrl
     appServiceName: primaryAppServiceName
-    deployOnLinux: deployOnLinux
+    deployOnLinux: effectiveDeployOnLinux
     scepManBaseURL: SCEPmanAppServices.outputs.scepmanURL
-    keyVaultURL: SCEPmanVault.outputs.keyVaultURL
+    keyVaultURL: keyVaultURL
     caKeyType: caKeyType
     logAnalyticsWorkspaceId: AzureMonitor.outputs.workspaceId
     logAnalyticsWorkspaceName: logAnalyticsWorkspaceName
@@ -174,9 +226,9 @@ module DeploymentCertMasterConfig 'nestedtemplates/appConfig-certmaster.bicep' =
   name: 'DeploymentCertMasterConfig'
   params: {
     appServiceName: certificateMasterAppServiceName
-    deployOnLinux: deployOnLinux
+    deployOnLinux: effectiveDeployOnLinux
     scepmanUrl: SCEPmanAppServices.outputs.scepmanURL
-    StorageAccountTableUrl: SCEPmanStorageAccount.outputs.storageAccountTableUrl
+    StorageAccountTableUrl: storageAccountTableUrl
     logAnalyticsWorkspaceId: AzureMonitor.outputs.workspaceId
     logAnalyticsWorkspaceName: logAnalyticsWorkspaceName
     WebsiteArtifactsUri: ArtifactsLocationCertMaster
@@ -186,8 +238,10 @@ module DeploymentCertMasterConfig 'nestedtemplates/appConfig-certmaster.bicep' =
 
 module SCEPmanStorageAccount 'nestedtemplates/stgAccount.bicep' = {
   name: 'SCEPmanStorageAccount'
+  scope: resourceGroup(storageAccountSubscriptionId, storageAccountResourceGroupName)
   params: {
-    StorageAccountName: storageAccountName
+    StorageAccountName: effectiveStorageAccountName
+    useExistingStorageAccount: useExistingStorageAccount
     location: location
     resourceTags: resourceTags
     tableContributorPrincipals: [
@@ -195,7 +249,7 @@ module SCEPmanStorageAccount 'nestedtemplates/stgAccount.bicep' = {
       SCEPmanAppServices.outputs.certmasterPrincipalID
     ]
     virtualNetworkName: virtualNetworkName
-    privateEndpointName: (deployPrivateNetwork ? privateEndpointForTableStorage : 'None')
+    privateEndpointName: (deployPrivateNetwork && !useExistingStorageAccount ? privateEndpointForTableStorage : 'None')
   }
   dependsOn: [
     CreateVirtualNetwork

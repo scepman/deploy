@@ -1,0 +1,446 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/0.1.2-preview/CreateUIDefinition.MultiVm.json#",
+  "handler": "Microsoft.Azure.CreateUIDef",
+  "version": "0.1.2-preview",
+  "parameters": {
+    "basics": [
+      {
+        "name": "OrgName",
+        "type": "Microsoft.Common.TextBox",
+        "label": "Organization Name",
+        "toolTip": "Name of the Company or Organization used for the Certificate Subject.",
+        "constraints": {
+          "required": true,
+          "validations": [
+            {
+              "regex": "^.{2,}$",
+              "message": "Must be at least 2 characters."
+            }
+          ]
+        }
+      },
+      {
+        "name": "license",
+        "type": "Microsoft.Common.TextBox",
+        "label": "License Key",
+        "toolTip": "License Key for SCEPman. Leave as 'trial' for a trial license.",
+        "defaultValue": "trial",
+        "constraints": {
+          "required": true,
+          "validations": [
+            {
+              "regex": "^(trial|\\{?[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\\}?|([a-zA-Z0-9+/]{4}){14,}(|[a-zA-Z0-9+/]{2}==|[a-zA-Z0-9+/]{3}=))$",
+              "message": "Enter 'trial' or a valid SCEPman license key."
+            }
+          ]
+        }
+      },
+      {
+        "name": "updateChannel",
+        "type": "Microsoft.Common.DropDown",
+        "label": "Update Channel",
+        "defaultValue": "Production Channel",
+        "toolTip": "Select the update channel for SCEPman and Certificate Master. You can switch the channel after installation as well.",
+        "constraints": {
+          "allowedValues": [
+            {
+              "label": "Production Channel",
+              "description": "Use the latest stable version of SCEPman (recommended)",
+              "value": "prod"
+            },
+            {
+              "label": "Beta Channel",
+              "description": "Use the upcoming production release of SCEPman",
+              "value": "beta"
+            },
+            {
+              "label": "Internal Channel",
+              "description": "Use the SCEPman version currently under development (most features, but expect bugs)",
+              "value": "internal"
+            }
+          ],
+          "required": true
+        }
+      },
+      {
+        "name": "nameSuffix",
+        "type": "Microsoft.Common.TextBox",
+        "label": "Resource Name Suffix",
+        "toolTip": "Random suffix used for the default names of all resources on the following tabs, e.g. app-scepman-<suffix>. Change it before visiting the following tabs. You can still change each resource name individually.",
+        "defaultValue": "[toLower(substring(replace(guid(), '-', ''), 0, 7))]",
+        "constraints": {
+          "required": true,
+          "validations": [
+            {
+              "regex": "^[a-z0-9]{1,8}$",
+              "message": "Must be 1-8 characters, lowercase letters and numbers only."
+            }
+          ]
+        }
+      }
+    ],
+    "steps": [
+      {
+        "name": "appServiceConfig",
+        "label": "App Service Configuration",
+        "elements": [
+          {
+            "name": "useExistingPlan",
+            "type": "Microsoft.Common.CheckBox",
+            "label": "Use an existing App Service Plan",
+            "defaultValue": false,
+            "toolTip": "Select an existing App Service Plan instead of creating a new one."
+          },
+          {
+            "name": "appServicePlanName",
+            "type": "Microsoft.Common.TextBox",
+            "label": "New App Service Plan Name",
+            "toolTip": "Name for the new App Service Plan.",
+            "defaultValue": "[concat('asp-scepman-', basics('nameSuffix'))]",
+            "visible": "[not(steps('appServiceConfig').useExistingPlan)]",
+            "constraints": {
+              "required": true,
+              "validations": [
+                {
+                  "regex": "^[a-zA-Z0-9-]{1,40}$",
+                  "message": "Must be 1-40 characters, letters, numbers, and hyphens only."
+                }
+              ]
+            }
+          },
+          {
+            "name": "deployOnLinux",
+            "type": "Microsoft.Common.DropDown",
+            "label": "Operating System",
+            "defaultValue": "Linux",
+            "toolTip": "Choose the operating system for the new App Service Plan.",
+            "visible": "[not(steps('appServiceConfig').useExistingPlan)]",
+            "constraints": {
+              "allowedValues": [
+                { "label": "Linux", "value": true },
+                { "label": "Windows", "value": false }
+              ],
+              "required": true
+            }
+          },
+          {
+            "name": "existingAppServicePlan",
+            "type": "Microsoft.Solutions.ResourceSelector",
+            "label": "Existing App Service Plan",
+            "toolTip": "Select an existing App Service Plan. Only plans in the subscription and region selected on the Basics tab are listed.",
+            "resourceType": "Microsoft.Web/serverfarms",
+            "visible": "[steps('appServiceConfig').useExistingPlan]",
+            "options": {
+              "filter": {
+                "subscription": "onBasics",
+                "location": "onBasics"
+              }
+            }
+          },
+          {
+            "name": "existingPlanInfo",
+            "type": "Microsoft.Common.InfoBox",
+            "visible": "[steps('appServiceConfig').useExistingPlan]",
+            "options": {
+              "icon": "Info",
+              "text": "The operating system (Linux or Windows) is taken from the selected App Service Plan."
+            }
+          },
+          {
+            "name": "primaryAppServiceName",
+            "type": "Microsoft.Common.TextBox",
+            "label": "SCEPman App Service Name",
+            "toolTip": "Globally unique name for the SCEPman App Service. It is part of the default FQDN.",
+            "defaultValue": "[concat('app-scepman-', basics('nameSuffix'))]",
+            "constraints": {
+              "required": true,
+              "validations": [
+                {
+                  "regex": "^[a-zA-Z0-9][a-zA-Z0-9-]{0,58}[a-zA-Z0-9]$",
+                  "message": "Must be 2-60 characters, contain only letters, numbers, and hyphens."
+                }
+              ]
+            }
+          },
+          {
+            "name": "certificateMasterAppServiceName",
+            "type": "Microsoft.Common.TextBox",
+            "label": "Certificate Master App Service Name",
+            "toolTip": "Globally unique name for the Certificate Master App Service. It is part of the default FQDN.",
+            "defaultValue": "[concat('app-scepman-', basics('nameSuffix'), '-cm')]",
+            "constraints": {
+              "required": true,
+              "validations": [
+                {
+                  "regex": "^[a-zA-Z0-9][a-zA-Z0-9-]{0,58}[a-zA-Z0-9]$",
+                  "message": "Must be 2-60 characters, contain only letters, numbers, and hyphens."
+                }
+              ]
+            }
+          },
+          {
+            "name": "enableHealthCheck",
+            "type": "Microsoft.Common.DropDown",
+            "label": "Enable App Service Health Check",
+            "defaultValue": "Yes",
+            "toolTip": "Enable the App Service health check endpoint.",
+            "constraints": {
+              "allowedValues": [
+                { "label": "Yes", "value": true },
+                { "label": "No", "value": false }
+              ],
+              "required": true
+            }
+          }
+        ]
+      },
+      {
+        "name": "keyVaultConfig",
+        "label": "Key Vault Configuration",
+        "elements": [
+          {
+            "name": "useExistingKeyVault",
+            "type": "Microsoft.Common.CheckBox",
+            "label": "Use an existing Key Vault",
+            "defaultValue": false,
+            "toolTip": "Select an existing Key Vault instead of creating a new one."
+          },
+          {
+            "name": "keyVaultName",
+            "type": "Microsoft.Common.TextBox",
+            "label": "New Key Vault Name",
+            "toolTip": "Globally unique name for the Azure Key Vault. Only letters, numbers, and hyphens allowed.",
+            "defaultValue": "[concat('kv-scepman-', basics('nameSuffix'))]",
+            "visible": "[not(steps('keyVaultConfig').useExistingKeyVault)]",
+            "constraints": {
+              "required": true,
+              "validations": [
+                {
+                  "regex": "^[a-zA-Z](?!.*--)[a-zA-Z0-9-]{1,22}[a-zA-Z0-9]$",
+                  "message": "Must be 3-24 characters, start with a letter, end with a letter or number, and contain only letters, numbers, and non-consecutive hyphens."
+                }
+              ]
+            }
+          },
+          {
+            "name": "existingKeyVault",
+            "type": "Microsoft.Solutions.ResourceSelector",
+            "label": "Existing Key Vault",
+            "toolTip": "Select an existing Key Vault from any resource group in the subscription selected on the Basics tab.",
+            "resourceType": "Microsoft.KeyVault/vaults",
+            "visible": "[steps('keyVaultConfig').useExistingKeyVault]",
+            "options": {
+              "filter": {
+                "subscription": "onBasics",
+                "location": "all"
+              }
+            }
+          },
+          {
+            "name": "existingKeyVaultInfo",
+            "type": "Microsoft.Common.InfoBox",
+            "visible": "[steps('keyVaultConfig').useExistingKeyVault]",
+            "options": {
+              "icon": "Warning",
+              "text": "The Key Vault must use the Azure RBAC permission model. The SCEPman managed identity is assigned the roles Key Vault Crypto Officer, Key Vault Certificates Officer, and Key Vault Secrets User on it, so you need permissions to assign roles on the Key Vault. No private endpoint is created for an existing Key Vault, so make sure SCEPman can reach it. The key type RSA-HSM requires the Premium tier."
+            }
+          },
+          {
+            "name": "caKeyType",
+            "type": "Microsoft.Common.DropDown",
+            "label": "CA Key Type",
+            "toolTip": "Type of key pair for the SCEPman CA certificate.",
+            "defaultValue": "RSA-HSM (HSM-protected)",
+            "constraints": {
+              "allowedValues": [
+                { "label": "RSA (Software-protected)", "value": "RSA" },
+                { "label": "RSA-HSM (HSM-protected)", "value": "RSA-HSM" }
+              ],
+              "required": true
+            }
+          }
+        ]
+      },
+      {
+        "name": "storageAndMonitoring",
+        "label": "Storage & Monitoring",
+        "elements": [
+          {
+            "name": "useExistingStorage",
+            "type": "Microsoft.Common.CheckBox",
+            "label": "Use an existing Storage Account",
+            "defaultValue": false,
+            "toolTip": "Select an existing Storage Account instead of creating a new one."
+          },
+          {
+            "name": "storageAccountName",
+            "type": "Microsoft.Common.TextBox",
+            "label": "New Storage Account Name",
+            "toolTip": "Globally unique name. 3-24 characters, lowercase letters and numbers only.",
+            "defaultValue": "[concat('stscepman', basics('nameSuffix'))]",
+            "visible": "[not(steps('storageAndMonitoring').useExistingStorage)]",
+            "constraints": {
+              "required": true,
+              "validations": [
+                {
+                  "regex": "^[a-z0-9]{3,24}$",
+                  "message": "Must be 3-24 characters, lowercase letters and numbers only."
+                }
+              ]
+            }
+          },
+          {
+            "name": "existingStorageAccount",
+            "type": "Microsoft.Solutions.ResourceSelector",
+            "label": "Existing Storage Account",
+            "toolTip": "Select an existing Storage Account from any resource group in the subscription selected on the Basics tab.",
+            "resourceType": "Microsoft.Storage/storageAccounts",
+            "visible": "[steps('storageAndMonitoring').useExistingStorage]",
+            "options": {
+              "filter": {
+                "subscription": "onBasics",
+                "location": "all"
+              }
+            }
+          },
+          {
+            "name": "existingStorageInfo",
+            "type": "Microsoft.Common.InfoBox",
+            "visible": "[steps('storageAndMonitoring').useExistingStorage]",
+            "options": {
+              "icon": "Warning",
+              "text": "The managed identities of SCEPman and Certificate Master are assigned the role Storage Table Data Contributor on the Storage Account, so you need permissions to assign roles on it. No private endpoint is created for an existing Storage Account, so make sure SCEPman and Certificate Master can reach its table service."
+            }
+          },
+          {
+            "name": "logAnalyticsWorkspaceName",
+            "type": "Microsoft.Common.TextBox",
+            "label": "Log Analytics Workspace Name",
+            "toolTip": "Name for the new Log Analytics Workspace. 4-63 characters, alphanumerics and hyphens.",
+            "defaultValue": "[concat('log-scepman-', basics('nameSuffix'))]",
+            "constraints": {
+              "required": true,
+              "validations": [
+                {
+                  "regex": "^[a-zA-Z0-9][a-zA-Z0-9-]{2,61}[a-zA-Z0-9]$",
+                  "message": "Must be 4-63 characters, alphanumerics and hyphens only."
+                }
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "name": "networkConfig",
+        "label": "Network Configuration",
+        "elements": [
+          {
+            "name": "deployPrivateNetwork",
+            "type": "Microsoft.Common.DropDown",
+            "label": "Deploy with Private Network",
+            "defaultValue": "Yes",
+            "toolTip": "Deploy SCEPman with a Virtual Network. Private Endpoints are only created for a new Key Vault and a new Storage Account.",
+            "constraints": {
+              "allowedValues": [
+                { "label": "Yes", "value": true },
+                { "label": "No", "value": false }
+              ],
+              "required": true
+            }
+          },
+          {
+            "name": "virtualNetworkName",
+            "type": "Microsoft.Common.TextBox",
+            "label": "Virtual Network Name",
+            "toolTip": "Name of the Virtual Network that the App Services are connected to.",
+            "defaultValue": "[concat('vnet-scepman-', basics('nameSuffix'))]",
+            "visible": "[equals(steps('networkConfig').deployPrivateNetwork, true)]",
+            "constraints": {
+              "required": true,
+              "validations": [
+                {
+                  "regex": "^.{2,80}$",
+                  "message": "Must be between 2 and 80 characters."
+                }
+              ]
+            }
+          },
+          {
+            "name": "nsgName",
+            "type": "Microsoft.Common.TextBox",
+            "label": "Network Security Group Name",
+            "toolTip": "Name of the Network Security Group applied to the subnets.",
+            "defaultValue": "[concat('nsg-scepman-', basics('nameSuffix'))]",
+            "visible": "[equals(steps('networkConfig').deployPrivateNetwork, true)]",
+            "constraints": {
+              "required": true,
+              "validations": [
+                {
+                  "regex": "^.{1,80}$",
+                  "message": "Must be between 1 and 80 characters."
+                }
+              ]
+            }
+          },
+          {
+            "name": "privateEndpointForKeyVaultName",
+            "type": "Microsoft.Common.TextBox",
+            "label": "Key Vault Private Endpoint Name",
+            "toolTip": "Name of the Private Endpoint for the new Key Vault.",
+            "defaultValue": "[concat('pep-kv-scepman-', basics('nameSuffix'))]",
+            "visible": "[and(equals(steps('networkConfig').deployPrivateNetwork, true), not(steps('keyVaultConfig').useExistingKeyVault))]",
+            "constraints": {
+              "required": true,
+              "validations": [
+                {
+                  "regex": "^.{4,64}$",
+                  "message": "Must be between 4 and 64 characters."
+                }
+              ]
+            }
+          },
+          {
+            "name": "privateEndpointForTableStorage",
+            "type": "Microsoft.Common.TextBox",
+            "label": "Table Storage Private Endpoint Name",
+            "toolTip": "Name of the Private Endpoint for the table service of the new Storage Account.",
+            "defaultValue": "[concat('pep-sts-scepman-', basics('nameSuffix'))]",
+            "visible": "[and(equals(steps('networkConfig').deployPrivateNetwork, true), not(steps('storageAndMonitoring').useExistingStorage))]",
+            "constraints": {
+              "required": true,
+              "validations": [
+                {
+                  "regex": "^.{4,64}$",
+                  "message": "Must be between 4 and 64 characters."
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    "outputs": {
+      "location": "[location()]",
+      "OrgName": "[basics('OrgName')]",
+      "license": "[basics('license')]",
+      "updateChannel": "[basics('updateChannel')]",
+      "appServicePlanName": "[if(steps('appServiceConfig').useExistingPlan, 'asp-scepman-UNIQUENAME', steps('appServiceConfig').appServicePlanName)]",
+      "existingAppServicePlanID": "[if(steps('appServiceConfig').useExistingPlan, steps('appServiceConfig').existingAppServicePlan.id, 'none')]",
+      "deployOnLinux": "[if(steps('appServiceConfig').useExistingPlan, true, steps('appServiceConfig').deployOnLinux)]",
+      "primaryAppServiceName": "[steps('appServiceConfig').primaryAppServiceName]",
+      "certificateMasterAppServiceName": "[steps('appServiceConfig').certificateMasterAppServiceName]",
+      "enableHealthCheck": "[steps('appServiceConfig').enableHealthCheck]",
+      "keyVaultName": "[if(steps('keyVaultConfig').useExistingKeyVault, 'kv-scepman-UNIQUENAME', steps('keyVaultConfig').keyVaultName)]",
+      "existingKeyVaultID": "[if(steps('keyVaultConfig').useExistingKeyVault, steps('keyVaultConfig').existingKeyVault.id, 'none')]",
+      "caKeyType": "[steps('keyVaultConfig').caKeyType]",
+      "storageAccountName": "[if(steps('storageAndMonitoring').useExistingStorage, 'stscepmanuniquename', steps('storageAndMonitoring').storageAccountName)]",
+      "existingStorageAccountID": "[if(steps('storageAndMonitoring').useExistingStorage, steps('storageAndMonitoring').existingStorageAccount.id, 'none')]",
+      "logAnalyticsWorkspaceName": "[steps('storageAndMonitoring').logAnalyticsWorkspaceName]",
+      "deployPrivateNetwork": "[steps('networkConfig').deployPrivateNetwork]",
+      "virtualNetworkName": "[if(equals(steps('networkConfig').deployPrivateNetwork, true), steps('networkConfig').virtualNetworkName, 'not-used')]",
+      "nsgName": "[if(equals(steps('networkConfig').deployPrivateNetwork, true), steps('networkConfig').nsgName, 'not-used')]",
+      "privateEndpointForKeyVaultName": "[if(and(equals(steps('networkConfig').deployPrivateNetwork, true), not(steps('keyVaultConfig').useExistingKeyVault)), steps('networkConfig').privateEndpointForKeyVaultName, 'not-used')]",
+      "privateEndpointForTableStorage": "[if(and(equals(steps('networkConfig').deployPrivateNetwork, true), not(steps('storageAndMonitoring').useExistingStorage)), steps('networkConfig').privateEndpointForTableStorage, 'not-used')]"
+    }
+  }
+}

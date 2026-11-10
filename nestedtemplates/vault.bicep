@@ -3,6 +3,9 @@
 @maxLength(24)
 param keyVaultName string
 
+@description('Use an existing key vault with the given name in the target resource group instead of creating a new one. It must use the Azure RBAC permission model.')
+param useExistingKeyVault bool = false
+
 @description('ID of SCEPman app service principal, whom will be assigned permissions to the KV')
 param permittedPrincipalId string
 
@@ -24,7 +27,7 @@ var rbac_roles = [
   '4633458b-17de-408a-b874-0445c86b69e6' // Key Vault Secrets User
 ]
 
-resource keyVault 'Microsoft.KeyVault/vaults@2026-05-15' = {
+resource newKeyVault 'Microsoft.KeyVault/vaults@2026-05-15' = if (!useExistingKeyVault) {
   name: keyVaultName
   location: location
   tags: resourceTags
@@ -48,6 +51,10 @@ resource keyVault 'Microsoft.KeyVault/vaults@2026-05-15' = {
   }
 }
 
+resource keyVault 'Microsoft.KeyVault/vaults@2026-05-15' existing = {
+  name: keyVaultName
+}
+
 resource roleAssignment_kv_rbac_roles 'Microsoft.Authorization/roleAssignments@2022-04-01' = [
   for item in rbac_roles: {
     scope: keyVault
@@ -56,6 +63,9 @@ resource roleAssignment_kv_rbac_roles 'Microsoft.Authorization/roleAssignments@2
       roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', item)
       principalId: permittedPrincipalId
     }
+    dependsOn: [
+      newKeyVault
+    ]
   }
 ]
 
@@ -81,7 +91,7 @@ resource privateEndpoint 'Microsoft.Network/privateEndpoints@2026-01-01' = if (p
       {
         name: 'keyVault'
         properties: {
-          privateLinkServiceId: keyVault.id
+          privateLinkServiceId: newKeyVault.id
           groupIds: [
             'vault'
           ]
@@ -123,4 +133,4 @@ resource privatelink_vaultcore_azure_net_keyVaultName_link 'Microsoft.Network/pr
   }
 }
 
-output keyVaultURL string = keyVault.properties.vaultUri
+output keyVaultURL string = useExistingKeyVault ? keyVault.properties.vaultUri : newKeyVault!.properties.vaultUri

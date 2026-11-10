@@ -4,8 +4,8 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.48.1.52935",
-      "templateHash": "14384637102493305654"
+      "version": "0.49.2.45890",
+      "templateHash": "13981752475599351285"
     }
   },
   "parameters": {
@@ -23,13 +23,32 @@
         "description": "License Key for SCEPman"
       }
     },
+    "updateChannel": {
+      "type": "string",
+      "defaultValue": "prod",
+      "allowedValues": [
+        "prod",
+        "beta",
+        "internal"
+      ],
+      "metadata": {
+        "description": "Update channel of SCEPman and Certificate Master. 'prod' is recommended for production use."
+      }
+    },
     "keyVaultName": {
       "type": "string",
       "defaultValue": "kv-scepman-UNIQUENAME",
       "minLength": 3,
       "maxLength": 24,
       "metadata": {
-        "description": "Specifies the name of the Azure Key Vault. The name of a Key Vault must be globally unique and contain only DNS-compatible characters (letters, numbers, and hyphens)."
+        "description": "Specifies the name of the Azure Key Vault. The name of a Key Vault must be globally unique and contain only DNS-compatible characters (letters, numbers, and hyphens). Ignored if existingKeyVaultID is set."
+      }
+    },
+    "existingKeyVaultID": {
+      "type": "string",
+      "defaultValue": "none",
+      "metadata": {
+        "description": "Provide the Resource ID of an existing Key Vault using the Azure RBAC permission model. Keep default value “none” if you want to create a new one. No private endpoint is created for an existing Key Vault."
       }
     },
     "caKeyType": {
@@ -49,7 +68,14 @@
       "minLength": 3,
       "maxLength": 24,
       "metadata": {
-        "description": "Choose a globally unique name for your storage account. Storage account names must be between 3 and 24 characters in length and may contain numbers and lowercase letters only."
+        "description": "Choose a globally unique name for your storage account. Storage account names must be between 3 and 24 characters in length and may contain numbers and lowercase letters only. Ignored if existingStorageAccountID is set."
+      }
+    },
+    "existingStorageAccountID": {
+      "type": "string",
+      "defaultValue": "none",
+      "metadata": {
+        "description": "Provide the Resource ID of an existing Storage Account. Keep default value “none” if you want to create a new one. No private endpoint is created for an existing Storage Account."
       }
     },
     "appServicePlanName": {
@@ -61,14 +87,14 @@
       "type": "string",
       "defaultValue": "none",
       "metadata": {
-        "description": "Provide the Resource ID of an existing App Service Plan (the long string displayed in the properties tab). Keep default value “none” if you want to create a new one."
+        "description": "Provide the Resource ID of an existing App Service Plan (the long string displayed in the properties tab). Keep default value “none” if you want to create a new one. The plan must be in the same subscription and region as the deployment."
       }
     },
     "deployOnLinux": {
       "type": "bool",
       "defaultValue": true,
       "metadata": {
-        "description": "Use Linux App Service Plan"
+        "description": "Use Linux App Service Plan. Ignored if existingAppServicePlanID is set, as the operating system is then taken from the existing plan."
       }
     },
     "primaryAppServiceName": {
@@ -160,9 +186,21 @@
     }
   },
   "variables": {
+    "useExistingAppServicePlan": "[not(equals(parameters('existingAppServicePlanID'), 'none'))]",
+    "existingAppServicePlanIdSegments": "[split(parameters('existingAppServicePlanID'), '/')]",
+    "appServicePlanSubscriptionId": "[if(variables('useExistingAppServicePlan'), variables('existingAppServicePlanIdSegments')[2], subscription().subscriptionId)]",
+    "appServicePlanResourceGroupName": "[if(variables('useExistingAppServicePlan'), variables('existingAppServicePlanIdSegments')[4], resourceGroup().name)]",
+    "useExistingKeyVault": "[not(equals(parameters('existingKeyVaultID'), 'none'))]",
+    "existingKeyVaultIdSegments": "[split(parameters('existingKeyVaultID'), '/')]",
+    "effectiveKeyVaultName": "[if(variables('useExistingKeyVault'), last(variables('existingKeyVaultIdSegments')), parameters('keyVaultName'))]",
+    "keyVaultSubscriptionId": "[if(variables('useExistingKeyVault'), variables('existingKeyVaultIdSegments')[2], subscription().subscriptionId)]",
+    "keyVaultResourceGroupName": "[if(variables('useExistingKeyVault'), variables('existingKeyVaultIdSegments')[4], resourceGroup().name)]",
+    "useExistingStorageAccount": "[not(equals(parameters('existingStorageAccountID'), 'none'))]",
+    "existingStorageAccountIdSegments": "[split(parameters('existingStorageAccountID'), '/')]",
+    "effectiveStorageAccountName": "[if(variables('useExistingStorageAccount'), last(variables('existingStorageAccountIdSegments')), parameters('storageAccountName'))]",
+    "storageAccountSubscriptionId": "[if(variables('useExistingStorageAccount'), variables('existingStorageAccountIdSegments')[2], subscription().subscriptionId)]",
+    "storageAccountResourceGroupName": "[if(variables('useExistingStorageAccount'), variables('existingStorageAccountIdSegments')[4], resourceGroup().name)]",
     "artifactsRepositoryUrl": "https://raw.githubusercontent.com/scepman/install/master/",
-    "ArtifactsLocationSCEPman": "[uri(variables('artifactsRepositoryUrl'), if(parameters('deployOnLinux'), 'dist/Artifacts-Linux.zip', 'dist/Artifacts.zip'))]",
-    "ArtifactsLocationCertMaster": "[uri(variables('artifactsRepositoryUrl'), if(parameters('deployOnLinux'), 'dist-certmaster/CertMaster-Artifacts-Linux.zip', 'dist-certmaster/CertMaster-Artifacts.zip'))]",
     "appServiceNames": [
       "[parameters('primaryAppServiceName')]",
       "[parameters('certificateMasterAppServiceName')]"
@@ -185,8 +223,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.48.1.52935",
-              "templateHash": "15369115908105907048"
+              "version": "0.49.2.45890",
+              "templateHash": "5396157071037984767"
             }
           },
           "resources": []
@@ -223,8 +261,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.48.1.52935",
-              "templateHash": "3733146743388441171"
+              "version": "0.49.2.45890",
+              "templateHash": "9570843389599009441"
             }
           },
           "parameters": {
@@ -280,7 +318,7 @@
           "resources": [
             {
               "type": "Microsoft.Network/networkSecurityGroups",
-              "apiVersion": "2025-05-01",
+              "apiVersion": "2026-01-01",
               "name": "[parameters('networkSecurityGroupName')]",
               "location": "[parameters('location')]",
               "tags": "[parameters('resourceTags')]",
@@ -288,7 +326,7 @@
             },
             {
               "type": "Microsoft.Network/virtualNetworks",
-              "apiVersion": "2025-05-01",
+              "apiVersion": "2026-01-01",
               "name": "[parameters('virtualNetworkName')]",
               "location": "[parameters('location')]",
               "tags": "[parameters('resourceTags')]",
@@ -377,8 +415,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.48.1.52935",
-              "templateHash": "1719199695767812966"
+              "version": "0.49.2.45890",
+              "templateHash": "11619570455536646232"
             }
           },
           "parameters": {
@@ -404,7 +442,7 @@
           "resources": [
             {
               "type": "Microsoft.Web/sites",
-              "apiVersion": "2024-11-01",
+              "apiVersion": "2025-03-01",
               "name": "[parameters('appServiceName')]",
               "location": "[parameters('location')]",
               "properties": {
@@ -435,9 +473,7 @@
           "existingAppServicePlanID": {
             "value": "[parameters('existingAppServicePlanID')]"
           },
-          "deployOnLinux": {
-            "value": "[parameters('deployOnLinux')]"
-          },
+          "deployOnLinux": "[if(variables('useExistingAppServicePlan'), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('appServicePlanSubscriptionId'), variables('appServicePlanResourceGroupName')), 'Microsoft.Web/serverfarms', last(variables('existingAppServicePlanIdSegments'))), '2025-03-01').reserved), createObject('value', parameters('deployOnLinux')))]",
           "appServiceName": {
             "value": "[parameters('primaryAppServiceName')]"
           },
@@ -457,8 +493,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.48.1.52935",
-              "templateHash": "2007431999067000774"
+              "version": "0.49.2.45890",
+              "templateHash": "13353941888693114248"
             }
           },
           "parameters": {
@@ -627,8 +663,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.48.1.52935",
-              "templateHash": "6299591164278778863"
+              "version": "0.49.2.45890",
+              "templateHash": "2423969441166501279"
             }
           },
           "parameters": {
@@ -654,7 +690,7 @@
           "resources": [
             {
               "type": "Microsoft.OperationalInsights/workspaces",
-              "apiVersion": "2025-07-01",
+              "apiVersion": "2026-03-01",
               "name": "[parameters('logAnalyticsAccountName')]",
               "location": "[parameters('location')]",
               "tags": "[parameters('resourceTags')]",
@@ -669,7 +705,7 @@
           "outputs": {
             "workspaceId": {
               "type": "string",
-              "value": "[reference(resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsAccountName')), '2025-07-01').customerId]"
+              "value": "[reference(resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsAccountName')), '2026-03-01').customerId]"
             }
           }
         }
@@ -679,6 +715,8 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2025-04-01",
       "name": "SCEPmanVault",
+      "subscriptionId": "[variables('keyVaultSubscriptionId')]",
+      "resourceGroup": "[variables('keyVaultResourceGroupName')]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -686,7 +724,10 @@
         "mode": "Incremental",
         "parameters": {
           "keyVaultName": {
-            "value": "[parameters('keyVaultName')]"
+            "value": "[variables('effectiveKeyVaultName')]"
+          },
+          "useExistingKeyVault": {
+            "value": "[variables('useExistingKeyVault')]"
           },
           "permittedPrincipalId": {
             "value": "[reference(resourceId('Microsoft.Resources/deployments', 'SCEPmanAppServices'), '2025-04-01').outputs.scepmanPrincipalID.value]"
@@ -700,7 +741,7 @@
           "virtualNetworkName": {
             "value": "[parameters('virtualNetworkName')]"
           },
-          "privateEndpointName": "[if(parameters('deployPrivateNetwork'), createObject('value', parameters('privateEndpointForKeyVaultName')), createObject('value', 'None'))]"
+          "privateEndpointName": "[if(and(parameters('deployPrivateNetwork'), not(variables('useExistingKeyVault'))), createObject('value', parameters('privateEndpointForKeyVaultName')), createObject('value', 'None'))]"
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
@@ -708,8 +749,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.48.1.52935",
-              "templateHash": "4373199118164214244"
+              "version": "0.49.2.45890",
+              "templateHash": "4185892495803801222"
             }
           },
           "parameters": {
@@ -719,6 +760,13 @@
               "maxLength": 24,
               "metadata": {
                 "description": "Specifies the name of the key vault."
+              }
+            },
+            "useExistingKeyVault": {
+              "type": "bool",
+              "defaultValue": false,
+              "metadata": {
+                "description": "Use an existing key vault with the given name in the target resource group instead of creating a new one. It must use the Azure RBAC permission model."
               }
             },
             "permittedPrincipalId": {
@@ -761,8 +809,9 @@
           },
           "resources": [
             {
+              "condition": "[not(parameters('useExistingKeyVault'))]",
               "type": "Microsoft.KeyVault/vaults",
-              "apiVersion": "2025-05-01",
+              "apiVersion": "2026-05-15",
               "name": "[parameters('keyVaultName')]",
               "location": "[parameters('location')]",
               "tags": "[parameters('resourceTags')]",
@@ -814,7 +863,7 @@
             {
               "condition": "[not(equals(parameters('privateEndpointName'), 'None'))]",
               "type": "Microsoft.Network/privateEndpoints",
-              "apiVersion": "2025-05-01",
+              "apiVersion": "2026-01-01",
               "name": "[parameters('privateEndpointName')]",
               "location": "[parameters('location')]",
               "tags": "[parameters('resourceTags')]",
@@ -846,7 +895,7 @@
             {
               "condition": "[not(equals(parameters('privateEndpointName'), 'None'))]",
               "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
-              "apiVersion": "2025-05-01",
+              "apiVersion": "2026-01-01",
               "name": "[format('{0}/{1}', parameters('privateEndpointName'), 'default')]",
               "properties": {
                 "privateDnsZoneConfigs": [
@@ -883,7 +932,7 @@
           "outputs": {
             "keyVaultURL": {
               "type": "string",
-              "value": "[reference(resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName')), '2025-05-01').vaultUri]"
+              "value": "[if(parameters('useExistingKeyVault'), reference(resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName')), '2026-05-15').vaultUri, reference(resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName')), '2026-05-15').vaultUri)]"
             }
           }
         }
@@ -892,7 +941,7 @@
         "AppService_ConnectionToVirtualNetwork",
         "[resourceId('Microsoft.Resources/deployments', 'CreateVirtualNetwork')]",
         "[resourceId('Microsoft.Resources/deployments', 'SCEPmanAppServices')]",
-        "[resourceId('Microsoft.Resources/deployments', 'SCEPmanStorageAccount')]"
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('storageAccountSubscriptionId'), variables('storageAccountResourceGroupName')), 'Microsoft.Resources/deployments', 'SCEPmanStorageAccount')]"
       ]
     },
     {
@@ -906,19 +955,17 @@
         "mode": "Incremental",
         "parameters": {
           "StorageAccountTableUrl": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'SCEPmanStorageAccount'), '2025-04-01').outputs.storageAccountTableUrl.value]"
+            "value": "[uri(reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('storageAccountSubscriptionId'), variables('storageAccountResourceGroupName')), 'Microsoft.Resources/deployments', 'SCEPmanStorageAccount'), '2025-04-01').outputs.storageAccountTableUrl.value, '/')]"
           },
           "appServiceName": {
             "value": "[parameters('primaryAppServiceName')]"
           },
-          "deployOnLinux": {
-            "value": "[parameters('deployOnLinux')]"
-          },
+          "deployOnLinux": "[if(variables('useExistingAppServicePlan'), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('appServicePlanSubscriptionId'), variables('appServicePlanResourceGroupName')), 'Microsoft.Web/serverfarms', last(variables('existingAppServicePlanIdSegments'))), '2025-03-01').reserved), createObject('value', parameters('deployOnLinux')))]",
           "scepManBaseURL": {
             "value": "[reference(resourceId('Microsoft.Resources/deployments', 'SCEPmanAppServices'), '2025-04-01').outputs.scepmanURL.value]"
           },
           "keyVaultURL": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'SCEPmanVault'), '2025-04-01').outputs.keyVaultURL.value]"
+            "value": "[uri(reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('keyVaultSubscriptionId'), variables('keyVaultResourceGroupName')), 'Microsoft.Resources/deployments', 'SCEPmanVault'), '2025-04-01').outputs.keyVaultURL.value, '/')]"
           },
           "caKeyType": {
             "value": "[parameters('caKeyType')]"
@@ -933,7 +980,7 @@
             "value": "[parameters('OrgName')]"
           },
           "WebsiteArtifactsUri": {
-            "value": "[variables('ArtifactsLocationSCEPman')]"
+            "value": "[uri(variables('artifactsRepositoryUrl'), format('dist/Artifacts{0}{1}.zip', if(if(variables('useExistingAppServicePlan'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('appServicePlanSubscriptionId'), variables('appServicePlanResourceGroupName')), 'Microsoft.Web/serverfarms', last(variables('existingAppServicePlanIdSegments'))), '2025-03-01').reserved, parameters('deployOnLinux')), '-Linux', ''), createObject('prod', '', 'beta', '-Beta', 'internal', if(if(variables('useExistingAppServicePlan'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('appServicePlanSubscriptionId'), variables('appServicePlanResourceGroupName')), 'Microsoft.Web/serverfarms', last(variables('existingAppServicePlanIdSegments'))), '2025-03-01').reserved, parameters('deployOnLinux')), '-Internal', '-Intern'))[parameters('updateChannel')]))]"
           },
           "license": {
             "value": "[parameters('license')]"
@@ -949,8 +996,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.48.1.52935",
-              "templateHash": "16305978032582640296"
+              "version": "0.49.2.45890",
+              "templateHash": "15464569428311684334"
             }
           },
           "functions": [
@@ -1072,7 +1119,7 @@
             "logAnalyticsWorkspace": {
               "existing": true,
               "type": "Microsoft.OperationalInsights/workspaces",
-              "apiVersion": "2025-07-01",
+              "apiVersion": "2026-03-01",
               "name": "[parameters('logAnalyticsWorkspaceName')]"
             },
             "appServiceName_appsettings": {
@@ -1093,7 +1140,7 @@
                 "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:CRL:Source', parameters('deployOnLinux')))]": "Storage",
                 "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:EnableCertificateStorage', parameters('deployOnLinux')))]": "true",
                 "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:LoggingConfig:WorkspaceId', parameters('deployOnLinux')))]": "[parameters('logAnalyticsWorkspaceId')]",
-                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:LoggingConfig:SharedKey', parameters('deployOnLinux')))]": "[listKeys('logAnalyticsWorkspace', '2025-07-01').primarySharedKey]",
+                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:LoggingConfig:SharedKey', parameters('deployOnLinux')))]": "[listKeys('logAnalyticsWorkspace', '2026-03-01').primarySharedKey]",
                 "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:KeyVaultConfig:KeyVaultURL', parameters('deployOnLinux')))]": "[parameters('keyVaultURL')]",
                 "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:CertificateStorage:TableStorageEndpoint', parameters('deployOnLinux')))]": "[parameters('StorageAccountTableUrl')]",
                 "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:KeyVaultConfig:RootCertificateConfig:CertificateName', parameters('deployOnLinux')))]": "SCEPman-Root-CA-V1",
@@ -1120,8 +1167,8 @@
       "dependsOn": [
         "[resourceId('Microsoft.Resources/deployments', 'AzureMonitor')]",
         "[resourceId('Microsoft.Resources/deployments', 'SCEPmanAppServices')]",
-        "[resourceId('Microsoft.Resources/deployments', 'SCEPmanStorageAccount')]",
-        "[resourceId('Microsoft.Resources/deployments', 'SCEPmanVault')]"
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('storageAccountSubscriptionId'), variables('storageAccountResourceGroupName')), 'Microsoft.Resources/deployments', 'SCEPmanStorageAccount')]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('keyVaultSubscriptionId'), variables('keyVaultResourceGroupName')), 'Microsoft.Resources/deployments', 'SCEPmanVault')]"
       ]
     },
     {
@@ -1137,14 +1184,12 @@
           "appServiceName": {
             "value": "[parameters('certificateMasterAppServiceName')]"
           },
-          "deployOnLinux": {
-            "value": "[parameters('deployOnLinux')]"
-          },
+          "deployOnLinux": "[if(variables('useExistingAppServicePlan'), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('appServicePlanSubscriptionId'), variables('appServicePlanResourceGroupName')), 'Microsoft.Web/serverfarms', last(variables('existingAppServicePlanIdSegments'))), '2025-03-01').reserved), createObject('value', parameters('deployOnLinux')))]",
           "scepmanUrl": {
             "value": "[reference(resourceId('Microsoft.Resources/deployments', 'SCEPmanAppServices'), '2025-04-01').outputs.scepmanURL.value]"
           },
           "StorageAccountTableUrl": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'SCEPmanStorageAccount'), '2025-04-01').outputs.storageAccountTableUrl.value]"
+            "value": "[uri(reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('storageAccountSubscriptionId'), variables('storageAccountResourceGroupName')), 'Microsoft.Resources/deployments', 'SCEPmanStorageAccount'), '2025-04-01').outputs.storageAccountTableUrl.value, '/')]"
           },
           "logAnalyticsWorkspaceId": {
             "value": "[reference(resourceId('Microsoft.Resources/deployments', 'AzureMonitor'), '2025-04-01').outputs.workspaceId.value]"
@@ -1153,7 +1198,7 @@
             "value": "[parameters('logAnalyticsWorkspaceName')]"
           },
           "WebsiteArtifactsUri": {
-            "value": "[variables('ArtifactsLocationCertMaster')]"
+            "value": "[uri(variables('artifactsRepositoryUrl'), format('dist-certmaster/CertMaster-Artifacts{0}{1}.zip', if(if(variables('useExistingAppServicePlan'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('appServicePlanSubscriptionId'), variables('appServicePlanResourceGroupName')), 'Microsoft.Web/serverfarms', last(variables('existingAppServicePlanIdSegments'))), '2025-03-01').reserved, parameters('deployOnLinux')), '-Linux', ''), createObject('prod', '', 'beta', '-Beta', 'internal', if(if(variables('useExistingAppServicePlan'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('appServicePlanSubscriptionId'), variables('appServicePlanResourceGroupName')), 'Microsoft.Web/serverfarms', last(variables('existingAppServicePlanIdSegments'))), '2025-03-01').reserved, parameters('deployOnLinux')), '-Internal', '-Intern'))[parameters('updateChannel')]))]"
           },
           "enableHealthCheck": {
             "value": "[parameters('enableHealthCheck')]"
@@ -1166,8 +1211,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.48.1.52935",
-              "templateHash": "7503975684646397852"
+              "version": "0.49.2.45890",
+              "templateHash": "12709702032466545507"
             }
           },
           "functions": [
@@ -1252,7 +1297,7 @@
             "logAnalyticsWorkspace": {
               "existing": true,
               "type": "Microsoft.OperationalInsights/workspaces",
-              "apiVersion": "2025-07-01",
+              "apiVersion": "2026-03-01",
               "name": "[parameters('logAnalyticsWorkspaceName')]"
             },
             "appServiceName_appsettings": {
@@ -1265,7 +1310,7 @@
                 "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:SCEPman:URL', parameters('deployOnLinux')))]": "[parameters('scepmanUrl')]",
                 "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:AuthConfig:TenantId', parameters('deployOnLinux')))]": "[subscription().tenantId]",
                 "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:LoggingConfig:WorkspaceId', parameters('deployOnLinux')))]": "[parameters('logAnalyticsWorkspaceId')]",
-                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:LoggingConfig:SharedKey', parameters('deployOnLinux')))]": "[listKeys('logAnalyticsWorkspace', '2025-07-01').primarySharedKey]"
+                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:LoggingConfig:SharedKey', parameters('deployOnLinux')))]": "[listKeys('logAnalyticsWorkspace', '2026-03-01').primarySharedKey]"
               }
             },
             "appServiceName_websettings": {
@@ -1283,13 +1328,15 @@
       "dependsOn": [
         "[resourceId('Microsoft.Resources/deployments', 'AzureMonitor')]",
         "[resourceId('Microsoft.Resources/deployments', 'SCEPmanAppServices')]",
-        "[resourceId('Microsoft.Resources/deployments', 'SCEPmanStorageAccount')]"
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('storageAccountSubscriptionId'), variables('storageAccountResourceGroupName')), 'Microsoft.Resources/deployments', 'SCEPmanStorageAccount')]"
       ]
     },
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2025-04-01",
       "name": "SCEPmanStorageAccount",
+      "subscriptionId": "[variables('storageAccountSubscriptionId')]",
+      "resourceGroup": "[variables('storageAccountResourceGroupName')]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -1297,7 +1344,10 @@
         "mode": "Incremental",
         "parameters": {
           "StorageAccountName": {
-            "value": "[parameters('storageAccountName')]"
+            "value": "[variables('effectiveStorageAccountName')]"
+          },
+          "useExistingStorageAccount": {
+            "value": "[variables('useExistingStorageAccount')]"
           },
           "location": {
             "value": "[parameters('location')]"
@@ -1314,7 +1364,7 @@
           "virtualNetworkName": {
             "value": "[parameters('virtualNetworkName')]"
           },
-          "privateEndpointName": "[if(parameters('deployPrivateNetwork'), createObject('value', parameters('privateEndpointForTableStorage')), createObject('value', 'None'))]"
+          "privateEndpointName": "[if(and(parameters('deployPrivateNetwork'), not(variables('useExistingStorageAccount'))), createObject('value', parameters('privateEndpointForTableStorage')), createObject('value', 'None'))]"
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
@@ -1322,8 +1372,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.48.1.52935",
-              "templateHash": "16677155702232074191"
+              "version": "0.49.2.45890",
+              "templateHash": "6045190923048094522"
             }
           },
           "parameters": {
@@ -1331,6 +1381,13 @@
               "type": "string",
               "metadata": {
                 "description": "Name of the storage account"
+              }
+            },
+            "useExistingStorageAccount": {
+              "type": "bool",
+              "defaultValue": false,
+              "metadata": {
+                "description": "Use an existing storage account with the given name in the target resource group instead of creating a new one."
               }
             },
             "location": {
@@ -1496,8 +1553,9 @@
           },
           "resources": [
             {
+              "condition": "[not(parameters('useExistingStorageAccount'))]",
               "type": "Microsoft.Storage/storageAccounts",
-              "apiVersion": "2025-06-01",
+              "apiVersion": "2026-06-01",
               "name": "[parameters('StorageAccountName')]",
               "location": "[parameters('location')]",
               "tags": "[parameters('resourceTags')]",
@@ -1550,7 +1608,7 @@
             {
               "condition": "[not(equals(parameters('privateEndpointName'), 'None'))]",
               "type": "Microsoft.Network/privateEndpoints",
-              "apiVersion": "2025-05-01",
+              "apiVersion": "2026-01-01",
               "name": "[parameters('privateEndpointName')]",
               "location": "[parameters('location')]",
               "tags": "[parameters('resourceTags')]",
@@ -1582,7 +1640,7 @@
             {
               "condition": "[not(equals(parameters('privateEndpointName'), 'None'))]",
               "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
-              "apiVersion": "2025-05-01",
+              "apiVersion": "2026-01-01",
               "name": "[format('{0}/{1}', parameters('privateEndpointName'), 'default')]",
               "properties": {
                 "privateDnsZoneConfigs": [
@@ -1619,7 +1677,7 @@
           "outputs": {
             "storageAccountTableUrl": {
               "type": "string",
-              "value": "[reference(resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName')), '2025-06-01').primaryEndpoints.table]"
+              "value": "[if(parameters('useExistingStorageAccount'), reference(resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName')), '2026-06-01').primaryEndpoints.table, reference(resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName')), '2026-06-01').primaryEndpoints.table)]"
             }
           }
         }
