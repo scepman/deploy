@@ -61,22 +61,6 @@
           ],
           "required": true
         }
-      },
-      {
-        "name": "nameSuffix",
-        "type": "Microsoft.Common.TextBox",
-        "label": "Resource Name Suffix",
-        "toolTip": "Random suffix used for the default names of all resources on the following tabs, e.g. app-scepman-<suffix>. Change it before visiting the following tabs. You can still change each resource name individually.",
-        "defaultValue": "[toLower(substring(replace(guid(), '-', ''), 0, 7))]",
-        "constraints": {
-          "required": true,
-          "validations": [
-            {
-              "regex": "^[a-z0-9]{1,8}$",
-              "message": "Must be 1-8 characters, lowercase letters and numbers only."
-            }
-          ]
-        }
       }
     ],
     "steps": [
@@ -86,23 +70,30 @@
         "elements": [
           {
             "name": "useExistingPlan",
-            "type": "Microsoft.Common.CheckBox",
-            "label": "Use an existing App Service Plan",
-            "defaultValue": false,
-            "toolTip": "Select an existing App Service Plan instead of creating a new one."
+            "type": "Microsoft.Common.DropDown",
+            "label": "App Service Plan",
+            "defaultValue": "Create new",
+            "toolTip": "Create a new App Service Plan or use an existing one.",
+            "constraints": {
+              "allowedValues": [
+                { "label": "Create new", "value": false },
+                { "label": "Use existing", "value": true }
+              ],
+              "required": true
+            }
           },
           {
             "name": "appServicePlanName",
             "type": "Microsoft.Common.TextBox",
             "label": "New App Service Plan Name",
-            "toolTip": "Name for the new App Service Plan.",
-            "defaultValue": "[concat('asp-scepman-', basics('nameSuffix'))]",
+            "toolTip": "Name for the new App Service Plan. If left empty, a name with a unique string derived from the resource group is generated.",
+            "placeholder": "Leave empty for asp-scepman-<unique string>",
             "visible": "[not(steps('appServiceConfig').useExistingPlan)]",
             "constraints": {
-              "required": true,
+              "required": false,
               "validations": [
                 {
-                  "regex": "^[a-zA-Z0-9-]{1,40}$",
+                  "regex": "^(|[a-zA-Z0-9-]{1,40})$",
                   "message": "Must be 1-40 characters, letters, numbers, and hyphens only."
                 }
               ]
@@ -138,25 +129,16 @@
             }
           },
           {
-            "name": "existingPlanInfo",
-            "type": "Microsoft.Common.InfoBox",
-            "visible": "[steps('appServiceConfig').useExistingPlan]",
-            "options": {
-              "icon": "Info",
-              "text": "The operating system (Linux or Windows) is taken from the selected App Service Plan."
-            }
-          },
-          {
             "name": "primaryAppServiceName",
             "type": "Microsoft.Common.TextBox",
             "label": "SCEPman App Service Name",
-            "toolTip": "Globally unique name for the SCEPman App Service. It is part of the default FQDN.",
-            "defaultValue": "[concat('app-scepman-', basics('nameSuffix'))]",
+            "toolTip": "Globally unique name for the SCEPman App Service. It is part of the default FQDN. If left empty, a name with a unique string derived from the resource group is generated.",
+            "placeholder": "Leave empty for app-scepman-<unique string>",
             "constraints": {
-              "required": true,
+              "required": false,
               "validations": [
                 {
-                  "regex": "^[a-zA-Z0-9][a-zA-Z0-9-]{0,58}[a-zA-Z0-9]$",
+                  "regex": "^(|[a-zA-Z0-9][a-zA-Z0-9-]{0,58}[a-zA-Z0-9])$",
                   "message": "Must be 2-60 characters, contain only letters, numbers, and hyphens."
                 }
               ]
@@ -166,13 +148,13 @@
             "name": "certificateMasterAppServiceName",
             "type": "Microsoft.Common.TextBox",
             "label": "Certificate Master App Service Name",
-            "toolTip": "Globally unique name for the Certificate Master App Service. It is part of the default FQDN.",
-            "defaultValue": "[concat('app-scepman-', basics('nameSuffix'), '-cm')]",
+            "toolTip": "Globally unique name for the Certificate Master App Service. It is part of the default FQDN. If left empty, a name with a unique string derived from the resource group is generated.",
+            "placeholder": "Leave empty for app-scepman-<unique string>-cm",
             "constraints": {
-              "required": true,
+              "required": false,
               "validations": [
                 {
-                  "regex": "^[a-zA-Z0-9][a-zA-Z0-9-]{0,58}[a-zA-Z0-9]$",
+                  "regex": "^(|[a-zA-Z0-9][a-zA-Z0-9-]{0,58}[a-zA-Z0-9])$",
                   "message": "Must be 2-60 characters, contain only letters, numbers, and hyphens."
                 }
               ]
@@ -196,27 +178,34 @@
       },
       {
         "name": "keyVaultConfig",
-        "label": "Key Vault Configuration",
+        "label": "Key Vault & CA Configuration",
         "elements": [
           {
             "name": "useExistingKeyVault",
-            "type": "Microsoft.Common.CheckBox",
-            "label": "Use an existing Key Vault",
-            "defaultValue": false,
-            "toolTip": "Select an existing Key Vault instead of creating a new one."
+            "type": "Microsoft.Common.DropDown",
+            "label": "Key Vault",
+            "defaultValue": "Create new",
+            "toolTip": "Create a new Key Vault or use an existing one.",
+            "constraints": {
+              "allowedValues": [
+                { "label": "Create new", "value": false },
+                { "label": "Use existing", "value": true }
+              ],
+              "required": true
+            }
           },
           {
             "name": "keyVaultName",
             "type": "Microsoft.Common.TextBox",
             "label": "New Key Vault Name",
-            "toolTip": "Globally unique name for the Azure Key Vault. Only letters, numbers, and hyphens allowed.",
-            "defaultValue": "[concat('kv-scepman-', basics('nameSuffix'))]",
+            "toolTip": "Globally unique name for the Azure Key Vault. Only letters, numbers, and hyphens allowed. If left empty, a name with a unique string derived from the resource group is generated.",
+            "placeholder": "Leave empty for kv-scepman-<unique string>",
             "visible": "[not(steps('keyVaultConfig').useExistingKeyVault)]",
             "constraints": {
-              "required": true,
+              "required": false,
               "validations": [
                 {
-                  "regex": "^[a-zA-Z](?!.*--)[a-zA-Z0-9-]{1,22}[a-zA-Z0-9]$",
+                  "regex": "^(|[a-zA-Z](?!.*--)[a-zA-Z0-9-]{1,22}[a-zA-Z0-9])$",
                   "message": "Must be 3-24 characters, start with a letter, end with a letter or number, and contain only letters, numbers, and non-consecutive hyphens."
                 }
               ]
@@ -258,6 +247,45 @@
               ],
               "required": true
             }
+          },
+          {
+            "name": "caSubjectMode",
+            "type": "Microsoft.Common.DropDown",
+            "label": "CA Certificate Subject",
+            "defaultValue": "Default from organization name",
+            "toolTip": "Subject of the SCEPman root CA certificate. It cannot be changed after the CA certificate has been created.",
+            "constraints": {
+              "allowedValues": [
+                {
+                  "label": "Default from organization name",
+                  "description": "CN=SCEPman-Root-CA-V1, OU=<tenant ID>, O=\"<organization name>\"",
+                  "value": "default"
+                },
+                {
+                  "label": "Manually",
+                  "description": "Enter a custom distinguished name",
+                  "value": "custom"
+                }
+              ],
+              "required": true
+            }
+          },
+          {
+            "name": "caSubject",
+            "type": "Microsoft.Common.TextBox",
+            "label": "Custom CA Certificate Subject",
+            "toolTip": "Distinguished name of the SCEPman root CA certificate. It cannot be changed after the CA certificate has been created.",
+            "defaultValue": "[concat('CN=SCEPman-Root-CA-V1, OU=', subscription().tenantId, ', O=\"', basics('OrgName'), '\"')]",
+            "visible": "[equals(steps('keyVaultConfig').caSubjectMode, 'custom')]",
+            "constraints": {
+              "required": true,
+              "validations": [
+                {
+                  "regex": "^(?=.*CN=)[^\\r\\n]{4,512}$",
+                  "message": "Must be a distinguished name with up to 512 characters that contains a common name (CN=...)."
+                }
+              ]
+            }
           }
         ]
       },
@@ -267,23 +295,30 @@
         "elements": [
           {
             "name": "useExistingStorage",
-            "type": "Microsoft.Common.CheckBox",
-            "label": "Use an existing Storage Account",
-            "defaultValue": false,
-            "toolTip": "Select an existing Storage Account instead of creating a new one."
+            "type": "Microsoft.Common.DropDown",
+            "label": "Storage Account",
+            "defaultValue": "Create new",
+            "toolTip": "Create a new Storage Account or use an existing one.",
+            "constraints": {
+              "allowedValues": [
+                { "label": "Create new", "value": false },
+                { "label": "Use existing", "value": true }
+              ],
+              "required": true
+            }
           },
           {
             "name": "storageAccountName",
             "type": "Microsoft.Common.TextBox",
             "label": "New Storage Account Name",
-            "toolTip": "Globally unique name. 3-24 characters, lowercase letters and numbers only.",
-            "defaultValue": "[concat('stscepman', basics('nameSuffix'))]",
+            "toolTip": "Globally unique name. 3-24 characters, lowercase letters and numbers only. If left empty, a name with a unique string derived from the resource group is generated.",
+            "placeholder": "Leave empty for stscepman<unique string>",
             "visible": "[not(steps('storageAndMonitoring').useExistingStorage)]",
             "constraints": {
-              "required": true,
+              "required": false,
               "validations": [
                 {
-                  "regex": "^[a-z0-9]{3,24}$",
+                  "regex": "^(|[a-z0-9]{3,24})$",
                   "message": "Must be 3-24 characters, lowercase letters and numbers only."
                 }
               ]
@@ -316,13 +351,13 @@
             "name": "logAnalyticsWorkspaceName",
             "type": "Microsoft.Common.TextBox",
             "label": "Log Analytics Workspace Name",
-            "toolTip": "Name for the new Log Analytics Workspace. 4-63 characters, alphanumerics and hyphens.",
-            "defaultValue": "[concat('log-scepman-', basics('nameSuffix'))]",
+            "toolTip": "Name for the new Log Analytics Workspace. 4-63 characters, alphanumerics and hyphens. If left empty, a name with a unique string derived from the resource group is generated.",
+            "placeholder": "Leave empty for log-scepman-<unique string>",
             "constraints": {
-              "required": true,
+              "required": false,
               "validations": [
                 {
-                  "regex": "^[a-zA-Z0-9][a-zA-Z0-9-]{2,61}[a-zA-Z0-9]$",
+                  "regex": "^(|[a-zA-Z0-9][a-zA-Z0-9-]{2,61}[a-zA-Z0-9])$",
                   "message": "Must be 4-63 characters, alphanumerics and hyphens only."
                 }
               ]
@@ -352,14 +387,14 @@
             "name": "virtualNetworkName",
             "type": "Microsoft.Common.TextBox",
             "label": "Virtual Network Name",
-            "toolTip": "Name of the Virtual Network that the App Services are connected to.",
-            "defaultValue": "[concat('vnet-scepman-', basics('nameSuffix'))]",
+            "toolTip": "Name of the Virtual Network that the App Services are connected to. If left empty, a name with a unique string derived from the resource group is generated.",
+            "placeholder": "Leave empty for vnet-scepman-<unique string>",
             "visible": "[equals(steps('networkConfig').deployPrivateNetwork, true)]",
             "constraints": {
-              "required": true,
+              "required": false,
               "validations": [
                 {
-                  "regex": "^.{2,80}$",
+                  "regex": "^(|.{2,80})$",
                   "message": "Must be between 2 and 80 characters."
                 }
               ]
@@ -369,14 +404,14 @@
             "name": "nsgName",
             "type": "Microsoft.Common.TextBox",
             "label": "Network Security Group Name",
-            "toolTip": "Name of the Network Security Group applied to the subnets.",
-            "defaultValue": "[concat('nsg-scepman-', basics('nameSuffix'))]",
+            "toolTip": "Name of the Network Security Group applied to the subnets. If left empty, a name with a unique string derived from the resource group is generated.",
+            "placeholder": "Leave empty for nsg-scepman-<unique string>",
             "visible": "[equals(steps('networkConfig').deployPrivateNetwork, true)]",
             "constraints": {
-              "required": true,
+              "required": false,
               "validations": [
                 {
-                  "regex": "^.{1,80}$",
+                  "regex": "^(|.{1,80})$",
                   "message": "Must be between 1 and 80 characters."
                 }
               ]
@@ -386,14 +421,14 @@
             "name": "privateEndpointForKeyVaultName",
             "type": "Microsoft.Common.TextBox",
             "label": "Key Vault Private Endpoint Name",
-            "toolTip": "Name of the Private Endpoint for the new Key Vault.",
-            "defaultValue": "[concat('pep-kv-scepman-', basics('nameSuffix'))]",
+            "toolTip": "Name of the Private Endpoint for the new Key Vault. If left empty, a name with a unique string derived from the resource group is generated.",
+            "placeholder": "Leave empty for pep-kv-scepman-<unique string>",
             "visible": "[and(equals(steps('networkConfig').deployPrivateNetwork, true), not(steps('keyVaultConfig').useExistingKeyVault))]",
             "constraints": {
-              "required": true,
+              "required": false,
               "validations": [
                 {
-                  "regex": "^.{4,64}$",
+                  "regex": "^(|.{4,64})$",
                   "message": "Must be between 4 and 64 characters."
                 }
               ]
@@ -403,244 +438,18 @@
             "name": "privateEndpointForTableStorage",
             "type": "Microsoft.Common.TextBox",
             "label": "Table Storage Private Endpoint Name",
-            "toolTip": "Name of the Private Endpoint for the table service of the new Storage Account.",
-            "defaultValue": "[concat('pep-sts-scepman-', basics('nameSuffix'))]",
+            "toolTip": "Name of the Private Endpoint for the table service of the new Storage Account. If left empty, a name with a unique string derived from the resource group is generated.",
+            "placeholder": "Leave empty for pep-sts-scepman-<unique string>",
             "visible": "[and(equals(steps('networkConfig').deployPrivateNetwork, true), not(steps('storageAndMonitoring').useExistingStorage))]",
             "constraints": {
-              "required": true,
+              "required": false,
               "validations": [
                 {
-                  "regex": "^.{4,64}$",
+                  "regex": "^(|.{4,64})$",
                   "message": "Must be between 4 and 64 characters."
                 }
               ]
             }
-          }
-        ]
-      },
-      {
-        "name": "scepmanSettings",
-        "label": "SCEPman Settings",
-        "elements": [
-          {
-            "name": "scepmanSettingsInfo",
-            "type": "Microsoft.Common.InfoBox",
-            "options": {
-              "icon": "Info",
-              "text": "Optionally enable additional SCEPman endpoints. The Intune endpoint is always enabled. Challenge passwords and client secrets are stored as secrets in SCEPman's Key Vault, not as app settings. Endpoints marked with Enterprise require a SCEPman Enterprise Edition license.",
-              "uri": "https://docs.scepman.com/scepman-configuration/application-settings"
-            }
-          },
-          {
-            "name": "staticSection",
-            "type": "Microsoft.Common.Section",
-            "label": "Static Endpoint (third-party MDM solutions)",
-            "elements": [
-              {
-                "name": "enableStaticValidation",
-                "type": "Microsoft.Common.CheckBox",
-                "label": "Enable static endpoint (/static)",
-                "defaultValue": false,
-                "toolTip": "Enables certificate enrollment via a static challenge password, e.g. for Workspace ONE, Ivanti, or other MDM solutions."
-              },
-              {
-                "name": "staticValidationRequestPassword",
-                "type": "Microsoft.Common.PasswordBox",
-                "label": {
-                  "password": "Challenge password",
-                  "confirmPassword": "Confirm challenge password"
-                },
-                "toolTip": "Challenge password that you configure in the SCEP profile of your MDM solution.",
-                "visible": "[steps('scepmanSettings').staticSection.enableStaticValidation]",
-                "constraints": {
-                  "required": true,
-                  "regex": "^\\S{12,128}$",
-                  "validationMessage": "Must be 12-128 characters without whitespace."
-                },
-                "options": {
-                  "hideConfirmation": false
-                }
-              }
-            ]
-          },
-          {
-            "name": "staticAADSection",
-            "type": "Microsoft.Common.Section",
-            "label": "Static AAD Endpoint (Enterprise)",
-            "elements": [
-              {
-                "name": "enableStaticAADValidation",
-                "type": "Microsoft.Common.CheckBox",
-                "label": "Enable static AAD endpoint (/static/aad)",
-                "defaultValue": false,
-                "toolTip": "Enables certificate enrollment via a static challenge password for devices and users validated against Entra ID, e.g. for Kandji or Google Workspace."
-              },
-              {
-                "name": "staticAADValidationRequestPassword",
-                "type": "Microsoft.Common.PasswordBox",
-                "label": {
-                  "password": "Challenge password",
-                  "confirmPassword": "Confirm challenge password"
-                },
-                "toolTip": "Challenge password that you configure in the SCEP profile of your MDM solution.",
-                "visible": "[steps('scepmanSettings').staticAADSection.enableStaticAADValidation]",
-                "constraints": {
-                  "required": true,
-                  "regex": "^\\S{12,128}$",
-                  "validationMessage": "Must be 12-128 characters without whitespace."
-                },
-                "options": {
-                  "hideConfirmation": false
-                }
-              }
-            ]
-          },
-          {
-            "name": "dcSection",
-            "type": "Microsoft.Common.Section",
-            "label": "Domain Controller Endpoint (Enterprise)",
-            "elements": [
-              {
-                "name": "enableDCValidation",
-                "type": "Microsoft.Common.CheckBox",
-                "label": "Enable Domain Controller endpoint (/dc)",
-                "defaultValue": false,
-                "toolTip": "Enables certificate enrollment for Domain Controllers using the SCEPman ScepClient."
-              },
-              {
-                "name": "dcValidationRequestPassword",
-                "type": "Microsoft.Common.PasswordBox",
-                "label": {
-                  "password": "Challenge password",
-                  "confirmPassword": "Confirm challenge password"
-                },
-                "toolTip": "Challenge password that the ScepClient on your Domain Controllers uses.",
-                "visible": "[steps('scepmanSettings').dcSection.enableDCValidation]",
-                "constraints": {
-                  "required": true,
-                  "regex": "^\\S{12,128}$",
-                  "validationMessage": "Must be 12-128 characters without whitespace."
-                },
-                "options": {
-                  "hideConfirmation": false
-                }
-              }
-            ]
-          },
-          {
-            "name": "jamfSection",
-            "type": "Microsoft.Common.Section",
-            "label": "Jamf Endpoint",
-            "elements": [
-              {
-                "name": "enableJamfValidation",
-                "type": "Microsoft.Common.CheckBox",
-                "label": "Enable Jamf endpoint (/jamf)",
-                "defaultValue": false,
-                "toolTip": "Enables certificate enrollment for devices and users managed by Jamf Pro."
-              },
-              {
-                "name": "jamfUrl",
-                "type": "Microsoft.Common.TextBox",
-                "label": "Jamf Pro URL",
-                "placeholder": "https://example.jamfcloud.com/",
-                "toolTip": "URL of your Jamf Pro instance.",
-                "visible": "[steps('scepmanSettings').jamfSection.enableJamfValidation]",
-                "constraints": {
-                  "required": true,
-                  "validations": [
-                    {
-                      "regex": "^https://[^\\s/]{1,253}/?$",
-                      "message": "Must be an https URL of your Jamf Pro instance, e.g. https://example.jamfcloud.com/."
-                    }
-                  ]
-                }
-              },
-              {
-                "name": "jamfClientId",
-                "type": "Microsoft.Common.TextBox",
-                "label": "Jamf API Client ID",
-                "toolTip": "Client ID of a Jamf Pro API client with read access to computers, mobile devices, and users.",
-                "visible": "[steps('scepmanSettings').jamfSection.enableJamfValidation]",
-                "constraints": {
-                  "required": true,
-                  "validations": [
-                    {
-                      "regex": "^\\S{1,128}$",
-                      "message": "Must be 1-128 characters without whitespace."
-                    }
-                  ]
-                }
-              },
-              {
-                "name": "jamfClientSecret",
-                "type": "Microsoft.Common.PasswordBox",
-                "label": {
-                  "password": "Jamf API Client Secret",
-                  "confirmPassword": "Confirm Jamf API Client Secret"
-                },
-                "toolTip": "Client secret of the Jamf Pro API client.",
-                "visible": "[steps('scepmanSettings').jamfSection.enableJamfValidation]",
-                "constraints": {
-                  "required": true,
-                  "regex": "^\\S{12,}$",
-                  "validationMessage": "Must be at least 12 characters without whitespace."
-                },
-                "options": {
-                  "hideConfirmation": false
-                }
-              },
-              {
-                "name": "jamfValidationRequestPassword",
-                "type": "Microsoft.Common.PasswordBox",
-                "label": {
-                  "password": "Challenge password",
-                  "confirmPassword": "Confirm challenge password"
-                },
-                "toolTip": "Challenge password that you configure in the SCEP profile in Jamf Pro.",
-                "visible": "[steps('scepmanSettings').jamfSection.enableJamfValidation]",
-                "constraints": {
-                  "required": true,
-                  "regex": "^\\S{12,32}$",
-                  "validationMessage": "Must be 12-32 characters without whitespace."
-                },
-                "options": {
-                  "hideConfirmation": false
-                }
-              }
-            ]
-          },
-          {
-            "name": "enrollmentApiSection",
-            "type": "Microsoft.Common.Section",
-            "label": "Enrollment REST API (Enterprise)",
-            "elements": [
-              {
-                "name": "enableEnrollmentApi",
-                "type": "Microsoft.Common.CheckBox",
-                "label": "Enable Enrollment REST API",
-                "defaultValue": false,
-                "toolTip": "Enables certificate enrollment via the SCEPman REST API, e.g. for automation, servers, or self-service enrollment."
-              },
-              {
-                "name": "enableEnrollmentApiRenewals",
-                "type": "Microsoft.Common.CheckBox",
-                "label": "Allow renewals via EST",
-                "defaultValue": false,
-                "toolTip": "Allows clients to renew certificates issued via the Enrollment REST API using the EST simplereenroll endpoint.",
-                "visible": "[steps('scepmanSettings').enrollmentApiSection.enableEnrollmentApi]"
-              },
-              {
-                "name": "enrollmentApiInfo",
-                "type": "Microsoft.Common.InfoBox",
-                "visible": "[steps('scepmanSettings').enrollmentApiSection.enableEnrollmentApi]",
-                "options": {
-                  "icon": "Info",
-                  "text": "After running Complete-SCEPmanInstallation, assign the app role CSR.Request.Db (service principals) or CSR.SelfService (users) of the SCEPman-api app registration to the clients that shall use the API.",
-                  "uri": "https://docs.scepman.com/certificate-management/api-certificates"
-                }
-              }
-            ]
           }
         ]
       }
@@ -650,36 +459,24 @@
       "OrgName": "[basics('OrgName')]",
       "license": "[basics('license')]",
       "updateChannel": "[basics('updateChannel')]",
-      "appServicePlanName": "[if(steps('appServiceConfig').useExistingPlan, 'asp-scepman-UNIQUENAME', steps('appServiceConfig').appServicePlanName)]",
+      "appServicePlanName": "[if(steps('appServiceConfig').useExistingPlan, '', coalesce(steps('appServiceConfig').appServicePlanName, ''))]",
       "existingAppServicePlanID": "[if(steps('appServiceConfig').useExistingPlan, steps('appServiceConfig').existingAppServicePlan.id, 'none')]",
       "deployOnLinux": "[if(steps('appServiceConfig').useExistingPlan, true, steps('appServiceConfig').deployOnLinux)]",
-      "primaryAppServiceName": "[steps('appServiceConfig').primaryAppServiceName]",
-      "certificateMasterAppServiceName": "[steps('appServiceConfig').certificateMasterAppServiceName]",
+      "primaryAppServiceName": "[coalesce(steps('appServiceConfig').primaryAppServiceName, '')]",
+      "certificateMasterAppServiceName": "[coalesce(steps('appServiceConfig').certificateMasterAppServiceName, '')]",
       "enableHealthCheck": "[steps('appServiceConfig').enableHealthCheck]",
-      "keyVaultName": "[if(steps('keyVaultConfig').useExistingKeyVault, 'kv-scepman-UNIQUENAME', steps('keyVaultConfig').keyVaultName)]",
+      "keyVaultName": "[if(steps('keyVaultConfig').useExistingKeyVault, '', coalesce(steps('keyVaultConfig').keyVaultName, ''))]",
       "existingKeyVaultID": "[if(steps('keyVaultConfig').useExistingKeyVault, steps('keyVaultConfig').existingKeyVault.id, 'none')]",
       "caKeyType": "[steps('keyVaultConfig').caKeyType]",
-      "storageAccountName": "[if(steps('storageAndMonitoring').useExistingStorage, 'stscepmanuniquename', steps('storageAndMonitoring').storageAccountName)]",
+      "caSubject": "[if(equals(steps('keyVaultConfig').caSubjectMode, 'custom'), steps('keyVaultConfig').caSubject, '')]",
+      "storageAccountName": "[if(steps('storageAndMonitoring').useExistingStorage, '', coalesce(steps('storageAndMonitoring').storageAccountName, ''))]",
       "existingStorageAccountID": "[if(steps('storageAndMonitoring').useExistingStorage, steps('storageAndMonitoring').existingStorageAccount.id, 'none')]",
-      "logAnalyticsWorkspaceName": "[steps('storageAndMonitoring').logAnalyticsWorkspaceName]",
+      "logAnalyticsWorkspaceName": "[coalesce(steps('storageAndMonitoring').logAnalyticsWorkspaceName, '')]",
       "deployPrivateNetwork": "[steps('networkConfig').deployPrivateNetwork]",
-      "virtualNetworkName": "[if(equals(steps('networkConfig').deployPrivateNetwork, true), steps('networkConfig').virtualNetworkName, 'not-used')]",
-      "nsgName": "[if(equals(steps('networkConfig').deployPrivateNetwork, true), steps('networkConfig').nsgName, 'not-used')]",
-      "privateEndpointForKeyVaultName": "[if(and(equals(steps('networkConfig').deployPrivateNetwork, true), not(steps('keyVaultConfig').useExistingKeyVault)), steps('networkConfig').privateEndpointForKeyVaultName, 'not-used')]",
-      "privateEndpointForTableStorage": "[if(and(equals(steps('networkConfig').deployPrivateNetwork, true), not(steps('storageAndMonitoring').useExistingStorage)), steps('networkConfig').privateEndpointForTableStorage, 'not-used')]",
-      "enableStaticValidation": "[steps('scepmanSettings').staticSection.enableStaticValidation]",
-      "staticValidationRequestPassword": "[if(steps('scepmanSettings').staticSection.enableStaticValidation, steps('scepmanSettings').staticSection.staticValidationRequestPassword, '')]",
-      "enableStaticAADValidation": "[steps('scepmanSettings').staticAADSection.enableStaticAADValidation]",
-      "staticAADValidationRequestPassword": "[if(steps('scepmanSettings').staticAADSection.enableStaticAADValidation, steps('scepmanSettings').staticAADSection.staticAADValidationRequestPassword, '')]",
-      "enableDCValidation": "[steps('scepmanSettings').dcSection.enableDCValidation]",
-      "dcValidationRequestPassword": "[if(steps('scepmanSettings').dcSection.enableDCValidation, steps('scepmanSettings').dcSection.dcValidationRequestPassword, '')]",
-      "enableJamfValidation": "[steps('scepmanSettings').jamfSection.enableJamfValidation]",
-      "jamfUrl": "[if(steps('scepmanSettings').jamfSection.enableJamfValidation, steps('scepmanSettings').jamfSection.jamfUrl, '')]",
-      "jamfClientId": "[if(steps('scepmanSettings').jamfSection.enableJamfValidation, steps('scepmanSettings').jamfSection.jamfClientId, '')]",
-      "jamfClientSecret": "[if(steps('scepmanSettings').jamfSection.enableJamfValidation, steps('scepmanSettings').jamfSection.jamfClientSecret, '')]",
-      "jamfValidationRequestPassword": "[if(steps('scepmanSettings').jamfSection.enableJamfValidation, steps('scepmanSettings').jamfSection.jamfValidationRequestPassword, '')]",
-      "enableEnrollmentApi": "[steps('scepmanSettings').enrollmentApiSection.enableEnrollmentApi]",
-      "enableEnrollmentApiRenewals": "[and(steps('scepmanSettings').enrollmentApiSection.enableEnrollmentApi, steps('scepmanSettings').enrollmentApiSection.enableEnrollmentApiRenewals)]"
+      "virtualNetworkName": "[if(equals(steps('networkConfig').deployPrivateNetwork, true), coalesce(steps('networkConfig').virtualNetworkName, ''), '')]",
+      "nsgName": "[if(equals(steps('networkConfig').deployPrivateNetwork, true), coalesce(steps('networkConfig').nsgName, ''), '')]",
+      "privateEndpointForKeyVaultName": "[if(and(equals(steps('networkConfig').deployPrivateNetwork, true), not(steps('keyVaultConfig').useExistingKeyVault)), coalesce(steps('networkConfig').privateEndpointForKeyVaultName, ''), '')]",
+      "privateEndpointForTableStorage": "[if(and(equals(steps('networkConfig').deployPrivateNetwork, true), not(steps('storageAndMonitoring').useExistingStorage)), coalesce(steps('networkConfig').privateEndpointForTableStorage, ''), '')]"
     }
   }
 }

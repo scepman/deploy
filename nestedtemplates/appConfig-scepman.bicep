@@ -23,6 +23,9 @@ param caKeyType string = 'RSA-HSM'
 @description('When generating the SCEPman CA certificate, what length in bits shall the key have? Plausible values for RSA are 2048 or 4096. The size also has an impact on the Azure Key Vault pricing.')
 param caKeySize int = 4096
 
+@description('Subject of the SCEPman CA certificate. Leave empty to use the default subject based on OrgName.')
+param caSubject string = ''
+
 @description('Log Analytics Workspace ID')
 param logAnalyticsWorkspaceId string
 
@@ -41,16 +44,7 @@ param deployOnLinux bool
 @description('Enable health check')
 param enableHealthCheck bool
 
-@description('Additional app settings with colon-style names, e.g. for enabling SCEP endpoints')
-param additionalAppSettings object = {}
-
 import { convertVariableNameToLinux } from './utils.bicep'
-
-var linuxCompatibleAdditionalAppSettings = toObject(
-  items(additionalAppSettings),
-  setting => convertVariableNameToLinux(setting.key, deployOnLinux),
-  setting => setting.value
-)
 
 resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2026-03-01' existing = {
   name: logAnalyticsWorkspaceName
@@ -58,7 +52,7 @@ resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2026-03
 
 resource appServiceName_appsettings 'Microsoft.Web/sites/config@2025-03-01' = {
   name: '${appServiceName}/appsettings'
-  properties: union({
+  properties: {
     WEBSITE_RUN_FROM_PACKAGE: WebsiteArtifactsUri
     '${convertVariableNameToLinux('AppConfig:BaseUrl', deployOnLinux)}': scepManBaseURL
     '${convertVariableNameToLinux('AppConfig:LicenseKey', deployOnLinux)}': license
@@ -78,11 +72,11 @@ resource appServiceName_appsettings 'Microsoft.Web/sites/config@2025-03-01' = {
     '${convertVariableNameToLinux('AppConfig:KeyVaultConfig:RootCertificateConfig:CertificateName', deployOnLinux)}': 'SCEPman-Root-CA-V1'
     '${convertVariableNameToLinux('AppConfig:KeyVaultConfig:RootCertificateConfig:KeyType', deployOnLinux)}': caKeyType
     '${convertVariableNameToLinux('AppConfig:KeyVaultConfig:RootCertificateConfig:KeySize', deployOnLinux)}': caKeySize
-    '${convertVariableNameToLinux('AppConfig:KeyVaultConfig:RootCertificateConfig:Subject', deployOnLinux)}': 'CN=SCEPman-Root-CA-V1, OU=${subscription().tenantId}, O="${OrgName}"'
+    '${convertVariableNameToLinux('AppConfig:KeyVaultConfig:RootCertificateConfig:Subject', deployOnLinux)}': empty(caSubject) ? 'CN=SCEPman-Root-CA-V1, OU=${subscription().tenantId}, O="${OrgName}"' : caSubject
     '${convertVariableNameToLinux('AppConfig:KeyVaultConfig:RootCertificateConfig:CaRsaSignatureAlgorithm', deployOnLinux)}': 'RS384'
     '${convertVariableNameToLinux('AppConfig:OCSP:UseAuthorizedResponder', deployOnLinux)}': 'true'
     '${convertVariableNameToLinux('AppConfig:ValidityClockSkewMinutes', deployOnLinux)}': '1440'
-  }, linuxCompatibleAdditionalAppSettings)
+  }
 }
 
 resource appServiceName_websettings 'Microsoft.Web/sites/config@2025-03-01' = if (enableHealthCheck) {

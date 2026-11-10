@@ -13,10 +13,9 @@ param license string = 'trial'
 ])
 param updateChannel string = 'prod'
 
-@description('Specifies the name of the Azure Key Vault. The name of a Key Vault must be globally unique and contain only DNS-compatible characters (letters, numbers, and hyphens). Ignored if existingKeyVaultID is set.')
-@minLength(3)
+@description('Specifies the name of the Azure Key Vault. The name of a Key Vault must be globally unique and contain only DNS-compatible characters (letters, numbers, and hyphens). Leave empty to generate kv-scepman-<unique string>. Ignored if existingKeyVaultID is set.')
 @maxLength(24)
-param keyVaultName string = 'kv-scepman-UNIQUENAME'
+param keyVaultName string = ''
 
 @description('Provide the Resource ID of an existing Key Vault using the Azure RBAC permission model. Keep default value “none” if you want to create a new one. No private endpoint is created for an existing Key Vault.')
 param existingKeyVaultID string = 'none'
@@ -28,16 +27,19 @@ param existingKeyVaultID string = 'none'
 ])
 param caKeyType string = 'RSA-HSM'
 
-@description('Choose a globally unique name for your storage account. Storage account names must be between 3 and 24 characters in length and may contain numbers and lowercase letters only. Ignored if existingStorageAccountID is set.')
-@minLength(3)
+@description('Subject of the SCEPman root CA certificate. Leave empty to use CN=SCEPman-Root-CA-V1, OU=<tenant ID>, O=“<OrgName>”.')
+param caSubject string = ''
+
+@description('Choose a globally unique name for your storage account. Storage account names must be between 3 and 24 characters in length and may contain numbers and lowercase letters only. Leave empty to generate stscepman<unique string>. Ignored if existingStorageAccountID is set.')
 @maxLength(24)
-param storageAccountName string = 'stscepmanuniquename'
+param storageAccountName string = ''
 
 @description('Provide the Resource ID of an existing Storage Account. Keep default value “none” if you want to create a new one. No private endpoint is created for an existing Storage Account.')
 param existingStorageAccountID string = 'none'
 
+@description('Name of the new App Service Plan. Leave empty to generate asp-scepman-<unique string>. Ignored if existingAppServicePlanID is set.')
 @maxLength(40)
-param appServicePlanName string = 'asp-scepman-UNIQUENAME'
+param appServicePlanName string = ''
 
 @description('Provide the Resource ID of an existing App Service Plan (the long string displayed in the properties tab). Keep default value “none” if you want to create a new one. The plan must be in the same subscription and region as the deployment.')
 param existingAppServicePlanID string = 'none'
@@ -45,92 +47,56 @@ param existingAppServicePlanID string = 'none'
 @description('Use Linux App Service Plan. Ignored if existingAppServicePlanID is set, as the operating system is then taken from the existing plan.')
 param deployOnLinux bool = true
 
-@description('The SCEPman App Service and part of the default FQDN. Therefore, it must be globally unique and contain only DNS-compatible characters.')
+@description('The SCEPman App Service and part of the default FQDN. Therefore, it must be globally unique and contain only DNS-compatible characters. Leave empty to generate app-scepman-<unique string>.')
 @maxLength(60)
-param primaryAppServiceName string = 'app-scepman-UNIQUENAME'
+param primaryAppServiceName string = ''
 
-@description('The Log Analytics Workspace for SCEPman’s logging. Alphanumerics and hyphens are allowed.')
-@minLength(4)
+@description('The Log Analytics Workspace for SCEPman’s logging. Alphanumerics and hyphens are allowed. Leave empty to generate log-scepman-<unique string>.')
 @maxLength(63)
-param logAnalyticsWorkspaceName string = 'log-scepman-UNIQUENAME'
+param logAnalyticsWorkspaceName string = ''
 
-@description('The App Service for the component SCEPman Certificate Master. As it is part of the default FQDN, it must be globally unique and contain only DNS-compatible characters.')
+@description('The App Service for the component SCEPman Certificate Master. As it is part of the default FQDN, it must be globally unique and contain only DNS-compatible characters. Leave empty to generate app-scepman-<unique string>-cm.')
 @maxLength(60)
-param certificateMasterAppServiceName string = 'app-scepman-UNIQUENAME-cm'
+param certificateMasterAppServiceName string = ''
 
 @description('Enable the App Service health check.')
 param enableHealthCheck bool = true
 
-@description('Enable the static SCEP endpoint (/static) for third-party MDM solutions.')
-param enableStaticValidation bool = false
-
-@description('Challenge password for the static SCEP endpoint. It is stored as a Key Vault secret. Leave empty to keep an existing secret.')
-@secure()
-param staticValidationRequestPassword string = ''
-
-@description('Enable the static AAD SCEP endpoint (/static/aad), e.g. for Kandji or Google Workspace. Requires SCEPman Enterprise Edition.')
-param enableStaticAADValidation bool = false
-
-@description('Challenge password for the static AAD SCEP endpoint. It is stored as a Key Vault secret. Leave empty to keep an existing secret.')
-@secure()
-param staticAADValidationRequestPassword string = ''
-
-@description('Enable the Domain Controller SCEP endpoint (/dc). Requires SCEPman Enterprise Edition.')
-param enableDCValidation bool = false
-
-@description('Challenge password for the Domain Controller SCEP endpoint. It is stored as a Key Vault secret. Leave empty to keep an existing secret.')
-@secure()
-param dcValidationRequestPassword string = ''
-
-@description('Enable the Jamf SCEP endpoint (/jamf).')
-param enableJamfValidation bool = false
-
-@description('URL of your Jamf Pro instance, e.g. https://example.jamfcloud.com/. Only applicable if enableJamfValidation is chosen.')
-param jamfUrl string = ''
-
-@description('Client ID of the Jamf Pro API client. Only applicable if enableJamfValidation is chosen.')
-param jamfClientId string = ''
-
-@description('Client secret of the Jamf Pro API client. It is stored as a Key Vault secret. Leave empty to keep an existing secret.')
-@secure()
-param jamfClientSecret string = ''
-
-@description('Challenge password for the Jamf SCEP endpoint (max. 32 characters). It is stored as a Key Vault secret. Leave empty to keep an existing secret.')
-@secure()
-param jamfValidationRequestPassword string = ''
-
-@description('Enable the Enrollment REST API (/api/csr). Requires SCEPman Enterprise Edition and app role assignments on the SCEPman-api app registration.')
-param enableEnrollmentApi bool = false
-
-@description('Allow certificate renewals via EST (simplereenroll) for certificates issued via the Enrollment REST API. Only applicable if enableEnrollmentApi is chosen.')
-param enableEnrollmentApiRenewals bool = false
-
-@description('Choose “true” to deploy SCEPman with a Virtual Network. In this case, you must also provide names for the parameters virtualNetworkName, privateEndpointForTableStorage, and privateEndpointForKeyVaultName.')
+@description('Choose “true” to deploy SCEPman with a Virtual Network and private endpoints.')
 param deployPrivateNetwork bool = true
 
-@description('The name of the Virtual Network. This is only applicable if deployPrivateNetwork is chosen.')
+@description('The name of the Virtual Network. This is only applicable if deployPrivateNetwork is chosen. Leave empty to generate vnet-scepman-<unique string>.')
 @maxLength(80)
-param virtualNetworkName string = 'vnet-scepman-UNIQUENAME'
+param virtualNetworkName string = ''
 
-@description('Name of the Network Security Group applied to the subnets. This is only applicable if deployPrivateNetwork is chosen.')
+@description('Name of the Network Security Group applied to the subnets. This is only applicable if deployPrivateNetwork is chosen. Leave empty to generate nsg-scepman-<unique string>.')
 @maxLength(80)
-param nsgName string = 'nsg-scepman-UNIQUENAME'
+param nsgName string = ''
 
-@description('Name of the Private Endpoint for the Key Vault. This is only applicable if deployPrivateNetwork is chosen.')
-@minLength(4)
+@description('Name of the Private Endpoint for the Key Vault. This is only applicable if deployPrivateNetwork is chosen. Leave empty to generate pep-kv-scepman-<unique string>.')
 @maxLength(64)
-param privateEndpointForKeyVaultName string = 'pep-kv-scepman-UNIQUENAME'
+param privateEndpointForKeyVaultName string = ''
 
-@description('Name of the Private Endpoint for the Azure Table Storage Service. This is only applicable if deployPrivateNetwork is chosen.')
-@minLength(4)
+@description('Name of the Private Endpoint for the Azure Table Storage Service. This is only applicable if deployPrivateNetwork is chosen. Leave empty to generate pep-sts-scepman-<unique string>.')
 @maxLength(64)
-param privateEndpointForTableStorage string = 'pep-sts-scepman-UNIQUENAME'
+param privateEndpointForTableStorage string = ''
 
 @description('Location for all resources. For a manual deployment, we recommend the default value.')
 param location string = resourceGroup().location
 
 @description('Tags to be assigned to all created resources. Use JSON syntax, e.g. if you want to add tags env with value dev and project with value scepman, then write { "env":"dev", "project":"scepman"}.')
 param resourceTags object = {}
+
+// Same naming scheme as the Azure Marketplace offering
+var uniqueNameSuffix = uniqueString(resourceGroup().id)
+var effectiveAppServicePlanName = empty(appServicePlanName) ? 'asp-scepman-${uniqueNameSuffix}' : appServicePlanName
+var effectivePrimaryAppServiceName = empty(primaryAppServiceName) ? 'app-scepman-${uniqueNameSuffix}' : primaryAppServiceName
+var effectiveCertificateMasterAppServiceName = empty(certificateMasterAppServiceName) ? 'app-scepman-${uniqueNameSuffix}-cm' : certificateMasterAppServiceName
+var effectiveLogAnalyticsWorkspaceName = empty(logAnalyticsWorkspaceName) ? 'log-scepman-${uniqueNameSuffix}' : logAnalyticsWorkspaceName
+var effectiveVirtualNetworkName = empty(virtualNetworkName) ? 'vnet-scepman-${uniqueNameSuffix}' : virtualNetworkName
+var effectiveNsgName = empty(nsgName) ? 'nsg-scepman-${uniqueNameSuffix}' : nsgName
+var effectivePrivateEndpointForKeyVaultName = empty(privateEndpointForKeyVaultName) ? 'pep-kv-scepman-${uniqueNameSuffix}' : privateEndpointForKeyVaultName
+var effectivePrivateEndpointForTableStorage = empty(privateEndpointForTableStorage) ? 'pep-sts-scepman-${uniqueNameSuffix}' : privateEndpointForTableStorage
 
 var useExistingAppServicePlan = existingAppServicePlanID != 'none'
 var existingAppServicePlanIdSegments = split(existingAppServicePlanID, '/')
@@ -147,13 +113,13 @@ var effectiveDeployOnLinux = useExistingAppServicePlan ? existingAppServicePlan!
 
 var useExistingKeyVault = existingKeyVaultID != 'none'
 var existingKeyVaultIdSegments = split(existingKeyVaultID, '/')
-var effectiveKeyVaultName = useExistingKeyVault ? last(existingKeyVaultIdSegments) : keyVaultName
+var effectiveKeyVaultName = useExistingKeyVault ? last(existingKeyVaultIdSegments) : (empty(keyVaultName) ? 'kv-scepman-${uniqueNameSuffix}' : keyVaultName)
 var keyVaultSubscriptionId = useExistingKeyVault ? existingKeyVaultIdSegments[2] : subscription().subscriptionId
 var keyVaultResourceGroupName = useExistingKeyVault ? existingKeyVaultIdSegments[4] : resourceGroup().name
 
 var useExistingStorageAccount = existingStorageAccountID != 'none'
 var existingStorageAccountIdSegments = split(existingStorageAccountID, '/')
-var effectiveStorageAccountName = useExistingStorageAccount ? last(existingStorageAccountIdSegments) : storageAccountName
+var effectiveStorageAccountName = useExistingStorageAccount ? last(existingStorageAccountIdSegments) : (empty(storageAccountName) ? 'stscepman${uniqueNameSuffix}' : storageAccountName)
 var storageAccountSubscriptionId = useExistingStorageAccount ? existingStorageAccountIdSegments[2] : subscription().subscriptionId
 var storageAccountResourceGroupName = useExistingStorageAccount ? existingStorageAccountIdSegments[4] : resourceGroup().name
 
@@ -168,37 +134,9 @@ var artifactsPlatformSuffix = effectiveDeployOnLinux ? '-Linux' : ''
 var ArtifactsLocationSCEPman = uri(artifactsRepositoryUrl, 'dist/Artifacts${artifactsPlatformSuffix}${artifactsChannelSuffix[updateChannel]}.zip')
 var ArtifactsLocationCertMaster = uri(artifactsRepositoryUrl, 'dist-certmaster/CertMaster-Artifacts${artifactsPlatformSuffix}${artifactsChannelSuffix[updateChannel]}.zip')
 var appServiceNames = [
-  primaryAppServiceName
-  certificateMasterAppServiceName
+  effectivePrimaryAppServiceName
+  effectiveCertificateMasterAppServiceName
 ]
-
-var scepEndpointAppSettings = union(
-  enableStaticValidation ? { 'AppConfig:StaticValidation:Enabled': 'true' } : {},
-  enableStaticAADValidation ? { 'AppConfig:StaticAADValidation:Enabled': 'true' } : {},
-  enableDCValidation ? { 'AppConfig:DCValidation:Enabled': 'true' } : {},
-  enableJamfValidation
-    ? {
-        'AppConfig:JamfValidation:Enabled': 'true'
-        'AppConfig:JamfValidation:URL': jamfUrl
-        'AppConfig:JamfValidation:ClientID': jamfClientId
-      }
-    : {},
-  enableEnrollmentApi
-    ? {
-        'AppConfig:DbCSRValidation:Enabled': 'true'
-        'AppConfig:DbCSRValidation:AllowRenewals': string(enableEnrollmentApiRenewals)
-      }
-    : {}
-)
-
-// SCEPman reads these from its Key Vault; Key Vault values take precedence over app settings
-var scepEndpointSecrets = {
-  'AppConfig--StaticValidation--RequestPassword': enableStaticValidation ? staticValidationRequestPassword : ''
-  'AppConfig--StaticAADValidation--RequestPassword': enableStaticAADValidation ? staticAADValidationRequestPassword : ''
-  'AppConfig--DCValidation--RequestPassword': enableDCValidation ? dcValidationRequestPassword : ''
-  'AppConfig--JamfValidation--RequestPassword': enableJamfValidation ? jamfValidationRequestPassword : ''
-  'AppConfig--JamfValidation--ClientSecret': enableJamfValidation ? jamfClientSecret : ''
-}
 
 module pid_a262352f_52a9_4ed9_a9ba_6a2b2478d19b_partnercenter './empty.bicep' = {
   name: 'pid-a262352f-52a9-4ed9-a9ba-6a2b2478d19b-partnercenter'
@@ -208,10 +146,10 @@ module pid_a262352f_52a9_4ed9_a9ba_6a2b2478d19b_partnercenter './empty.bicep' = 
 module CreateVirtualNetwork 'nestedtemplates/vnet.bicep' = if (deployPrivateNetwork) {
   name: 'CreateVirtualNetwork'
   params: {
-    virtualNetworkName: virtualNetworkName
+    virtualNetworkName: effectiveVirtualNetworkName
     location: location
     resourceTags: resourceTags
-    networkSecurityGroupName: nsgName
+    networkSecurityGroupName: effectiveNsgName
   }
 }
 
@@ -220,7 +158,7 @@ module AppService_ConnectionToVirtualNetwork 'nestedtemplates/vnet-to-appservice
   for (appServiceName, i) in appServiceNames: if (deployPrivateNetwork) {
     name: 'AppSvc-${take(appServiceName, 42)}-${i}-VnetConn' // App Service names can be up to 60 characters long, but the connection resource name can only be 63 characters long. Therefore, we take only the first 42 characters of the app service name to ensure we do not exceed the limit when appending other strings.
     params: {
-      virtualNetworkName: virtualNetworkName
+      virtualNetworkName: effectiveVirtualNetworkName
       location: location
       appServiceName: appServiceName
     }
@@ -234,11 +172,11 @@ module AppService_ConnectionToVirtualNetwork 'nestedtemplates/vnet-to-appservice
 module SCEPmanAppServices 'nestedtemplates/appSvcDouble.bicep' = {
   name: 'SCEPmanAppServices'
   params: {
-    AppServicePlanName: appServicePlanName
+    AppServicePlanName: effectiveAppServicePlanName
     existingAppServicePlanID: existingAppServicePlanID
     deployOnLinux: effectiveDeployOnLinux
-    appServiceName: primaryAppServiceName
-    appServiceName2: certificateMasterAppServiceName
+    appServiceName: effectivePrimaryAppServiceName
+    appServiceName2: effectiveCertificateMasterAppServiceName
     location: location
     resourceTags: resourceTags
   }
@@ -247,7 +185,7 @@ module SCEPmanAppServices 'nestedtemplates/appSvcDouble.bicep' = {
 module AzureMonitor 'nestedtemplates/loganalytics.bicep' = {
   name: 'AzureMonitor'
   params: {
-    logAnalyticsAccountName: logAnalyticsWorkspaceName
+    logAnalyticsAccountName: effectiveLogAnalyticsWorkspaceName
     location: location
     resourceTags: resourceTags
   }
@@ -260,11 +198,10 @@ module SCEPmanVault 'nestedtemplates/vault.bicep' = {
     keyVaultName: effectiveKeyVaultName
     useExistingKeyVault: useExistingKeyVault
     permittedPrincipalId: SCEPmanAppServices.outputs.scepmanPrincipalID
-    secrets: scepEndpointSecrets
     location: location
     resourceTags: resourceTags
-    virtualNetworkName: virtualNetworkName
-    privateEndpointName: (deployPrivateNetwork && !useExistingKeyVault ? privateEndpointForKeyVaultName : 'None')
+    virtualNetworkName: effectiveVirtualNetworkName
+    privateEndpointName: (deployPrivateNetwork && !useExistingKeyVault ? effectivePrivateEndpointForKeyVaultName : 'None')
   }
   dependsOn: [
     CreateVirtualNetwork
@@ -281,30 +218,30 @@ module DeploymentSCEPmanConfig 'nestedtemplates/appConfig-scepman.bicep' = {
   name: 'DeploymentSCEPmanConfig'
   params: {
     StorageAccountTableUrl: storageAccountTableUrl
-    appServiceName: primaryAppServiceName
+    appServiceName: effectivePrimaryAppServiceName
     deployOnLinux: effectiveDeployOnLinux
     scepManBaseURL: SCEPmanAppServices.outputs.scepmanURL
     keyVaultURL: keyVaultURL
     caKeyType: caKeyType
+    caSubject: caSubject
     logAnalyticsWorkspaceId: AzureMonitor.outputs.workspaceId
-    logAnalyticsWorkspaceName: logAnalyticsWorkspaceName
+    logAnalyticsWorkspaceName: effectiveLogAnalyticsWorkspaceName
     OrgName: OrgName
     WebsiteArtifactsUri: ArtifactsLocationSCEPman
     license: license
     enableHealthCheck: enableHealthCheck
-    additionalAppSettings: scepEndpointAppSettings
   }
 }
 
 module DeploymentCertMasterConfig 'nestedtemplates/appConfig-certmaster.bicep' = {
   name: 'DeploymentCertMasterConfig'
   params: {
-    appServiceName: certificateMasterAppServiceName
+    appServiceName: effectiveCertificateMasterAppServiceName
     deployOnLinux: effectiveDeployOnLinux
     scepmanUrl: SCEPmanAppServices.outputs.scepmanURL
     StorageAccountTableUrl: storageAccountTableUrl
     logAnalyticsWorkspaceId: AzureMonitor.outputs.workspaceId
-    logAnalyticsWorkspaceName: logAnalyticsWorkspaceName
+    logAnalyticsWorkspaceName: effectiveLogAnalyticsWorkspaceName
     WebsiteArtifactsUri: ArtifactsLocationCertMaster
     enableHealthCheck: enableHealthCheck
   }
@@ -322,8 +259,8 @@ module SCEPmanStorageAccount 'nestedtemplates/stgAccount.bicep' = {
       SCEPmanAppServices.outputs.scepmanPrincipalID
       SCEPmanAppServices.outputs.certmasterPrincipalID
     ]
-    virtualNetworkName: virtualNetworkName
-    privateEndpointName: (deployPrivateNetwork && !useExistingStorageAccount ? privateEndpointForTableStorage : 'None')
+    virtualNetworkName: effectiveVirtualNetworkName
+    privateEndpointName: (deployPrivateNetwork && !useExistingStorageAccount ? effectivePrivateEndpointForTableStorage : 'None')
   }
   dependsOn: [
     CreateVirtualNetwork

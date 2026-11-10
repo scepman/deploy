@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.49.2.45890",
-      "templateHash": "4295594821567111326"
+      "templateHash": "16289804178678974191"
     }
   },
   "parameters": {
@@ -37,11 +37,10 @@
     },
     "keyVaultName": {
       "type": "string",
-      "defaultValue": "kv-scepman-UNIQUENAME",
-      "minLength": 3,
+      "defaultValue": "",
       "maxLength": 24,
       "metadata": {
-        "description": "Specifies the name of the Azure Key Vault. The name of a Key Vault must be globally unique and contain only DNS-compatible characters (letters, numbers, and hyphens). Ignored if existingKeyVaultID is set."
+        "description": "Specifies the name of the Azure Key Vault. The name of a Key Vault must be globally unique and contain only DNS-compatible characters (letters, numbers, and hyphens). Leave empty to generate kv-scepman-<unique string>. Ignored if existingKeyVaultID is set."
       }
     },
     "existingKeyVaultID": {
@@ -62,13 +61,19 @@
         "description": "When generating the SCEPman CA certificate, which kind of key pair shall be created? RSA is a software-protected RSA key; RSA-HSM is HSM-protected."
       }
     },
+    "caSubject": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Subject of the SCEPman root CA certificate. Leave empty to use CN=SCEPman-Root-CA-V1, OU=<tenant ID>, O=“<OrgName>”."
+      }
+    },
     "storageAccountName": {
       "type": "string",
-      "defaultValue": "stscepmanuniquename",
-      "minLength": 3,
+      "defaultValue": "",
       "maxLength": 24,
       "metadata": {
-        "description": "Choose a globally unique name for your storage account. Storage account names must be between 3 and 24 characters in length and may contain numbers and lowercase letters only. Ignored if existingStorageAccountID is set."
+        "description": "Choose a globally unique name for your storage account. Storage account names must be between 3 and 24 characters in length and may contain numbers and lowercase letters only. Leave empty to generate stscepman<unique string>. Ignored if existingStorageAccountID is set."
       }
     },
     "existingStorageAccountID": {
@@ -80,8 +85,11 @@
     },
     "appServicePlanName": {
       "type": "string",
-      "defaultValue": "asp-scepman-UNIQUENAME",
-      "maxLength": 40
+      "defaultValue": "",
+      "maxLength": 40,
+      "metadata": {
+        "description": "Name of the new App Service Plan. Leave empty to generate asp-scepman-<unique string>. Ignored if existingAppServicePlanID is set."
+      }
     },
     "existingAppServicePlanID": {
       "type": "string",
@@ -99,27 +107,26 @@
     },
     "primaryAppServiceName": {
       "type": "string",
-      "defaultValue": "app-scepman-UNIQUENAME",
+      "defaultValue": "",
       "maxLength": 60,
       "metadata": {
-        "description": "The SCEPman App Service and part of the default FQDN. Therefore, it must be globally unique and contain only DNS-compatible characters."
+        "description": "The SCEPman App Service and part of the default FQDN. Therefore, it must be globally unique and contain only DNS-compatible characters. Leave empty to generate app-scepman-<unique string>."
       }
     },
     "logAnalyticsWorkspaceName": {
       "type": "string",
-      "defaultValue": "log-scepman-UNIQUENAME",
-      "minLength": 4,
+      "defaultValue": "",
       "maxLength": 63,
       "metadata": {
-        "description": "The Log Analytics Workspace for SCEPman’s logging. Alphanumerics and hyphens are allowed."
+        "description": "The Log Analytics Workspace for SCEPman’s logging. Alphanumerics and hyphens are allowed. Leave empty to generate log-scepman-<unique string>."
       }
     },
     "certificateMasterAppServiceName": {
       "type": "string",
-      "defaultValue": "app-scepman-UNIQUENAME-cm",
+      "defaultValue": "",
       "maxLength": 60,
       "metadata": {
-        "description": "The App Service for the component SCEPman Certificate Master. As it is part of the default FQDN, it must be globally unique and contain only DNS-compatible characters."
+        "description": "The App Service for the component SCEPman Certificate Master. As it is part of the default FQDN, it must be globally unique and contain only DNS-compatible characters. Leave empty to generate app-scepman-<unique string>-cm."
       }
     },
     "enableHealthCheck": {
@@ -129,136 +136,43 @@
         "description": "Enable the App Service health check."
       }
     },
-    "enableStaticValidation": {
-      "type": "bool",
-      "defaultValue": false,
-      "metadata": {
-        "description": "Enable the static SCEP endpoint (/static) for third-party MDM solutions."
-      }
-    },
-    "staticValidationRequestPassword": {
-      "type": "securestring",
-      "defaultValue": "",
-      "metadata": {
-        "description": "Challenge password for the static SCEP endpoint. It is stored as a Key Vault secret. Leave empty to keep an existing secret."
-      }
-    },
-    "enableStaticAADValidation": {
-      "type": "bool",
-      "defaultValue": false,
-      "metadata": {
-        "description": "Enable the static AAD SCEP endpoint (/static/aad), e.g. for Kandji or Google Workspace. Requires SCEPman Enterprise Edition."
-      }
-    },
-    "staticAADValidationRequestPassword": {
-      "type": "securestring",
-      "defaultValue": "",
-      "metadata": {
-        "description": "Challenge password for the static AAD SCEP endpoint. It is stored as a Key Vault secret. Leave empty to keep an existing secret."
-      }
-    },
-    "enableDCValidation": {
-      "type": "bool",
-      "defaultValue": false,
-      "metadata": {
-        "description": "Enable the Domain Controller SCEP endpoint (/dc). Requires SCEPman Enterprise Edition."
-      }
-    },
-    "dcValidationRequestPassword": {
-      "type": "securestring",
-      "defaultValue": "",
-      "metadata": {
-        "description": "Challenge password for the Domain Controller SCEP endpoint. It is stored as a Key Vault secret. Leave empty to keep an existing secret."
-      }
-    },
-    "enableJamfValidation": {
-      "type": "bool",
-      "defaultValue": false,
-      "metadata": {
-        "description": "Enable the Jamf SCEP endpoint (/jamf)."
-      }
-    },
-    "jamfUrl": {
-      "type": "string",
-      "defaultValue": "",
-      "metadata": {
-        "description": "URL of your Jamf Pro instance, e.g. https://example.jamfcloud.com/. Only applicable if enableJamfValidation is chosen."
-      }
-    },
-    "jamfClientId": {
-      "type": "string",
-      "defaultValue": "",
-      "metadata": {
-        "description": "Client ID of the Jamf Pro API client. Only applicable if enableJamfValidation is chosen."
-      }
-    },
-    "jamfClientSecret": {
-      "type": "securestring",
-      "defaultValue": "",
-      "metadata": {
-        "description": "Client secret of the Jamf Pro API client. It is stored as a Key Vault secret. Leave empty to keep an existing secret."
-      }
-    },
-    "jamfValidationRequestPassword": {
-      "type": "securestring",
-      "defaultValue": "",
-      "metadata": {
-        "description": "Challenge password for the Jamf SCEP endpoint (max. 32 characters). It is stored as a Key Vault secret. Leave empty to keep an existing secret."
-      }
-    },
-    "enableEnrollmentApi": {
-      "type": "bool",
-      "defaultValue": false,
-      "metadata": {
-        "description": "Enable the Enrollment REST API (/api/csr). Requires SCEPman Enterprise Edition and app role assignments on the SCEPman-api app registration."
-      }
-    },
-    "enableEnrollmentApiRenewals": {
-      "type": "bool",
-      "defaultValue": false,
-      "metadata": {
-        "description": "Allow certificate renewals via EST (simplereenroll) for certificates issued via the Enrollment REST API. Only applicable if enableEnrollmentApi is chosen."
-      }
-    },
     "deployPrivateNetwork": {
       "type": "bool",
       "defaultValue": true,
       "metadata": {
-        "description": "Choose “true” to deploy SCEPman with a Virtual Network. In this case, you must also provide names for the parameters virtualNetworkName, privateEndpointForTableStorage, and privateEndpointForKeyVaultName."
+        "description": "Choose “true” to deploy SCEPman with a Virtual Network and private endpoints."
       }
     },
     "virtualNetworkName": {
       "type": "string",
-      "defaultValue": "vnet-scepman-UNIQUENAME",
+      "defaultValue": "",
       "maxLength": 80,
       "metadata": {
-        "description": "The name of the Virtual Network. This is only applicable if deployPrivateNetwork is chosen."
+        "description": "The name of the Virtual Network. This is only applicable if deployPrivateNetwork is chosen. Leave empty to generate vnet-scepman-<unique string>."
       }
     },
     "nsgName": {
       "type": "string",
-      "defaultValue": "nsg-scepman-UNIQUENAME",
+      "defaultValue": "",
       "maxLength": 80,
       "metadata": {
-        "description": "Name of the Network Security Group applied to the subnets. This is only applicable if deployPrivateNetwork is chosen."
+        "description": "Name of the Network Security Group applied to the subnets. This is only applicable if deployPrivateNetwork is chosen. Leave empty to generate nsg-scepman-<unique string>."
       }
     },
     "privateEndpointForKeyVaultName": {
       "type": "string",
-      "defaultValue": "pep-kv-scepman-UNIQUENAME",
-      "minLength": 4,
+      "defaultValue": "",
       "maxLength": 64,
       "metadata": {
-        "description": "Name of the Private Endpoint for the Key Vault. This is only applicable if deployPrivateNetwork is chosen."
+        "description": "Name of the Private Endpoint for the Key Vault. This is only applicable if deployPrivateNetwork is chosen. Leave empty to generate pep-kv-scepman-<unique string>."
       }
     },
     "privateEndpointForTableStorage": {
       "type": "string",
-      "defaultValue": "pep-sts-scepman-UNIQUENAME",
-      "minLength": 4,
+      "defaultValue": "",
       "maxLength": 64,
       "metadata": {
-        "description": "Name of the Private Endpoint for the Azure Table Storage Service. This is only applicable if deployPrivateNetwork is chosen."
+        "description": "Name of the Private Endpoint for the Azure Table Storage Service. This is only applicable if deployPrivateNetwork is chosen. Leave empty to generate pep-sts-scepman-<unique string>."
       }
     },
     "location": {
@@ -277,33 +191,34 @@
     }
   },
   "variables": {
+    "uniqueNameSuffix": "[uniqueString(resourceGroup().id)]",
+    "effectiveAppServicePlanName": "[if(empty(parameters('appServicePlanName')), format('asp-scepman-{0}', variables('uniqueNameSuffix')), parameters('appServicePlanName'))]",
+    "effectivePrimaryAppServiceName": "[if(empty(parameters('primaryAppServiceName')), format('app-scepman-{0}', variables('uniqueNameSuffix')), parameters('primaryAppServiceName'))]",
+    "effectiveCertificateMasterAppServiceName": "[if(empty(parameters('certificateMasterAppServiceName')), format('app-scepman-{0}-cm', variables('uniqueNameSuffix')), parameters('certificateMasterAppServiceName'))]",
+    "effectiveLogAnalyticsWorkspaceName": "[if(empty(parameters('logAnalyticsWorkspaceName')), format('log-scepman-{0}', variables('uniqueNameSuffix')), parameters('logAnalyticsWorkspaceName'))]",
+    "effectiveVirtualNetworkName": "[if(empty(parameters('virtualNetworkName')), format('vnet-scepman-{0}', variables('uniqueNameSuffix')), parameters('virtualNetworkName'))]",
+    "effectiveNsgName": "[if(empty(parameters('nsgName')), format('nsg-scepman-{0}', variables('uniqueNameSuffix')), parameters('nsgName'))]",
+    "effectivePrivateEndpointForKeyVaultName": "[if(empty(parameters('privateEndpointForKeyVaultName')), format('pep-kv-scepman-{0}', variables('uniqueNameSuffix')), parameters('privateEndpointForKeyVaultName'))]",
+    "effectivePrivateEndpointForTableStorage": "[if(empty(parameters('privateEndpointForTableStorage')), format('pep-sts-scepman-{0}', variables('uniqueNameSuffix')), parameters('privateEndpointForTableStorage'))]",
     "useExistingAppServicePlan": "[not(equals(parameters('existingAppServicePlanID'), 'none'))]",
     "existingAppServicePlanIdSegments": "[split(parameters('existingAppServicePlanID'), '/')]",
     "appServicePlanSubscriptionId": "[if(variables('useExistingAppServicePlan'), variables('existingAppServicePlanIdSegments')[2], subscription().subscriptionId)]",
     "appServicePlanResourceGroupName": "[if(variables('useExistingAppServicePlan'), variables('existingAppServicePlanIdSegments')[4], resourceGroup().name)]",
     "useExistingKeyVault": "[not(equals(parameters('existingKeyVaultID'), 'none'))]",
     "existingKeyVaultIdSegments": "[split(parameters('existingKeyVaultID'), '/')]",
-    "effectiveKeyVaultName": "[if(variables('useExistingKeyVault'), last(variables('existingKeyVaultIdSegments')), parameters('keyVaultName'))]",
+    "effectiveKeyVaultName": "[if(variables('useExistingKeyVault'), last(variables('existingKeyVaultIdSegments')), if(empty(parameters('keyVaultName')), format('kv-scepman-{0}', variables('uniqueNameSuffix')), parameters('keyVaultName')))]",
     "keyVaultSubscriptionId": "[if(variables('useExistingKeyVault'), variables('existingKeyVaultIdSegments')[2], subscription().subscriptionId)]",
     "keyVaultResourceGroupName": "[if(variables('useExistingKeyVault'), variables('existingKeyVaultIdSegments')[4], resourceGroup().name)]",
     "useExistingStorageAccount": "[not(equals(parameters('existingStorageAccountID'), 'none'))]",
     "existingStorageAccountIdSegments": "[split(parameters('existingStorageAccountID'), '/')]",
-    "effectiveStorageAccountName": "[if(variables('useExistingStorageAccount'), last(variables('existingStorageAccountIdSegments')), parameters('storageAccountName'))]",
+    "effectiveStorageAccountName": "[if(variables('useExistingStorageAccount'), last(variables('existingStorageAccountIdSegments')), if(empty(parameters('storageAccountName')), format('stscepman{0}', variables('uniqueNameSuffix')), parameters('storageAccountName')))]",
     "storageAccountSubscriptionId": "[if(variables('useExistingStorageAccount'), variables('existingStorageAccountIdSegments')[2], subscription().subscriptionId)]",
     "storageAccountResourceGroupName": "[if(variables('useExistingStorageAccount'), variables('existingStorageAccountIdSegments')[4], resourceGroup().name)]",
     "artifactsRepositoryUrl": "https://raw.githubusercontent.com/scepman/install/master/",
     "appServiceNames": [
-      "[parameters('primaryAppServiceName')]",
-      "[parameters('certificateMasterAppServiceName')]"
-    ],
-    "scepEndpointAppSettings": "[union(if(parameters('enableStaticValidation'), createObject('AppConfig:StaticValidation:Enabled', 'true'), createObject()), if(parameters('enableStaticAADValidation'), createObject('AppConfig:StaticAADValidation:Enabled', 'true'), createObject()), if(parameters('enableDCValidation'), createObject('AppConfig:DCValidation:Enabled', 'true'), createObject()), if(parameters('enableJamfValidation'), createObject('AppConfig:JamfValidation:Enabled', 'true', 'AppConfig:JamfValidation:URL', parameters('jamfUrl'), 'AppConfig:JamfValidation:ClientID', parameters('jamfClientId')), createObject()), if(parameters('enableEnrollmentApi'), createObject('AppConfig:DbCSRValidation:Enabled', 'true', 'AppConfig:DbCSRValidation:AllowRenewals', string(parameters('enableEnrollmentApiRenewals'))), createObject()))]",
-    "scepEndpointSecrets": {
-      "AppConfig--StaticValidation--RequestPassword": "[if(parameters('enableStaticValidation'), parameters('staticValidationRequestPassword'), '')]",
-      "AppConfig--StaticAADValidation--RequestPassword": "[if(parameters('enableStaticAADValidation'), parameters('staticAADValidationRequestPassword'), '')]",
-      "AppConfig--DCValidation--RequestPassword": "[if(parameters('enableDCValidation'), parameters('dcValidationRequestPassword'), '')]",
-      "AppConfig--JamfValidation--RequestPassword": "[if(parameters('enableJamfValidation'), parameters('jamfValidationRequestPassword'), '')]",
-      "AppConfig--JamfValidation--ClientSecret": "[if(parameters('enableJamfValidation'), parameters('jamfClientSecret'), '')]"
-    }
+      "[variables('effectivePrimaryAppServiceName')]",
+      "[variables('effectiveCertificateMasterAppServiceName')]"
+    ]
   },
   "resources": [
     {
@@ -342,7 +257,7 @@
         "mode": "Incremental",
         "parameters": {
           "virtualNetworkName": {
-            "value": "[parameters('virtualNetworkName')]"
+            "value": "[variables('effectiveVirtualNetworkName')]"
           },
           "location": {
             "value": "[parameters('location')]"
@@ -351,7 +266,7 @@
             "value": "[parameters('resourceTags')]"
           },
           "networkSecurityGroupName": {
-            "value": "[parameters('nsgName')]"
+            "value": "[variables('effectiveNsgName')]"
           }
         },
         "template": {
@@ -499,7 +414,7 @@
         "mode": "Incremental",
         "parameters": {
           "virtualNetworkName": {
-            "value": "[parameters('virtualNetworkName')]"
+            "value": "[variables('effectiveVirtualNetworkName')]"
           },
           "location": {
             "value": "[parameters('location')]"
@@ -567,17 +482,17 @@
         "mode": "Incremental",
         "parameters": {
           "AppServicePlanName": {
-            "value": "[parameters('appServicePlanName')]"
+            "value": "[variables('effectiveAppServicePlanName')]"
           },
           "existingAppServicePlanID": {
             "value": "[parameters('existingAppServicePlanID')]"
           },
           "deployOnLinux": "[if(variables('useExistingAppServicePlan'), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('appServicePlanSubscriptionId'), variables('appServicePlanResourceGroupName')), 'Microsoft.Web/serverfarms', last(variables('existingAppServicePlanIdSegments'))), '2025-03-01').reserved), createObject('value', parameters('deployOnLinux')))]",
           "appServiceName": {
-            "value": "[parameters('primaryAppServiceName')]"
+            "value": "[variables('effectivePrimaryAppServiceName')]"
           },
           "appServiceName2": {
-            "value": "[parameters('certificateMasterAppServiceName')]"
+            "value": "[variables('effectiveCertificateMasterAppServiceName')]"
           },
           "location": {
             "value": "[parameters('location')]"
@@ -747,7 +662,7 @@
         "mode": "Incremental",
         "parameters": {
           "logAnalyticsAccountName": {
-            "value": "[parameters('logAnalyticsWorkspaceName')]"
+            "value": "[variables('effectiveLogAnalyticsWorkspaceName')]"
           },
           "location": {
             "value": "[parameters('location')]"
@@ -831,9 +746,6 @@
           "permittedPrincipalId": {
             "value": "[reference(resourceId('Microsoft.Resources/deployments', 'SCEPmanAppServices'), '2025-04-01').outputs.scepmanPrincipalID.value]"
           },
-          "secrets": {
-            "value": "[variables('scepEndpointSecrets')]"
-          },
           "location": {
             "value": "[parameters('location')]"
           },
@@ -841,9 +753,9 @@
             "value": "[parameters('resourceTags')]"
           },
           "virtualNetworkName": {
-            "value": "[parameters('virtualNetworkName')]"
+            "value": "[variables('effectiveVirtualNetworkName')]"
           },
-          "privateEndpointName": "[if(and(parameters('deployPrivateNetwork'), not(variables('useExistingKeyVault'))), createObject('value', parameters('privateEndpointForKeyVaultName')), createObject('value', 'None'))]"
+          "privateEndpointName": "[if(and(parameters('deployPrivateNetwork'), not(variables('useExistingKeyVault'))), createObject('value', variables('effectivePrivateEndpointForKeyVaultName')), createObject('value', 'None'))]"
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
@@ -852,7 +764,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.49.2.45890",
-              "templateHash": "8905425188157448842"
+              "templateHash": "4185892495803801222"
             }
           },
           "parameters": {
@@ -875,13 +787,6 @@
               "type": "string",
               "metadata": {
                 "description": "ID of SCEPman app service principal, whom will be assigned permissions to the KV"
-              }
-            },
-            "secrets": {
-              "type": "secureObject",
-              "defaultValue": {},
-              "metadata": {
-                "description": "Secrets to store in the key vault as name-value pairs. Secrets with empty values are skipped."
               }
             },
             "location": {
@@ -955,21 +860,6 @@
               "properties": {
                 "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', variables('rbac_roles')[copyIndex()])]",
                 "principalId": "[parameters('permittedPrincipalId')]"
-              },
-              "dependsOn": [
-                "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
-              ]
-            },
-            {
-              "copy": {
-                "name": "keyVaultSecrets",
-                "count": "[length(filter(items(parameters('secrets')), lambda('secret', not(empty(lambdaVariables('secret').value)))))]"
-              },
-              "type": "Microsoft.KeyVault/vaults/secrets",
-              "apiVersion": "2026-05-15",
-              "name": "[format('{0}/{1}', parameters('keyVaultName'), filter(items(parameters('secrets')), lambda('secret', not(empty(lambdaVariables('secret').value))))[copyIndex()].key)]",
-              "properties": {
-                "value": "[filter(items(parameters('secrets')), lambda('secret', not(empty(lambdaVariables('secret').value))))[copyIndex()].value]"
               },
               "dependsOn": [
                 "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
@@ -1082,7 +972,7 @@
             "value": "[uri(reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('storageAccountSubscriptionId'), variables('storageAccountResourceGroupName')), 'Microsoft.Resources/deployments', 'SCEPmanStorageAccount'), '2025-04-01').outputs.storageAccountTableUrl.value, '/')]"
           },
           "appServiceName": {
-            "value": "[parameters('primaryAppServiceName')]"
+            "value": "[variables('effectivePrimaryAppServiceName')]"
           },
           "deployOnLinux": "[if(variables('useExistingAppServicePlan'), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('appServicePlanSubscriptionId'), variables('appServicePlanResourceGroupName')), 'Microsoft.Web/serverfarms', last(variables('existingAppServicePlanIdSegments'))), '2025-03-01').reserved), createObject('value', parameters('deployOnLinux')))]",
           "scepManBaseURL": {
@@ -1094,11 +984,14 @@
           "caKeyType": {
             "value": "[parameters('caKeyType')]"
           },
+          "caSubject": {
+            "value": "[parameters('caSubject')]"
+          },
           "logAnalyticsWorkspaceId": {
             "value": "[reference(resourceId('Microsoft.Resources/deployments', 'AzureMonitor'), '2025-04-01').outputs.workspaceId.value]"
           },
           "logAnalyticsWorkspaceName": {
-            "value": "[parameters('logAnalyticsWorkspaceName')]"
+            "value": "[variables('effectiveLogAnalyticsWorkspaceName')]"
           },
           "OrgName": {
             "value": "[parameters('OrgName')]"
@@ -1111,9 +1004,6 @@
           },
           "enableHealthCheck": {
             "value": "[parameters('enableHealthCheck')]"
-          },
-          "additionalAppSettings": {
-            "value": "[variables('scepEndpointAppSettings')]"
           }
         },
         "template": {
@@ -1124,7 +1014,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.49.2.45890",
-              "templateHash": "2407430987837945802"
+              "templateHash": "12452133378020568837"
             }
           },
           "functions": [
@@ -1204,6 +1094,13 @@
                 "description": "When generating the SCEPman CA certificate, what length in bits shall the key have? Plausible values for RSA are 2048 or 4096. The size also has an impact on the Azure Key Vault pricing."
               }
             },
+            "caSubject": {
+              "type": "string",
+              "defaultValue": "",
+              "metadata": {
+                "description": "Subject of the SCEPman CA certificate. Leave empty to use the default subject based on OrgName."
+              }
+            },
             "logAnalyticsWorkspaceId": {
               "type": "string",
               "metadata": {
@@ -1240,17 +1137,7 @@
               "metadata": {
                 "description": "Enable health check"
               }
-            },
-            "additionalAppSettings": {
-              "type": "object",
-              "defaultValue": {},
-              "metadata": {
-                "description": "Additional app settings with colon-style names, e.g. for enabling SCEP endpoints"
-              }
             }
-          },
-          "variables": {
-            "linuxCompatibleAdditionalAppSettings": "[toObject(items(parameters('additionalAppSettings')), lambda('setting', __bicep.convertVariableNameToLinux(lambdaVariables('setting').key, parameters('deployOnLinux'))), lambda('setting', lambdaVariables('setting').value))]"
           },
           "resources": {
             "logAnalyticsWorkspace": {
@@ -1263,7 +1150,31 @@
               "type": "Microsoft.Web/sites/config",
               "apiVersion": "2025-03-01",
               "name": "[format('{0}/appsettings', parameters('appServiceName'))]",
-              "properties": "[union(createObject('WEBSITE_RUN_FROM_PACKAGE', parameters('WebsiteArtifactsUri'), format('{0}', __bicep.convertVariableNameToLinux('AppConfig:BaseUrl', parameters('deployOnLinux'))), parameters('scepManBaseURL'), format('{0}', __bicep.convertVariableNameToLinux('AppConfig:LicenseKey', parameters('deployOnLinux'))), parameters('license'), format('{0}', __bicep.convertVariableNameToLinux('AppConfig:AuthConfig:TenantId', parameters('deployOnLinux'))), subscription().tenantId, format('{0}', __bicep.convertVariableNameToLinux('AppConfig:UseRequestedKeyUsages', parameters('deployOnLinux'))), 'true', format('{0}', __bicep.convertVariableNameToLinux('AppConfig:ValidityPeriodDays', parameters('deployOnLinux'))), '730', format('{0}', __bicep.convertVariableNameToLinux('AppConfig:IntuneValidation:ValidityPeriodDays', parameters('deployOnLinux'))), '365', format('{0}', __bicep.convertVariableNameToLinux('AppConfig:DirectCSRValidation:Enabled', parameters('deployOnLinux'))), 'true', format('{0}', __bicep.convertVariableNameToLinux('AppConfig:DbCSRValidation:ReenrollmentAllowedCertificateTypes', parameters('deployOnLinux'))), 'Static', format('{0}', __bicep.convertVariableNameToLinux('AppConfig:IntuneValidation:DeviceDirectory', parameters('deployOnLinux'))), 'AADAndIntune', format('{0}', __bicep.convertVariableNameToLinux('AppConfig:CRL:Source', parameters('deployOnLinux'))), 'Storage', format('{0}', __bicep.convertVariableNameToLinux('AppConfig:EnableCertificateStorage', parameters('deployOnLinux'))), 'true', format('{0}', __bicep.convertVariableNameToLinux('AppConfig:LoggingConfig:WorkspaceId', parameters('deployOnLinux'))), parameters('logAnalyticsWorkspaceId'), format('{0}', __bicep.convertVariableNameToLinux('AppConfig:LoggingConfig:SharedKey', parameters('deployOnLinux'))), listKeys('logAnalyticsWorkspace', '2026-03-01').primarySharedKey, format('{0}', __bicep.convertVariableNameToLinux('AppConfig:KeyVaultConfig:KeyVaultURL', parameters('deployOnLinux'))), parameters('keyVaultURL'), format('{0}', __bicep.convertVariableNameToLinux('AppConfig:CertificateStorage:TableStorageEndpoint', parameters('deployOnLinux'))), parameters('StorageAccountTableUrl'), format('{0}', __bicep.convertVariableNameToLinux('AppConfig:KeyVaultConfig:RootCertificateConfig:CertificateName', parameters('deployOnLinux'))), 'SCEPman-Root-CA-V1', format('{0}', __bicep.convertVariableNameToLinux('AppConfig:KeyVaultConfig:RootCertificateConfig:KeyType', parameters('deployOnLinux'))), parameters('caKeyType'), format('{0}', __bicep.convertVariableNameToLinux('AppConfig:KeyVaultConfig:RootCertificateConfig:KeySize', parameters('deployOnLinux'))), parameters('caKeySize'), format('{0}', __bicep.convertVariableNameToLinux('AppConfig:KeyVaultConfig:RootCertificateConfig:Subject', parameters('deployOnLinux'))), format('CN=SCEPman-Root-CA-V1, OU={0}, O=\"{1}\"', subscription().tenantId, parameters('OrgName')), format('{0}', __bicep.convertVariableNameToLinux('AppConfig:KeyVaultConfig:RootCertificateConfig:CaRsaSignatureAlgorithm', parameters('deployOnLinux'))), 'RS384', format('{0}', __bicep.convertVariableNameToLinux('AppConfig:OCSP:UseAuthorizedResponder', parameters('deployOnLinux'))), 'true', format('{0}', __bicep.convertVariableNameToLinux('AppConfig:ValidityClockSkewMinutes', parameters('deployOnLinux'))), '1440'), variables('linuxCompatibleAdditionalAppSettings'))]"
+              "properties": {
+                "WEBSITE_RUN_FROM_PACKAGE": "[parameters('WebsiteArtifactsUri')]",
+                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:BaseUrl', parameters('deployOnLinux')))]": "[parameters('scepManBaseURL')]",
+                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:LicenseKey', parameters('deployOnLinux')))]": "[parameters('license')]",
+                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:AuthConfig:TenantId', parameters('deployOnLinux')))]": "[subscription().tenantId]",
+                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:UseRequestedKeyUsages', parameters('deployOnLinux')))]": "true",
+                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:ValidityPeriodDays', parameters('deployOnLinux')))]": "730",
+                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:IntuneValidation:ValidityPeriodDays', parameters('deployOnLinux')))]": "365",
+                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:DirectCSRValidation:Enabled', parameters('deployOnLinux')))]": "true",
+                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:DbCSRValidation:ReenrollmentAllowedCertificateTypes', parameters('deployOnLinux')))]": "Static",
+                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:IntuneValidation:DeviceDirectory', parameters('deployOnLinux')))]": "AADAndIntune",
+                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:CRL:Source', parameters('deployOnLinux')))]": "Storage",
+                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:EnableCertificateStorage', parameters('deployOnLinux')))]": "true",
+                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:LoggingConfig:WorkspaceId', parameters('deployOnLinux')))]": "[parameters('logAnalyticsWorkspaceId')]",
+                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:LoggingConfig:SharedKey', parameters('deployOnLinux')))]": "[listKeys('logAnalyticsWorkspace', '2026-03-01').primarySharedKey]",
+                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:KeyVaultConfig:KeyVaultURL', parameters('deployOnLinux')))]": "[parameters('keyVaultURL')]",
+                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:CertificateStorage:TableStorageEndpoint', parameters('deployOnLinux')))]": "[parameters('StorageAccountTableUrl')]",
+                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:KeyVaultConfig:RootCertificateConfig:CertificateName', parameters('deployOnLinux')))]": "SCEPman-Root-CA-V1",
+                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:KeyVaultConfig:RootCertificateConfig:KeyType', parameters('deployOnLinux')))]": "[parameters('caKeyType')]",
+                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:KeyVaultConfig:RootCertificateConfig:KeySize', parameters('deployOnLinux')))]": "[parameters('caKeySize')]",
+                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:KeyVaultConfig:RootCertificateConfig:Subject', parameters('deployOnLinux')))]": "[if(empty(parameters('caSubject')), format('CN=SCEPman-Root-CA-V1, OU={0}, O=\"{1}\"', subscription().tenantId, parameters('OrgName')), parameters('caSubject'))]",
+                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:KeyVaultConfig:RootCertificateConfig:CaRsaSignatureAlgorithm', parameters('deployOnLinux')))]": "RS384",
+                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:OCSP:UseAuthorizedResponder', parameters('deployOnLinux')))]": "true",
+                "[format('{0}', __bicep.convertVariableNameToLinux('AppConfig:ValidityClockSkewMinutes', parameters('deployOnLinux')))]": "1440"
+              }
             },
             "appServiceName_websettings": {
               "condition": "[parameters('enableHealthCheck')]",
@@ -1295,7 +1206,7 @@
         "mode": "Incremental",
         "parameters": {
           "appServiceName": {
-            "value": "[parameters('certificateMasterAppServiceName')]"
+            "value": "[variables('effectiveCertificateMasterAppServiceName')]"
           },
           "deployOnLinux": "[if(variables('useExistingAppServicePlan'), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('appServicePlanSubscriptionId'), variables('appServicePlanResourceGroupName')), 'Microsoft.Web/serverfarms', last(variables('existingAppServicePlanIdSegments'))), '2025-03-01').reserved), createObject('value', parameters('deployOnLinux')))]",
           "scepmanUrl": {
@@ -1308,7 +1219,7 @@
             "value": "[reference(resourceId('Microsoft.Resources/deployments', 'AzureMonitor'), '2025-04-01').outputs.workspaceId.value]"
           },
           "logAnalyticsWorkspaceName": {
-            "value": "[parameters('logAnalyticsWorkspaceName')]"
+            "value": "[variables('effectiveLogAnalyticsWorkspaceName')]"
           },
           "WebsiteArtifactsUri": {
             "value": "[uri(variables('artifactsRepositoryUrl'), format('dist-certmaster/CertMaster-Artifacts{0}{1}.zip', if(if(variables('useExistingAppServicePlan'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('appServicePlanSubscriptionId'), variables('appServicePlanResourceGroupName')), 'Microsoft.Web/serverfarms', last(variables('existingAppServicePlanIdSegments'))), '2025-03-01').reserved, parameters('deployOnLinux')), '-Linux', ''), createObject('prod', '', 'beta', '-Beta', 'internal', if(if(variables('useExistingAppServicePlan'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('appServicePlanSubscriptionId'), variables('appServicePlanResourceGroupName')), 'Microsoft.Web/serverfarms', last(variables('existingAppServicePlanIdSegments'))), '2025-03-01').reserved, parameters('deployOnLinux')), '-Internal', '-Intern'))[parameters('updateChannel')]))]"
@@ -1475,9 +1386,9 @@
             ]
           },
           "virtualNetworkName": {
-            "value": "[parameters('virtualNetworkName')]"
+            "value": "[variables('effectiveVirtualNetworkName')]"
           },
-          "privateEndpointName": "[if(and(parameters('deployPrivateNetwork'), not(variables('useExistingStorageAccount'))), createObject('value', parameters('privateEndpointForTableStorage')), createObject('value', 'None'))]"
+          "privateEndpointName": "[if(and(parameters('deployPrivateNetwork'), not(variables('useExistingStorageAccount'))), createObject('value', variables('effectivePrivateEndpointForTableStorage')), createObject('value', 'None'))]"
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",

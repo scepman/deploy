@@ -9,10 +9,6 @@ param useExistingKeyVault bool = false
 @description('ID of SCEPman app service principal, whom will be assigned permissions to the KV')
 param permittedPrincipalId string
 
-@description('Secrets to store in the key vault as name-value pairs. Secrets with empty values are skipped.')
-@secure()
-param secrets object = {}
-
 @description('Region in which to create the key vault.')
 param location string
 
@@ -66,19 +62,6 @@ resource roleAssignment_kv_rbac_roles 'Microsoft.Authorization/roleAssignments@2
     properties: {
       roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', item)
       principalId: permittedPrincipalId
-    }
-    dependsOn: [
-      newKeyVault
-    ]
-  }
-]
-
-resource keyVaultSecrets 'Microsoft.KeyVault/vaults/secrets@2026-05-15' = [
-  for secret in filter(items(secrets), secret => !empty(secret.value)): {
-    parent: keyVault
-    name: secret.key
-    properties: {
-      value: secret.value
     }
     dependsOn: [
       newKeyVault
