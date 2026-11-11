@@ -119,7 +119,7 @@
             "type": "Microsoft.Common.DropDown",
             "label": "Pricing Tier",
             "defaultValue": "S1",
-            "toolTip": "Pricing tier of the new App Service Plan. You can scale the plan up or down after deployment.",
+            "toolTip": "Pricing tier of the new App Service Plan. The tier has a significant impact on cost and performance; see [App Service Sizing](https://docs.scepman.com/azure-configuration/azure-sizing) for recommendations. You can scale the plan up or down after deployment.",
             "visible": "[and(not(steps('appServiceConfig').useExistingPlan), not(steps('appServiceConfig').deployOnLinux))]",
             "constraints": {
               "allowedValues": [
@@ -137,7 +137,7 @@
             "type": "Microsoft.Common.DropDown",
             "label": "Pricing Tier",
             "defaultValue": "P0V3",
-            "toolTip": "Pricing tier of the new App Service Plan. You can scale the plan up or down after deployment.",
+            "toolTip": "Pricing tier of the new App Service Plan. The tier has a significant impact on cost and performance; see [App Service Sizing](https://docs.scepman.com/azure-configuration/azure-sizing) for recommendations. You can scale the plan up or down after deployment.",
             "visible": "[and(not(steps('appServiceConfig').useExistingPlan), steps('appServiceConfig').deployOnLinux)]",
             "constraints": {
               "allowedValues": [
