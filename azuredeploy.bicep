@@ -47,6 +47,9 @@ param existingAppServicePlanID string = 'none'
 @description('Use Linux App Service Plan. Ignored if existingAppServicePlanID is set, as the operating system is then taken from the existing plan.')
 param deployOnLinux bool = true
 
+@description('SKU of the new App Service Plan, e.g. S1 or P0V3. Leave empty to use S1 for Windows and P0V3 for Linux. Ignored if existingAppServicePlanID is set.')
+param appServicePlanSku string = ''
+
 @description('The SCEPman App Service and part of the default FQDN. Therefore, it must be globally unique and contain only DNS-compatible characters. Leave empty to generate app-scepman-<unique string>.')
 @maxLength(60)
 param primaryAppServiceName string = ''
@@ -173,6 +176,7 @@ module SCEPmanAppServices 'nestedtemplates/appSvcDouble.bicep' = {
   name: 'SCEPmanAppServices'
   params: {
     AppServicePlanName: effectiveAppServicePlanName
+    appServicePlanSku: appServicePlanSku
     existingAppServicePlanID: existingAppServicePlanID
     deployOnLinux: effectiveDeployOnLinux
     appServiceName: effectivePrimaryAppServiceName

@@ -115,6 +115,41 @@
             }
           },
           {
+            "name": "appServicePlanSkuWindows",
+            "type": "Microsoft.Common.DropDown",
+            "label": "Pricing Tier",
+            "defaultValue": "S1",
+            "toolTip": "Pricing tier of the new App Service Plan. You can scale the plan up or down after deployment.",
+            "visible": "[and(not(steps('appServiceConfig').useExistingPlan), not(steps('appServiceConfig').deployOnLinux))]",
+            "constraints": {
+              "allowedValues": [
+                { "label": "S1", "description": "Standard, 1 vCPU, 1.75 GB", "value": "S1" },
+                { "label": "P0V3", "description": "Premium v3, 1 vCPU, 4 GB", "value": "P0V3" },
+                { "label": "P1V3", "description": "Premium v3, 2 vCPU, 8 GB", "value": "P1V3" },
+                { "label": "P0V4", "description": "Premium v4, 1 vCPU, 4 GB", "value": "P0V4" },
+                { "label": "P1V4", "description": "Premium v4, 2 vCPU, 8 GB", "value": "P1V4" }
+              ],
+              "required": true
+            }
+          },
+          {
+            "name": "appServicePlanSkuLinux",
+            "type": "Microsoft.Common.DropDown",
+            "label": "Pricing Tier",
+            "defaultValue": "P0V3",
+            "toolTip": "Pricing tier of the new App Service Plan. You can scale the plan up or down after deployment.",
+            "visible": "[and(not(steps('appServiceConfig').useExistingPlan), steps('appServiceConfig').deployOnLinux)]",
+            "constraints": {
+              "allowedValues": [
+                { "label": "P0V3", "description": "Premium v3, 1 vCPU, 4 GB", "value": "P0V3" },
+                { "label": "P1V3", "description": "Premium v3, 2 vCPU, 8 GB", "value": "P1V3" },
+                { "label": "P0V4", "description": "Premium v4, 1 vCPU, 4 GB", "value": "P0V4" },
+                { "label": "P1V4", "description": "Premium v4, 2 vCPU, 8 GB", "value": "P1V4" }
+              ],
+              "required": true
+            }
+          },
+          {
             "name": "existingAppServicePlan",
             "type": "Microsoft.Solutions.ResourceSelector",
             "label": "Existing App Service Plan",
@@ -462,6 +497,7 @@
       "appServicePlanName": "[if(steps('appServiceConfig').useExistingPlan, '', coalesce(steps('appServiceConfig').appServicePlanName, ''))]",
       "existingAppServicePlanID": "[if(steps('appServiceConfig').useExistingPlan, steps('appServiceConfig').existingAppServicePlan.id, 'none')]",
       "deployOnLinux": "[if(steps('appServiceConfig').useExistingPlan, true, steps('appServiceConfig').deployOnLinux)]",
+      "appServicePlanSku": "[if(steps('appServiceConfig').useExistingPlan, '', if(steps('appServiceConfig').deployOnLinux, steps('appServiceConfig').appServicePlanSkuLinux, steps('appServiceConfig').appServicePlanSkuWindows))]",
       "primaryAppServiceName": "[coalesce(steps('appServiceConfig').primaryAppServiceName, '')]",
       "certificateMasterAppServiceName": "[coalesce(steps('appServiceConfig').certificateMasterAppServiceName, '')]",
       "enableHealthCheck": "[steps('appServiceConfig').enableHealthCheck]",

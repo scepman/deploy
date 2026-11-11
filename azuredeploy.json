@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.49.2.45890",
-      "templateHash": "16289804178678974191"
+      "templateHash": "14493109628754634529"
     }
   },
   "parameters": {
@@ -103,6 +103,13 @@
       "defaultValue": true,
       "metadata": {
         "description": "Use Linux App Service Plan. Ignored if existingAppServicePlanID is set, as the operating system is then taken from the existing plan."
+      }
+    },
+    "appServicePlanSku": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "SKU of the new App Service Plan, e.g. S1 or P0V3. Leave empty to use S1 for Windows and P0V3 for Linux. Ignored if existingAppServicePlanID is set."
       }
     },
     "primaryAppServiceName": {
@@ -484,6 +491,9 @@
           "AppServicePlanName": {
             "value": "[variables('effectiveAppServicePlanName')]"
           },
+          "appServicePlanSku": {
+            "value": "[parameters('appServicePlanSku')]"
+          },
           "existingAppServicePlanID": {
             "value": "[parameters('existingAppServicePlanID')]"
           },
@@ -508,7 +518,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.49.2.45890",
-              "templateHash": "13353941888693114248"
+              "templateHash": "12566197982812081017"
             }
           },
           "parameters": {
@@ -543,6 +553,13 @@
                 "description": "Use Linux App Service Plan"
               }
             },
+            "appServicePlanSku": {
+              "type": "string",
+              "defaultValue": "",
+              "metadata": {
+                "description": "SKU of the App Service Plan to be created. Leave empty to use S1 for Windows and P0V3 for Linux."
+              }
+            },
             "location": {
               "type": "string",
               "metadata": {
@@ -564,8 +581,7 @@
               "name": "[parameters('AppServicePlanName')]",
               "location": "[parameters('location')]",
               "sku": {
-                "tier": "Standard",
-                "name": "[if(parameters('deployOnLinux'), 'P0V3', 'S1')]"
+                "name": "[if(empty(parameters('appServicePlanSku')), if(parameters('deployOnLinux'), 'P0V3', 'S1'), parameters('appServicePlanSku'))]"
               },
               "kind": "[if(parameters('deployOnLinux'), 'linux', 'app')]",
               "tags": "[parameters('resourceTags')]",
