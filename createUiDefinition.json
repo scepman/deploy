@@ -152,7 +152,7 @@
           {
             "name": "appServicePlanSkuInfo",
             "type": "Microsoft.Common.InfoBox",
-            "visible": "[and(not(steps('appServiceConfig').useExistingPlan), if(steps('appServiceConfig').deployOnLinux, not(equals(steps('appServiceConfig').appServicePlanSkuLinux, 'P0V3')), not(equals(steps('appServiceConfig').appServicePlanSkuWindows, 'S1'))))]",
+            "visible": "[and(not(steps('appServiceConfig').useExistingPlan), startsWith(if(steps('appServiceConfig').deployOnLinux, steps('appServiceConfig').appServicePlanSkuLinux, steps('appServiceConfig').appServicePlanSkuWindows), 'P1V'))]",
             "options": {
               "icon": "Info",
               "text": "The pricing tier has a significant impact on cost and performance. Click here for the SCEPman App Service sizing recommendations.",
