@@ -240,6 +240,15 @@
             }
           },
           {
+            "name": "existingKeyVaultInfo",
+            "type": "Microsoft.Common.InfoBox",
+            "visible": "[steps('keyVaultConfig').useExistingKeyVault]",
+            "options": {
+              "icon": "Warning",
+              "text": "The Key Vault must use the Azure RBAC permission model. The SCEPman managed identity is assigned the roles Key Vault Crypto Officer, Key Vault Certificates Officer, and Key Vault Secrets User on it, so you need permissions to assign roles on the Key Vault. When using an existing Key Vault, SCEPman is deployed without a private network, so make sure SCEPman can reach the Key Vault. The key type RSA-HSM requires the Premium tier."
+            }
+          },
+          {
             "name": "keyVaultName",
             "type": "Microsoft.Common.TextBox",
             "label": "New Key Vault Name",
@@ -268,15 +277,6 @@
                 "subscription": "onBasics",
                 "location": "all"
               }
-            }
-          },
-          {
-            "name": "existingKeyVaultInfo",
-            "type": "Microsoft.Common.InfoBox",
-            "visible": "[steps('keyVaultConfig').useExistingKeyVault]",
-            "options": {
-              "icon": "Warning",
-              "text": "The Key Vault must use the Azure RBAC permission model. The SCEPman managed identity is assigned the roles Key Vault Crypto Officer, Key Vault Certificates Officer, and Key Vault Secrets User on it, so you need permissions to assign roles on the Key Vault. No private endpoint is created for an existing Key Vault, so make sure SCEPman can reach it. The key type RSA-HSM requires the Premium tier."
             }
           },
           {
@@ -353,6 +353,15 @@
             }
           },
           {
+            "name": "existingStorageInfo",
+            "type": "Microsoft.Common.InfoBox",
+            "visible": "[steps('storageAndMonitoring').useExistingStorage]",
+            "options": {
+              "icon": "Warning",
+              "text": "The Storage Account must support Table storage, i.e. a Standard general-purpose v2 account (Premium accounts are not supported). The managed identities of SCEPman and Certificate Master are assigned the role Storage Table Data Contributor on the Storage Account, so you need permissions to assign roles on it. When using an existing Storage Account, SCEPman is deployed without a private network, so make sure SCEPman and Certificate Master can reach its table service."
+            }
+          },
+          {
             "name": "storageAccountName",
             "type": "Microsoft.Common.TextBox",
             "label": "New Storage Account Name",
@@ -384,15 +393,6 @@
             }
           },
           {
-            "name": "existingStorageInfo",
-            "type": "Microsoft.Common.InfoBox",
-            "visible": "[steps('storageAndMonitoring').useExistingStorage]",
-            "options": {
-              "icon": "Warning",
-              "text": "The Storage Account must support Table storage, i.e. a Standard general-purpose v2 account (Premium accounts are not supported). The managed identities of SCEPman and Certificate Master are assigned the role Storage Table Data Contributor on the Storage Account, so you need permissions to assign roles on it. No private endpoint is created for an existing Storage Account, so make sure SCEPman and Certificate Master can reach its table service."
-            }
-          },
-          {
             "name": "logAnalyticsWorkspaceName",
             "type": "Microsoft.Common.TextBox",
             "label": "Log Analytics Workspace Name",
@@ -415,11 +415,21 @@
         "label": "Network Configuration",
         "elements": [
           {
+            "name": "privateNetworkNotSupportedInfo",
+            "type": "Microsoft.Common.InfoBox",
+            "visible": "[or(steps('keyVaultConfig').useExistingKeyVault, steps('storageAndMonitoring').useExistingStorage)]",
+            "options": {
+              "icon": "Info",
+              "text": "A private network is not supported when using an existing Key Vault or an existing Storage Account. SCEPman is deployed without a private network. To deploy with a private network, create a new Key Vault and a new Storage Account."
+            }
+          },
+          {
             "name": "deployPrivateNetwork",
             "type": "Microsoft.Common.DropDown",
             "label": "Deploy with Private Network",
             "defaultValue": "Yes",
-            "toolTip": "Deploy SCEPman with a Virtual Network. Private Endpoints are only created for a new Key Vault and a new Storage Account.",
+            "toolTip": "Deploy SCEPman with a Virtual Network and Private Endpoints for the Key Vault and the Storage Account.",
+            "visible": "[not(or(steps('keyVaultConfig').useExistingKeyVault, steps('storageAndMonitoring').useExistingStorage))]",
             "constraints": {
               "allowedValues": [
                 { "label": "Yes", "value": true },
@@ -429,12 +439,21 @@
             }
           },
           {
+            "name": "existingPlanNetworkInfo",
+            "type": "Microsoft.Common.InfoBox",
+            "visible": "[and(steps('appServiceConfig').useExistingPlan, not(or(steps('keyVaultConfig').useExistingKeyVault, steps('storageAndMonitoring').useExistingStorage)), equals(steps('networkConfig').deployPrivateNetwork, true))]",
+            "options": {
+              "icon": "Warning",
+              "text": "The existing App Service Plan must support virtual network integration (Basic tier or higher). An App Service Plan can be integrated with at most two virtual networks, so the deployment fails if the plan already has two virtual network integrations."
+            }
+          },
+          {
             "name": "virtualNetworkName",
             "type": "Microsoft.Common.TextBox",
             "label": "Virtual Network Name",
             "toolTip": "Name of the Virtual Network that the App Services are connected to. If left empty, a name with a unique string derived from the resource group is generated.",
             "placeholder": "Leave empty for vnet-scepman-<unique string>",
-            "visible": "[equals(steps('networkConfig').deployPrivateNetwork, true)]",
+            "visible": "[and(not(or(steps('keyVaultConfig').useExistingKeyVault, steps('storageAndMonitoring').useExistingStorage)), equals(steps('networkConfig').deployPrivateNetwork, true))]",
             "constraints": {
               "required": false,
               "validations": [
@@ -451,7 +470,7 @@
             "label": "Network Security Group Name",
             "toolTip": "Name of the Network Security Group applied to the subnets. If left empty, a name with a unique string derived from the resource group is generated.",
             "placeholder": "Leave empty for nsg-scepman-<unique string>",
-            "visible": "[equals(steps('networkConfig').deployPrivateNetwork, true)]",
+            "visible": "[and(not(or(steps('keyVaultConfig').useExistingKeyVault, steps('storageAndMonitoring').useExistingStorage)), equals(steps('networkConfig').deployPrivateNetwork, true))]",
             "constraints": {
               "required": false,
               "validations": [
@@ -468,7 +487,7 @@
             "label": "Key Vault Private Endpoint Name",
             "toolTip": "Name of the Private Endpoint for the new Key Vault. If left empty, a name with a unique string derived from the resource group is generated.",
             "placeholder": "Leave empty for pep-kv-scepman-<unique string>",
-            "visible": "[and(equals(steps('networkConfig').deployPrivateNetwork, true), not(steps('keyVaultConfig').useExistingKeyVault))]",
+            "visible": "[and(not(or(steps('keyVaultConfig').useExistingKeyVault, steps('storageAndMonitoring').useExistingStorage)), equals(steps('networkConfig').deployPrivateNetwork, true))]",
             "constraints": {
               "required": false,
               "validations": [
@@ -485,7 +504,7 @@
             "label": "Table Storage Private Endpoint Name",
             "toolTip": "Name of the Private Endpoint for the table service of the new Storage Account. If left empty, a name with a unique string derived from the resource group is generated.",
             "placeholder": "Leave empty for pep-sts-scepman-<unique string>",
-            "visible": "[and(equals(steps('networkConfig').deployPrivateNetwork, true), not(steps('storageAndMonitoring').useExistingStorage))]",
+            "visible": "[and(not(or(steps('keyVaultConfig').useExistingKeyVault, steps('storageAndMonitoring').useExistingStorage)), equals(steps('networkConfig').deployPrivateNetwork, true))]",
             "constraints": {
               "required": false,
               "validations": [
@@ -518,11 +537,11 @@
       "storageAccountName": "[if(steps('storageAndMonitoring').useExistingStorage, '', coalesce(steps('storageAndMonitoring').storageAccountName, ''))]",
       "existingStorageAccountID": "[if(steps('storageAndMonitoring').useExistingStorage, steps('storageAndMonitoring').existingStorageAccount.id, 'none')]",
       "logAnalyticsWorkspaceName": "[coalesce(steps('storageAndMonitoring').logAnalyticsWorkspaceName, '')]",
-      "deployPrivateNetwork": "[steps('networkConfig').deployPrivateNetwork]",
-      "virtualNetworkName": "[if(equals(steps('networkConfig').deployPrivateNetwork, true), coalesce(steps('networkConfig').virtualNetworkName, ''), '')]",
-      "nsgName": "[if(equals(steps('networkConfig').deployPrivateNetwork, true), coalesce(steps('networkConfig').nsgName, ''), '')]",
-      "privateEndpointForKeyVaultName": "[if(and(equals(steps('networkConfig').deployPrivateNetwork, true), not(steps('keyVaultConfig').useExistingKeyVault)), coalesce(steps('networkConfig').privateEndpointForKeyVaultName, ''), '')]",
-      "privateEndpointForTableStorage": "[if(and(equals(steps('networkConfig').deployPrivateNetwork, true), not(steps('storageAndMonitoring').useExistingStorage)), coalesce(steps('networkConfig').privateEndpointForTableStorage, ''), '')]"
+      "deployPrivateNetwork": "[and(not(or(steps('keyVaultConfig').useExistingKeyVault, steps('storageAndMonitoring').useExistingStorage)), equals(steps('networkConfig').deployPrivateNetwork, true))]",
+      "virtualNetworkName": "[if(and(not(or(steps('keyVaultConfig').useExistingKeyVault, steps('storageAndMonitoring').useExistingStorage)), equals(steps('networkConfig').deployPrivateNetwork, true)), coalesce(steps('networkConfig').virtualNetworkName, ''), '')]",
+      "nsgName": "[if(and(not(or(steps('keyVaultConfig').useExistingKeyVault, steps('storageAndMonitoring').useExistingStorage)), equals(steps('networkConfig').deployPrivateNetwork, true)), coalesce(steps('networkConfig').nsgName, ''), '')]",
+      "privateEndpointForKeyVaultName": "[if(and(not(or(steps('keyVaultConfig').useExistingKeyVault, steps('storageAndMonitoring').useExistingStorage)), equals(steps('networkConfig').deployPrivateNetwork, true)), coalesce(steps('networkConfig').privateEndpointForKeyVaultName, ''), '')]",
+      "privateEndpointForTableStorage": "[if(and(not(or(steps('keyVaultConfig').useExistingKeyVault, steps('storageAndMonitoring').useExistingStorage)), equals(steps('networkConfig').deployPrivateNetwork, true)), coalesce(steps('networkConfig').privateEndpointForTableStorage, ''), '')]"
     }
   }
 }
