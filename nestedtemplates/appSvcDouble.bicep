@@ -13,6 +13,9 @@ param appServiceName2 string
 @description('Use Linux App Service Plan')
 param deployOnLinux bool
 
+@description('SKU of the App Service Plan to be created. Leave empty to use S1 for Windows and P0V3 for Linux.')
+param appServicePlanSku string = ''
+
 @description('Resource Group')
 param location string
 
@@ -23,8 +26,7 @@ resource AppServicePlan 'Microsoft.Web/serverfarms@2025-03-01' = if (existingApp
   name: AppServicePlanName
   location: location
   sku: {
-    tier: 'Standard'
-    name: deployOnLinux ? 'P0V3' : 'S1'
+    name: empty(appServicePlanSku) ? (deployOnLinux ? 'P0V3' : 'S1') : appServicePlanSku
   }
   kind: deployOnLinux ? 'linux' : 'app'
   tags: resourceTags
